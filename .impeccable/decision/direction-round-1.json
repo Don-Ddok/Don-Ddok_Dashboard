@@ -1,0 +1,161 @@
+{
+  "title": "대시보드의 시각 방향 고르기",
+  "question": "추첨으로 '통계 보도자료' 방향이 배정됐습니다. 그대로 갈지, 다른 카드를 고를지, 다시 뽑을지 정해 주세요.",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "통계 보도자료",
+      "kicker": "THE ROLL",
+      "lineage": "한국은행·관세청·통계청의 월간 통계 보도자료와 통계표",
+      "thesis": "경보판이 아니라, 출처와 각주를 단 월간 보도자료처럼 이번 달 참고 신호를 발표한다.",
+      "palette": ["#f6f7f5", "#1b1e23", "#d5dae1", "#1f5aa6"],
+      "materials": ["괘선 통계표", "전년동월비 증감 표기", "주석과 자료 출처 각주"],
+      "viewport": "보도자료 머리(기준월, 한 줄 요지) 아래 대구·경북 수출 증감표, 이어서 '살펴볼 거래처' 표, 맨 아래 각주(가상 데이터, 약한 증거).",
+      "risk": "표가 많아지면 문서처럼 딱딱하게 읽혀 화면을 조작하는 느낌이 약해질 수 있다.",
+      "raised": [
+        { "from": "challenger-seven-segment", "raise": "신호가 없는 달도 빈칸이 아니라 '해당 없음' 칸으로 분명히 그린다." },
+        { "from": "challenger-emission-rail", "raise": "상태를 색이 아니라 선 모양(실선, 점선, 반 높이)으로 구분해 색 구분이 어려운 사람도 읽는다." },
+        { "from": "challenger-festival-lineup", "raise": "위계는 상자나 카드 없이 글자 크기와 줄 간격만으로 만든다." },
+        { "from": "challenger-kraftwerk", "raise": "거래처 행을 열면 세 가지 조건이 선으로 이어지며 근거가 차례로 드러난다." }
+      ],
+      "wireframe": {
+        "cols": 12,
+        "rows": 10,
+        "regions": [
+          { "label": "보도자료 머리: 기준월과 요지", "x": 0, "y": 0, "w": 12, "h": 2, "accent": true },
+          { "label": "대구·경북 수출 증감표", "x": 0, "y": 2, "w": 7, "h": 3 },
+          { "label": "증감 막대", "x": 7, "y": 2, "w": 5, "h": 3 },
+          { "label": "살펴볼 거래처 표", "x": 0, "y": 5, "w": 12, "h": 4 },
+          { "label": "각주: 주, 자료", "x": 0, "y": 9, "w": 12, "h": 1 }
+        ]
+      }
+    },
+    {
+      "id": "model-pick",
+      "label": "여신 품의서",
+      "kicker": "IMPECCABLE’S PICK",
+      "lineage": "기업금융 담당자가 직접 작성하는 대출 품의서와 심사 서식",
+      "thesis": "거래처 화면을 담당자 손에 익은 품의서 서식으로: 항목별 근거와 검토 의견 칸.",
+      "palette": ["#fafaf8", "#23262b", "#c7ccd3", "#9a2330"],
+      "materials": ["서식 칸과 괘선", "검토 의견란", "인주 빨강 강조 하나"],
+      "viewport": "왼쪽에 거래처 목록, 오른쪽에 선택한 거래처의 품의서형 요약(기본 정보, 계좌 추이, 검토 포인트).",
+      "risk": "실제 결재 권한이 있는 문서처럼 오해될 수 있고, 이 분야에서 가장 흔히 도착하는 '서류' 방향이기도 하다.",
+      "wireframe": {
+        "cols": 12,
+        "rows": 10,
+        "regions": [
+          { "label": "거래처 목록", "x": 0, "y": 0, "w": 4, "h": 10 },
+          { "label": "품의서 머리: 거래처 기본 정보", "x": 4, "y": 0, "w": 8, "h": 2, "accent": true },
+          { "label": "계좌 추이 그래프", "x": 4, "y": 2, "w": 8, "h": 4 },
+          { "label": "검토 포인트", "x": 4, "y": 6, "w": 8, "h": 4 }
+        ]
+      }
+    },
+    {
+      "id": "challenger-seven-segment",
+      "label": "디지털 숫자판",
+      "verdict": "declined",
+      "lineage": "탁상시계, 주유소 가격판, 전광 점수판의 7세그먼트 숫자",
+      "thesis": "모든 숫자를 켜진 칸과 꺼진 칸으로 보여 주는 숫자판.",
+      "palette": ["#141414", "#e0402a", "#2b2b2b"],
+      "materials": ["LED 세그먼트", "꺼진 칸도 보이는 유령 칸"],
+      "viewport": "기준월 수출 증감률이 큰 숫자판으로 걸린 화면.",
+      "case": "은행 담당자가 알아볼 세계가 아니고, 빨간 발광이 경보처럼 읽혀 차분한 톤과 충돌한다.",
+      "risk": "경보판처럼 보인다.",
+      "kept": "없는 것도 설계한다: 신호 없는 달을 분명한 '해당 없음' 칸으로.",
+      "hero": "https://impeccable.style/worlds/cards/signals-instruments-seven-segment-alarm-clock-hero.webp"
+    },
+    {
+      "id": "challenger-emission-rail",
+      "label": "분광선 레일",
+      "verdict": "declined",
+      "lineage": "분광 사진의 가느다란 발광선",
+      "thesis": "모든 요소가 하나의 기준선에 매달리고 상태는 선 모양으로 표시된다.",
+      "palette": ["#2a2c2e", "#e9e4da", "#f2c14e"],
+      "materials": ["숯색 바탕", "머리카락 굵기의 선"],
+      "viewport": "기준선 위에 달별 신호가 가는 선으로 서 있는 화면.",
+      "case": "추상적이라 담당자가 바로 읽기 어렵다.",
+      "risk": "해석이 필요한 화면이 된다.",
+      "kept": "상태는 색이 아니라 선의 모양으로 구분한다.",
+      "hero": "https://impeccable.style/worlds/cards/operate-c-emission-line-rail-hero.webp"
+    },
+    {
+      "id": "challenger-kraftwerk",
+      "label": "신호 배선도",
+      "verdict": "declined",
+      "lineage": "크라프트베르크 앨범의 신호등 색 배선 격자",
+      "thesis": "라벨과 데이터를 전선처럼 잇는 도식.",
+      "palette": ["#111111", "#d8231f", "#f3c623", "#f4f4f0"],
+      "materials": ["격자", "네온 배선"],
+      "viewport": "조건 노드들이 선으로 연결된 도식.",
+      "case": "밴드 정체성이라 금융 맥락과 거리가 멀다.",
+      "risk": "스타일이 내용을 앞선다.",
+      "kept": "활성 항목이 연결선을 밝히며 근거를 이어 보여 준다.",
+      "hero": "https://impeccable.style/worlds/cards/kraftwerk-man-machine-hero.webp"
+    },
+    {
+      "id": "challenger-festival-lineup",
+      "label": "공연 라인업 포스터",
+      "verdict": "declined",
+      "lineage": "이름만으로 위계를 만드는 페스티벌 포스터",
+      "thesis": "글자 크기와 줄바꿈만으로 중요도를 전한다.",
+      "palette": ["#1d3b8f", "#f5efe0"],
+      "materials": ["한 가지 서체", "양끝 맞춤 블록"],
+      "viewport": "살펴볼 거래처가 큰 글자로, 나머지는 작은 블록으로.",
+      "case": "위계는 선명하지만 숫자와 추이를 담기 어렵다.",
+      "risk": "데이터를 담지 못한다.",
+      "kept": "위계는 상자 없이 글자 크기와 간격만으로.",
+      "hero": "https://impeccable.style/worlds/cards/posters-covers-sleeves-festival-lineup-poster-hero.webp"
+    },
+    {
+      "id": "challenger-drawcord-cape",
+      "label": "조임끈 망토",
+      "verdict": "declined",
+      "lineage": "끈 하나로 평면이 입체로 바뀌는 실크 망토",
+      "thesis": "한 번의 당김으로 평면이 형태가 된다.",
+      "palette": ["#101010", "#c9a449", "#5b6470"],
+      "materials": ["검은 실크", "금색 끈"],
+      "viewport": "평평한 요약이 펼쳐져 상세가 되는 화면.",
+      "case": "금융 담당자의 세계와 연결되지 않는다.",
+      "risk": "은유가 과하다.",
+      "kept": "한 번의 조작으로 요약이 근거로 펼쳐지는 전환.",
+      "hero": "https://impeccable.style/worlds/cards/textiles-weave-drape-fashion-drawcord-transforming-cape-hero.webp"
+    },
+    {
+      "id": "challenger-alphabet-storm",
+      "label": "글자 폭풍",
+      "verdict": "declined",
+      "lineage": "글자가 날씨가 되는 초현실 풍경",
+      "thesis": "글자가 물질처럼 움직인다.",
+      "palette": ["#f7f7f5", "#111111", "#a9b0b8"],
+      "materials": ["거대한 산세리프", "입자"],
+      "viewport": "문장이 흩어지며 기상 현상이 되는 화면.",
+      "case": "업무 도구로 쓰기 어렵다.",
+      "risk": "읽기보다 감상이 된다.",
+      "kept": "숫자와 글자 자체를 장식 없이 주인공으로.",
+      "hero": "https://impeccable.style/worlds/cards/dream-surreal-impossible-worlds-alphabet-storm-hero.webp"
+    }
+  ],
+  "reroll": { "registers": ["safer", "bolder"] },
+  "buildPath": { "value": "code", "toggle": false },
+  "canon": true,
+  "canonCard": {
+    "label": "표준 관리자 대시보드",
+    "thesis": "이 분야가 늘 내놓는 형태를 제대로 만든 것.",
+    "palette": ["#ffffff", "#111827", "#2563eb"],
+    "materials": ["왼쪽 메뉴", "숫자 카드 4개", "선 그래프와 표"],
+    "viewport": "왼쪽 메뉴, 위에 숫자 카드 4개, 가운데 선 그래프, 아래 거래처 표.",
+    "risk": "다른 대시보드와 구별되지 않는다.",
+    "wireframe": {
+      "cols": 12,
+      "rows": 10,
+      "regions": [
+        { "label": "메뉴", "x": 0, "y": 0, "w": 2, "h": 10 },
+        { "label": "숫자 카드 4개", "x": 2, "y": 0, "w": 10, "h": 2, "accent": true },
+        { "label": "선 그래프", "x": 2, "y": 2, "w": 10, "h": 4 },
+        { "label": "거래처 표", "x": 2, "y": 6, "w": 10, "h": 4 }
+      ]
+    }
+  },
+  "steer": true
+}
