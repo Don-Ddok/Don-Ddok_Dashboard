@@ -1,0 +1,38 @@
+/* 통계 보도자료 세계: 종이, 먹, 괘선, 보도자료 청색 하나 */
+:root {
+  --paper: #f6f7f5;
+  --paper-shade: #eceff2; /* 표 머리 음영, 선택 행 */
+  --paper-raise: #fbfbfa; /* 펼친 행, 입력칸 */
+  --ink: #1b1e23;
+  --ink-2: #464c55; /* 본문 보조, 대비 약 7.6:1 */
+  --ink-3: #5f6570; /* 각주·캡션, 대비 약 5.4:1 */
+  --rule: #d5dae1;
+  --rule-mid: #aab1bb;
+  --accent: #1f5aa6; /* 보도자료 청색: 현재 위치·주요 조작·선택 상태에만 */
+  --accent-ink: #184a8a;
+  --accent-wash: #e3ebf6;
+
+  --font: 'Pretendard Variable', Pretendard, -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+
+  /* 고정 rem 단계(비율 약 1.2) */
+  --t-xs: 0.75rem;
+  --t-sm: 0.8125rem;
+  --t-base: 0.9375rem;
+  --t-md: 1.125rem;
+  --t-lg: 1.375rem;
+  --t-xl: 1.75rem;
+
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.5rem;
+  --s-6: 2rem;
+  --s-7: 3rem;
+  --s-8: 4rem;
+
+  --rule-thin: 1px;
+  --rule-heavy: 2px;
+  --page-max: 72rem;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
