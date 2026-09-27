@@ -6,6 +6,7 @@ import { INTERNAL } from '../lib/internal'
 const LINKS = [
   { to: '/', label: '월보', end: true },
   { to: '/firms', label: '거래처', end: false },
+  { to: '/timing', label: '계정 시차', end: false },
   { to: '/evidence', label: '근거와 한계', end: false },
   ...(INTERNAL ? [{ to: '/internal', label: '내부 시연(실제 데이터)', end: false }] : []),
 ]
