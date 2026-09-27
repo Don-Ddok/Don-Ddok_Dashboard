@@ -5,7 +5,7 @@ export const BOARD = {
   repo: 'Don-Ddok/Don-Ddok_Dashboard',
   repoId: 'R_kgDOUssi7g',
   category: 'Announcements', // 관리자와 giscus만 새 글타래를 열 수 있는 분류(외부인이 주제를 새로 만들 수 없음)
-  categoryId: '',
+  categoryId: 'DIC_kwDOUssi7s4DGgXK',
   discussionsUrl: 'https://github.com/Don-Ddok/Don-Ddok_Dashboard/discussions',
 } as const
 

@@ -39,7 +39,7 @@ function Giscus({ term }: { term: string }) {
 export function Board() {
   const [topic, setTopic] = useState<TopicKey>('free')
   const current = TOPICS.find((t) => t.key === topic) ?? TOPICS[0]
-  const ready = BOARD.categoryId !== ''
+  const ready = (BOARD.categoryId as string) !== ''
 
   return (
     <>
