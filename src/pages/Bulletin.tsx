@@ -44,9 +44,6 @@ export function Bulletin() {
   const partial = firmsByStatus(FIRMS, index, 'partial')
   const exporters = FIRMS.filter((f) => f.exporter).length
   const judged = index >= FIRST_JUDGED_INDEX
-  const prev = index - 1 >= FIRST_JUDGED_INDEX ? index - 1 : null
-  const metDelta = prev === null ? null : met.length - firmsByStatus(FIRMS, prev, 'met').length
-  const partialDelta = prev === null ? null : partial.length - firmsByStatus(FIRMS, prev, 'partial').length
   const dg = regionYoY('대구', ym)
   const gb = regionYoY('경북', ym)
 
@@ -69,14 +66,7 @@ export function Bulletin() {
   return (
     <>
       <section className="lead" aria-labelledby="lead-title">
-        <p className="kicker">
-          이달의 요지
-          {prev !== null && metDelta !== null && partialDelta !== null && (
-            <span className="kicker-delta">
-              {ymLong(MONTHS[prev])}보다 살펴볼 거래처 <Delta value={metDelta} />, 기준 근접 <Delta value={partialDelta} />
-            </span>
-          )}
-        </p>
+        <p className="kicker">이달의 요지</p>
         <h1 id="lead-title">{headline}</h1>
         <p className="lead-note">
           ※ 
@@ -278,17 +268,6 @@ export function Bulletin() {
         source={EXPORT_SOURCE}
       />
     </>
-  )
-}
-
-/** 지난달 대비 곳 수 변화: +2곳 / −1곳 / 변화 없음 */
-function Delta({ value }: { value: number }) {
-  if (value === 0) return <strong className="delta">변화 없음</strong>
-  return (
-    <strong className={`delta ${value > 0 ? 'more' : 'less'}`}>
-      {value > 0 ? '+' : '\u2212'}
-      {Math.abs(value)}곳
-    </strong>
   )
 }
 

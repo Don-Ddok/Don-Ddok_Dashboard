@@ -39,6 +39,20 @@
   letter-spacing: 0;
 }
 
+.release-kind .release-title {
+  margin-left: var(--s-3);
+  padding: 0 0 0 var(--s-3);
+  border: 0;
+  border-left: var(--rule-thin) solid var(--on-mint);
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .release-kind .release-title {
+    display: none;
+  }
+}
+
 .release-meta {
   display: flex;
   flex-wrap: wrap;
@@ -54,13 +68,121 @@
 }
 
 .masthead-top {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--s-4);
-  flex-wrap: wrap;
-  padding: var(--s-3) 0 var(--s-3);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--s-3) var(--s-6);
+  padding: var(--s-2) 0 var(--s-3);
   border-bottom: var(--rule-thin) solid var(--ink);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+
+.emblem {
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+/* 이번 달 한눈에: 네 칸, 칸 사이 세로 괘선 */
+.glance {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  justify-self: center;
+  width: min(100%, 40rem);
+  margin: 0;
+}
+
+.glance div {
+  padding: 0 var(--s-3);
+  min-width: 0;
+}
+
+.glance div + div {
+  border-left: var(--rule-thin) solid var(--rule);
+}
+
+.glance dt {
+  font-size: var(--t-xs);
+  font-weight: 600;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+.glance dd {
+  margin: 0;
+}
+
+.glance-value {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  font-size: var(--t-lg);
+  font-weight: 800;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.glance-value.down {
+  color: var(--down-ink);
+}
+
+.glance-value.up {
+  color: var(--up-ink);
+}
+
+.glance-note {
+  font-size: 0.6875rem;
+  color: var(--ink-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 1100px) {
+  .masthead-top {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .glance {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-self: stretch;
+    width: 100%;
+    padding-top: var(--s-3);
+    border-top: var(--rule-thin) solid var(--rule);
+  }
+
+  .glance div:first-child {
+    padding-left: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .masthead-top {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .emblem {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .glance {
+    grid-row: 3;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: var(--s-3);
+  }
+
+  .glance div:nth-child(3) {
+    padding-left: 0;
+    border-left: 0;
+  }
 }
 
 .masthead-name {
@@ -209,21 +331,6 @@
   font-weight: 700;
   letter-spacing: 0.06em;
   color: var(--accent-ink);
-}
-
-.kicker-delta {
-  margin-left: var(--s-2);
-  padding-left: var(--s-3);
-  border-left: var(--rule-thin) solid var(--rule-mid);
-  color: var(--ink-2);
-  font-weight: 500;
-  letter-spacing: 0;
-}
-
-.delta {
-  color: var(--ink);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
 }
 
 .lead .kicker::before {
