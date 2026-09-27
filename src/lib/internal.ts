@@ -21,25 +21,53 @@ export interface InternalSummary {
   depositDropRate: Record<'exporters' | 'others', number>
 }
 
-type State = { status: 'loading' } | { status: 'ready'; data: InternalSummary } | { status: 'error'; message: string }
+type Loaded<T> = { status: 'loading' } | { status: 'ready'; data: T } | { status: 'error'; message: string }
 
 /** 개발 서버가 로컬 집계 파일을 읽어 주는 주소에서 가져온다(파일은 저장소 밖) */
-export function useInternalSummary(): State {
-  const [state, setState] = useState<State>({ status: 'loading' })
+function useInternalFile<T>(url: string): Loaded<T> {
+  const [state, setState] = useState<Loaded<T>>({ status: 'loading' })
   useEffect(() => {
     let alive = true
-    fetch('/__internal/summary.json', { cache: 'no-store' })
+    fetch(url, { cache: 'no-store' })
       .then(async (r) => {
         if (!r.ok) throw new Error(await r.text())
-        return (await r.json()) as InternalSummary
+        return (await r.json()) as T
       })
       .then((data) => alive && setState({ status: 'ready', data }))
       .catch((e: unknown) => alive && setState({ status: 'error', message: e instanceof Error ? e.message : String(e) }))
     return () => {
       alive = false
     }
-  }, [])
+  }, [url])
   return state
+}
+
+export function useInternalSummary() {
+  return useInternalFile<InternalSummary>('/__internal/summary.json')
+}
+
+/** 조합 신호 점검(요구불예금 감소 + 할인어음 증가) 결과. 분석 폴더 combo_signal_check.py가 만든다 */
+export interface ComboRate {
+  pct: number
+  n: number
+  hits: number
+}
+
+export interface ComboResult {
+  label: string
+  treat: string
+  firmsExposed: number
+  firmsOther: number
+  rates: Record<'down_exposed' | 'down_other' | 'up_exposed' | 'up_other', ComboRate>
+  ratioDown: number
+  did: number
+  didCI: [number, number]
+  pass1: boolean
+  pass2: boolean
+}
+
+export function useInternalCombo() {
+  return useInternalFile<{ results: ComboResult[] }>('/__internal/combo.json')
 }
 
 /** 가린 칸 표시 */

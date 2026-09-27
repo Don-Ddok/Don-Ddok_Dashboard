@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from 'node:fs'
-import { dirname } from 'node:path'
+import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { defineConfig, loadEnv, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
@@ -7,30 +7,38 @@ import react from '@vitejs/plugin-react'
 /**
  * 내부 시연 모드(`npm run dev:internal`, mode = internal)
  * - 실제 법인 데이터 집계 파일(JSON)은 이 저장소 밖에 두고, `.env.internal.local`의 INTERNAL_SUMMARY 경로로만 가리킨다.
- * - 개발 서버가 요청을 받을 때마다 그 파일을 읽어 `/__internal/summary.json`으로 돌려준다. 빌드 결과물에는 들어가지 않는다.
+ * - 개발 서버가 요청을 받을 때마다 그 파일을 읽어 `/__internal/summary.json`으로, 같은 폴더의 조합 신호 점검 결과(`combo_check.json`)를
+ *   `/__internal/combo.json`으로 돌려준다. 빌드 결과물에는 들어가지 않는다.
  * - internal 모드로 빌드하려고 하면 멈춘다(실수로 배포되는 것을 막음).
  */
 function internalSummary(path: string | undefined): Plugin {
+  // 집계 파일과 같은 폴더의 정해진 파일만 넘긴다(다른 파일은 열지 않음)
+  const files: Record<string, string | undefined> = {
+    '/__internal/summary.json': path,
+    '/__internal/combo.json': path ? join(dirname(path), 'combo_check.json') : undefined,
+  }
   return {
     name: 'internal-summary',
     apply: 'serve',
     configureServer(server) {
-      server.middlewares.use('/__internal/summary.json', (req, res) => {
-        const local = req.socket.remoteAddress
-        if (local !== '127.0.0.1' && local !== '::1' && local !== '::ffff:127.0.0.1') {
-          res.statusCode = 403
-          res.end('내부 시연 데이터는 이 컴퓨터에서만 볼 수 있습니다.')
-          return
-        }
-        if (!path || !existsSync(path)) {
-          res.statusCode = 404
-          res.end('INTERNAL_SUMMARY 경로의 집계 파일이 없습니다. .env.internal.local을 확인하세요.')
-          return
-        }
-        res.setHeader('Content-Type', 'application/json; charset=utf-8')
-        res.setHeader('Cache-Control', 'no-store')
-        res.end(readFileSync(path))
-      })
+      for (const [route, file] of Object.entries(files)) {
+        server.middlewares.use(route, (req, res) => {
+          const local = req.socket.remoteAddress
+          if (local !== '127.0.0.1' && local !== '::1' && local !== '::ffff:127.0.0.1') {
+            res.statusCode = 403
+            res.end('내부 시연 데이터는 이 컴퓨터에서만 볼 수 있습니다.')
+            return
+          }
+          if (!file || !existsSync(file)) {
+            res.statusCode = 404
+            res.end('집계 파일이 없습니다. .env.internal.local의 INTERNAL_SUMMARY 경로와 분석 스크립트 실행 여부를 확인하세요.')
+            return
+          }
+          res.setHeader('Content-Type', 'application/json; charset=utf-8')
+          res.setHeader('Cache-Control', 'no-store')
+          res.end(readFileSync(file))
+        })
+      }
     },
   }
 }
