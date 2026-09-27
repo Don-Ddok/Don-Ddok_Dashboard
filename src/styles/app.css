@@ -11,6 +11,61 @@
   }
 }
 
+/* ─── 뒷배경 빛번짐(장식) ─────────────────────────────── */
+.backdrop-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 46rem;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.backdrop-glow span {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(72px);
+}
+
+.backdrop-glow span:nth-child(1) {
+  top: -9rem;
+  left: -8rem;
+  width: 38rem;
+  height: 24rem;
+  background: var(--mint);
+  opacity: 0.2;
+}
+
+.backdrop-glow span:nth-child(2) {
+  top: -6rem;
+  right: -10rem;
+  width: 34rem;
+  height: 22rem;
+  background: var(--region-dg);
+  opacity: 0.1;
+}
+
+.backdrop-glow span:nth-child(3) {
+  top: 13rem;
+  left: 38%;
+  width: 30rem;
+  height: 16rem;
+  background: var(--mint);
+  opacity: 0.1;
+}
+
+@media (max-width: 640px) {
+  .backdrop-glow {
+    height: 32rem;
+  }
+
+  .backdrop-glow span {
+    filter: blur(48px);
+  }
+}
+
 /* ─── 보도자료 머리 ───────────────────────────────────── */
 /* 머리 띠: 왼쪽 짙은 민트 '보도자료' 도장, 나머지는 밝은 민트에 아주 옅은 사선 괘선(증권 인쇄 용지 느낌) */
 .release-band {
