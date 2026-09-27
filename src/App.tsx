@@ -6,6 +6,7 @@ import { Bulletin } from './pages/Bulletin'
 import { Firms } from './pages/Firms'
 import { Evidence } from './pages/Evidence'
 import { Timing } from './pages/Timing'
+import { Board } from './pages/Board'
 import { INTERNAL } from './lib/internal'
 
 // 그래프 라이브러리는 상세 화면에서만 쓰므로 그 화면에 들어갈 때 불러온다
@@ -25,6 +26,7 @@ const TITLES: Record<string, string> = {
   '/': '월보',
   '/firms': '거래처',
   '/timing': '계정 시차',
+  '/board': '팀 게시판',
   '/evidence': '근거와 한계',
   ...(INTERNAL ? { '/internal': '내부 시연' } : {}),
 }
@@ -63,6 +65,7 @@ export default function App() {
               }
             />
             <Route path="/timing" element={<Timing />} />
+            <Route path="/board" element={<Board />} />
             <Route path="/evidence" element={<Evidence />} />
             {Internal && (
               <Route
