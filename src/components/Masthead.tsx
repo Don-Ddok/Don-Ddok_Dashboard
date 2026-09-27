@@ -26,7 +26,7 @@ function Emblem() {
 }
 
 export function Masthead() {
-  const { ym } = useMonth()
+  const { search } = useMonth()
   return (
     <header className="masthead">
       <div className="release-band">
@@ -47,7 +47,7 @@ export function Masthead() {
           <Emblem />
           <div>
             <p className="masthead-name">
-              <NavLink to={{ pathname: '/', search: `?m=${ym}` }}>거래처 참고 신호 월보</NavLink>
+              <NavLink to={{ pathname: '/', search }}>거래처 참고 신호 월보</NavLink>
             </p>
             <p className="masthead-issuer">
               돈독 통계 프로젝트 프로토타입, 가상 거래처 데이터{INTERNAL && ' (내부 시연 화면만 실제 데이터 집계)'}
@@ -58,7 +58,7 @@ export function Masthead() {
       </div>
       <nav className="nav" aria-label="주요 화면">
         {LINKS.map((l) => (
-          <NavLink key={l.to} to={{ pathname: l.to, search: `?m=${ym}` }} end={l.end}>
+          <NavLink key={l.to} to={{ pathname: l.to, search }} end={l.end}>
             {l.label}
           </NavLink>
         ))}

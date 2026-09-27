@@ -402,7 +402,6 @@ main .prose h2::before {
 .section-note {
   margin-top: var(--s-3);
   color: var(--ink-2);
-  max-width: 65ch;
 }
 
 .split {
@@ -1006,7 +1005,6 @@ main .prose h2::before {
 .empty-cell p {
   margin-top: var(--s-2);
   color: var(--ink-2);
-  max-width: 60ch;
 }
 
 .chip-row {
@@ -1772,10 +1770,7 @@ details.raw[open] summary svg {
   color: var(--accent-ink);
   white-space: nowrap;
 }
-.prose {
-  max-width: 68ch;
-}
-
+/* 본문은 화면(또는 칸) 폭을 다 쓴다. 짧게 끊겨 들여쓴 것처럼 보이지 않게 */
 .prose h2 {
   display: flex;
   align-items: center;
@@ -1985,7 +1980,6 @@ details.raw[open] summary svg {
   margin-top: var(--s-4);
   padding-top: var(--s-3);
   border-top: var(--rule-thin) solid var(--rule);
-  max-width: 72ch;
   color: var(--ink-2);
 }
 
@@ -2320,4 +2314,313 @@ details.raw[open] summary svg {
     flex: 1 1 30%;
     min-height: 2.5rem;
   }
+}
+
+/* ─── 신호 조합 고르기 ─────────────────────────────────── */
+/* 머리 아래 한 줄: 요구불예금에 짝지을 계정. 고른 쪽은 기준월 목록처럼 위 굵은 민트 선과 옅은 민트 면 */
+.combo-switch {
+  display: flex;
+  align-items: stretch;
+  gap: var(--s-4);
+  margin-top: var(--s-4);
+  border-bottom: var(--rule-thin) solid var(--rule);
+}
+
+.combo-switch-label {
+  align-self: center;
+  font-size: var(--t-xs);
+  font-weight: 700;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+.combo-switch-options {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
+
+.combo-switch-options button {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding: var(--s-2) var(--s-4);
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 150ms var(--ease-out);
+}
+
+.combo-switch-options button + button {
+  border-left: var(--rule-thin) solid var(--rule);
+}
+
+.combo-switch-options button:hover {
+  background: var(--paper-shade);
+}
+
+.combo-switch-options button[aria-pressed='true'] {
+  background: var(--accent-wash);
+}
+
+.combo-switch-options button[aria-pressed='true']::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  border-top: 3px solid var(--accent);
+}
+
+.combo-name {
+  font-size: var(--t-sm);
+  color: var(--ink-2);
+}
+
+.combo-name strong {
+  color: var(--ink);
+}
+
+.combo-switch-options button[aria-pressed='true'] .combo-name strong {
+  color: var(--accent-ink);
+}
+
+.combo-meta {
+  font-size: 0.6875rem;
+  color: var(--ink-3);
+}
+
+.combo-switch-more {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  align-self: center;
+  font-size: var(--t-xs);
+  font-weight: 600;
+  color: var(--accent-ink);
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .combo-switch {
+    flex-wrap: wrap;
+    gap: var(--s-2);
+  }
+
+  .combo-switch-label {
+    align-self: flex-start;
+    padding-top: var(--s-1);
+  }
+
+  .combo-switch-options {
+    flex-basis: 100%;
+  }
+
+  .combo-switch-options button {
+    flex: 1;
+    padding: var(--s-2) var(--s-3);
+  }
+
+  .combo-meta {
+    display: none;
+  }
+
+  .combo-switch-more {
+    padding-bottom: var(--s-2);
+  }
+}
+
+/* 계정 지도에서 고를 수 있는 계정 */
+.acct.in-rule {
+  background: linear-gradient(var(--down-wash), var(--down-wash)) left top / 3px 100% no-repeat;
+  padding-left: var(--s-2);
+}
+
+.acct-pick {
+  align-self: flex-start;
+  margin-top: var(--s-1);
+  padding: 0.125rem var(--s-2);
+  border: var(--rule-thin) solid var(--rule-mid);
+  background: var(--paper-raise);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: border-color 150ms var(--ease-out);
+}
+
+.acct-pick:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.acct-pick[aria-pressed='true'] {
+  border-color: var(--accent);
+  background: var(--accent-wash);
+  color: var(--accent-ink);
+  cursor: default;
+}
+
+/* 조합 카드 두 장 */
+.combo-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s-5);
+  margin: var(--s-4) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.combo-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  padding: var(--s-4) 0 0;
+  border-top: var(--rule-heavy) solid var(--ink);
+}
+
+.combo-card.is-active {
+  border-top: 4px solid var(--accent);
+}
+
+.combo-card-name {
+  font-size: var(--t-md);
+}
+
+.combo-card.is-active .combo-card-name strong {
+  color: var(--accent-ink);
+}
+
+.combo-card-timing {
+  font-size: var(--t-xs);
+  color: var(--ink-3);
+}
+
+.combo-card-verdict {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s-1) var(--s-2);
+  font-size: var(--t-sm);
+}
+
+.combo-card-verdict span {
+  flex-basis: 100%;
+  color: var(--ink-2);
+}
+
+.combo-checks {
+  display: grid;
+  gap: var(--s-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.combo-checks li {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr);
+  column-gap: var(--s-3);
+  padding-bottom: var(--s-2);
+  border-bottom: var(--rule-thin) solid var(--rule-mid);
+}
+
+/* 통과는 굵은 실선, 미달·문제 있음은 가는 선(다른 화면의 충족·미충족과 같은 선 모양) */
+.combo-checks li[data-passed='true'] {
+  border-bottom: 4px solid var(--ink);
+}
+
+.combo-check-mark {
+  grid-row: span 2;
+  font-size: var(--t-xs);
+  font-weight: 700;
+  color: var(--ink-3);
+}
+
+.combo-checks li[data-passed='true'] .combo-check-mark {
+  color: var(--ink);
+}
+
+.combo-check-label {
+  font-size: var(--t-xs);
+  font-weight: 600;
+}
+
+.combo-check-result {
+  font-size: var(--t-xs);
+  color: var(--ink-2);
+}
+
+.combo-card-go {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2) var(--s-4);
+  margin-top: var(--s-2);
+  font-size: var(--t-sm);
+  font-weight: 600;
+}
+
+.combo-card-go a {
+  color: var(--accent-ink);
+}
+
+.combo-card-now {
+  padding: 0 0.3125rem;
+  background: var(--accent-wash);
+  border: var(--rule-thin) solid var(--accent);
+  color: var(--accent-ink);
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+
+.combo-card-pick {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  align-self: flex-start;
+  margin-top: var(--s-2);
+}
+
+.combo-cards-note {
+  margin-top: var(--s-4);
+  font-size: var(--t-sm);
+  color: var(--ink-2);
+}
+
+@media (max-width: 720px) {
+  .combo-cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* 근거와 한계: 점검 결과표 판정 칸 */
+.check-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  white-space: nowrap;
+  color: var(--ink-3);
+}
+
+.check-mark::before {
+  content: '';
+  width: 1.5rem;
+  border-top: var(--rule-thin) solid var(--rule-mid);
+}
+
+.check-mark[data-passed='true'] {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.check-mark[data-passed='true']::before {
+  border-top: 4px solid var(--ink);
+}
+
+.table-note {
+  font-size: var(--t-xs);
+  color: var(--ink-3);
 }

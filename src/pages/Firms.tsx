@@ -1,14 +1,15 @@
 import { useMemo, useState, type CSSProperties } from 'react'
 import { depositTrail, FIRMS, type Industry } from '../data/synthetic'
 import type { Region } from '../data/regionExports'
-import { checkSignal, type SignalStatus } from '../data/signals'
+import { checkSignal, partnerAmount, type SignalStatus } from '../data/signals'
+import { COMBOS } from '../data/combos'
 import { amount, ymLong } from '../lib/format'
 import { MonthLink, useMonth } from '../lib/month'
 import { SignalMark } from '../components/SignalMark'
 import { TableWrap } from '../components/TableWrap'
 import { RegionTag } from '../components/RegionTag'
 import { Sparkline } from '../components/Sparkline'
-import { Footnotes, SIGNAL_RULE_NOTE, SYNTHETIC_NOTE } from '../components/Footnotes'
+import { Footnotes, SYNTHETIC_NOTE } from '../components/Footnotes'
 
 const STATUS_ORDER: Record<SignalStatus, number> = { met: 0, partial: 1, none: 2, na: 3 }
 const STATUSES = Object.keys(STATUS_ORDER) as SignalStatus[]
@@ -21,7 +22,8 @@ type ExportFilter = '전체' | '수출' | '비수출'
 type StatusFilter = '전체' | SignalStatus
 
 export function Firms() {
-  const { index, ym } = useMonth()
+  const { index, ym, combo } = useMonth()
+  const C = COMBOS[combo]
   const [query, setQuery] = useState('')
   const [region, setRegion] = useState<RegionFilter>('전체')
   const [industry, setIndustry] = useState<'전체' | Industry>('전체')
@@ -30,7 +32,7 @@ export function Firms() {
 
   const base = useMemo(() => {
     const q = query.trim()
-    return FIRMS.map((firm) => ({ firm, check: checkSignal(firm, index) }))
+    return FIRMS.map((firm) => ({ firm, check: checkSignal(firm, index, combo) }))
       .filter(({ firm }) => {
         if (q && !firm.name.includes(q)) return false
         if (region !== '전체' && firm.region !== region) return false
@@ -40,7 +42,7 @@ export function Firms() {
         return true
       })
       .sort((a, b) => STATUS_ORDER[a.check.status] - STATUS_ORDER[b.check.status] || a.firm.name.localeCompare(b.firm.name, 'ko'))
-  }, [index, query, region, industry, exporter])
+  }, [index, combo, query, region, industry, exporter])
   const rows = status === '전체' ? base : base.filter((r) => r.check.status === status)
   const counts = STATUSES.map((s) => ({ s, n: base.filter((r) => r.check.status === s).length }))
 
@@ -57,7 +59,10 @@ export function Firms() {
     <>
       <section className="lead" aria-labelledby="firms-title">
         <h1 id="firms-title">거래처 {FIRMS.length}곳의 {ymLong(ym)} 상태</h1>
-        <p>신호를 충족한 거래처가 위에 오도록 정렬했습니다. 수출 실적이 없는 거래처는 규칙 대상이 아니라 '해당 없음'으로 표시합니다.</p>
+        <p>
+          {C.name} 조합의 신호를 충족한 거래처가 위에 오도록 정렬했습니다. 규칙 대상({C.target})이 아닌 거래처는 &lsquo;해당
+          없음&rsquo;으로 표시합니다.
+        </p>
       </section>
 
       <div className="status-bar" role="group" aria-label="이번 달 신호로 걸러 보기">
@@ -122,13 +127,13 @@ export function Firms() {
                 <span className="sub">백만 원</span>
               </th>
               <th scope="col" className="num">
-                운전자금 대출
+                {combo === 'bill' ? '할인어음' : '운전자금 대출'}
                 <span className="sub">백만 원</span>
               </th>
               <th scope="col">이번 달 신호</th>
             </tr>
           </thead>
-          <tbody key={`${index}-${status}`} className="rows-in">
+          <tbody key={`${index}-${status}-${combo}`} className="rows-in">
             {rows.length === 0 && (
               <tr>
                 <td colSpan={9} className="empty-cell">
@@ -158,7 +163,7 @@ export function Firms() {
                   <Sparkline values={depositTrail(firm, index)} />
                 </td>
                 <td className="num">{amount(firm.series[index].deposit)}</td>
-                <td className="num">{amount(firm.series[index].loan)}</td>
+                <td className="num">{amount(partnerAmount(firm.series[index], combo))}</td>
                 <td>
                   <SignalMark status={check.status} />
                 </td>
@@ -170,7 +175,7 @@ export function Firms() {
 
       <Footnotes
         notes={[
-          SIGNAL_RULE_NOTE,
+          C.ruleNote,
           '신호 표시: 굵은 실선은 세 조건 모두 충족, 점선은 기준 근접(통장 잔고가 5~10% 감소), 가는 선은 미충족입니다.',
           SYNTHETIC_NOTE,
         ]}

@@ -21,6 +21,7 @@ export interface MonthPoint {
   ym: number // 202301 형식
   deposit: number // 입출금 통장 잔고(백만 원)
   loan: number // 운전자금 대출 잔액(백만 원)
+  bill: number // 할인어음 잔액(백만 원), 할인어음 거래가 없는 회사는 0
   exportAmt: number // 그 달 수출 실적(만 달러), 비수출 회사는 0
 }
 
@@ -30,6 +31,7 @@ export interface Firm {
   region: Region
   industry: Industry
   exporter: boolean
+  billUser: boolean // 36개월 중 할인어음 잔액이 한 번이라도 있음
   grade: Grade
   series: MonthPoint[]
 }
@@ -136,7 +138,7 @@ function makeFirm(index: number, rng: ReturnType<typeof makeRng>, usedNames: Set
   const loanSensitivity = exporter ? -0.004 : 0.03
   const depositSensitivity = exporter ? 0.06 : 0.01
 
-  const series: MonthPoint[] = MONTHS.map((ym) => {
+  const base = MONTHS.map((ym) => {
     const y = regionYoY(region, ym)
     logDeposit += depositSensitivity * y + 0.035 * rng.normal()
     logLoan += 0.002 + loanSensitivity * y + 0.012 * rng.normal()
@@ -150,6 +152,8 @@ function makeFirm(index: number, rng: ReturnType<typeof makeRng>, usedNames: Set
       exportAmt: roundSig(exportAmt, 2),
     }
   })
+  const bills = makeBills(index, region, exporter, base[0].loan)
+  const series: MonthPoint[] = base.map((p, i) => ({ ...p, bill: bills[i] }))
 
   return {
     id: `F-${String(index + 1).padStart(3, '0')}`,
@@ -157,9 +161,29 @@ function makeFirm(index: number, rng: ReturnType<typeof makeRng>, usedNames: Set
     region,
     industry,
     exporter,
+    billUser: bills.some((b) => b > 0),
     grade,
     series,
   }
+}
+
+/**
+ * 할인어음 잔액. 거래처마다 따로 씨앗을 써서, 할인어음을 넣기 전의 잔고·대출 흐름이 바뀌지 않게 한다.
+ * 받은 어음을 매달 일부 할인하고 3개월 뒤 만기로 빠진다고 보고, 잔액 = 최근 3개월 할인액의 합.
+ * 가정(검정 안 함): 수출이 줄어든 달에 수출 회사는 어음 할인을 더 자주, 더 많이 한다(팀 시차 분석에서 할인어음이
+ * 수출과 같은 달에 반응한 것을 단순화). 실제 데이터에서는 비수출 회사와 가려내는 힘이 기준에 못 미쳤다.
+ */
+function makeBills(index: number, region: Region, exporter: boolean, firstLoan: number): number[] {
+  const rng = makeRng(SEED + 7919 * (index + 1))
+  if (rng.next() >= (exporter ? 0.7 : 0.35)) return MONTHS.map(() => 0)
+  const scale = firstLoan * (0.03 + 0.07 * rng.next())
+  const discounted = MONTHS.map((ym) => {
+    const fall = Math.max(0, -regionYoY(region, ym)) // 수출 감소 폭(소수)
+    const chance = exporter ? 0.45 + 2 * fall : 0.5
+    if (rng.next() >= Math.min(0.9, chance)) return 0
+    return scale * (exporter ? 1 + 3 * fall : 1) * Math.exp(0.35 * rng.normal())
+  })
+  return discounted.map((_, i) => roundSig(discounted.slice(Math.max(0, i - 2), i + 1).reduce((a, b) => a + b, 0), 2))
 }
 
 export const FIRMS: Firm[] = (() => {

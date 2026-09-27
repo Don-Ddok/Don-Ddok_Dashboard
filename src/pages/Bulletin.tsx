@@ -2,7 +2,8 @@ import { useState, type CSSProperties, type ReactNode } from 'react'
 import { ArrowRight, CaretDown } from '@phosphor-icons/react'
 import { REGION_EXPORTS, type Region } from '../data/regionExports'
 import { depositTrail, FIRMS, MONTHS, regionYoY } from '../data/synthetic'
-import { FIRST_JUDGED_INDEX, firmsByStatus } from '../data/signals'
+import { FIRST_JUDGED_INDEX, firmsByStatus, JUDGE_START_NOTE, partnerAmount, targetCount } from '../data/signals'
+import { COMBOS, type ComboId } from '../data/combos'
 import { amount, pct, usdMillion, ymLong, ymShort } from '../lib/format'
 import { MonthLink, useMonth } from '../lib/month'
 import { ConditionTrace } from '../components/ConditionTrace'
@@ -11,7 +12,7 @@ import { TableWrap } from '../components/TableWrap'
 import { Sparkline } from '../components/Sparkline'
 import { RegionTag } from '../components/RegionTag'
 import { ChangeFigure, CountFigure } from '../components/Figure'
-import { EXPORT_SOURCE, Footnotes, SIGNAL_RULE_NOTE, SYNTHETIC_NOTE, WEAK_EVIDENCE_NOTE } from '../components/Footnotes'
+import { EXPORT_SOURCE, Footnotes, SYNTHETIC_NOTE } from '../components/Footnotes'
 
 const REGIONS: Region[] = ['대구', '경북']
 const PARTIAL_PREVIEW = 6
@@ -27,26 +28,27 @@ function lastSix(region: Region, ym: number) {
 }
 
 /** 신호가 있었던 가까운 달(해당 없음일 때 이동 제안) */
-function nearbySignalMonths(index: number) {
+function nearbySignalMonths(index: number, combo: ComboId) {
   const out: number[] = []
   for (let d = 1; d < MONTHS.length && out.length < 4; d++) {
     for (const i of [index - d, index + d]) {
-      if (i >= 6 && i < MONTHS.length && firmsByStatus(FIRMS, i, 'met').length > 0 && out.length < 4) out.push(i)
+      if (i >= 6 && i < MONTHS.length && firmsByStatus(FIRMS, i, 'met', combo).length > 0 && out.length < 4) out.push(i)
     }
   }
   return out.sort((a, b) => a - b)
 }
 
 export function Bulletin() {
-  const { index, ym, setIndex } = useMonth()
+  const { index, ym, setIndex, combo } = useMonth()
+  const C = COMBOS[combo]
   const [open, setOpen] = useState<string | null>(null)
-  const met = firmsByStatus(FIRMS, index, 'met')
-  const partial = firmsByStatus(FIRMS, index, 'partial')
-  const exporters = FIRMS.filter((f) => f.exporter).length
+  const met = firmsByStatus(FIRMS, index, 'met', combo)
+  const partial = firmsByStatus(FIRMS, index, 'partial', combo)
+  const targets = targetCount(FIRMS, combo)
   const judged = index >= FIRST_JUDGED_INDEX
   const prev = index - 1 >= FIRST_JUDGED_INDEX ? index - 1 : null
-  const metDelta = prev === null ? null : met.length - firmsByStatus(FIRMS, prev, 'met').length
-  const partialDelta = prev === null ? null : partial.length - firmsByStatus(FIRMS, prev, 'partial').length
+  const metDelta = prev === null ? null : met.length - firmsByStatus(FIRMS, prev, 'met', combo).length
+  const partialDelta = prev === null ? null : partial.length - firmsByStatus(FIRMS, prev, 'partial', combo).length
   const dg = regionYoY('대구', ym)
   const gb = regionYoY('경북', ym)
 
@@ -80,8 +82,7 @@ export function Bulletin() {
         <h1 id="lead-title">{headline}</h1>
         <p className="lead-note">
           ※ 
-          수출 거래처 {exporters}곳 가운데, 지역 수출이 줄어든 달에 통장 잔고는 빠지는데 대출은 줄이지 않은 곳을 모았습니다.
-          위험 판정이 아니라 먼저 연락해 볼 순서를 정하는 참고 자료입니다.
+          {C.target} {targets}곳 가운데, {C.leadNote} 위험 판정이 아니라 먼저 연락해 볼 순서를 정하는 참고 자료입니다.
         </p>
       </section>
 
@@ -145,7 +146,9 @@ export function Bulletin() {
       <section className="section" aria-labelledby="watch-title">
         <div className="section-head">
           <h2 id="watch-title">살펴볼 거래처</h2>
-          <span className="unit">세 조건 모두 충족, {ymLong(ym)} 기준</span>
+          <span className="unit">
+            {C.name}, 세 조건 모두 충족, {ymLong(ym)} 기준
+          </span>
         </div>
         <TableWrap>
           <table className="stat-table">
@@ -157,8 +160,10 @@ export function Bulletin() {
                 <th scope="col" className="hide-sm">업종</th>
                 <th scope="col" className="hide-sm">통장 잔고 12개월</th>
                 <th scope="col" className="num">통장 잔고, 3개월</th>
-                <th scope="col" className="num">대출, 6개월</th>
-                <th scope="col" className="num hide-sm">대출 잔액</th>
+                <th scope="col" className="num">
+                  {C.short}, {C.window}개월
+                </th>
+                <th scope="col" className="num hide-sm">{C.short} 잔액</th>
                 <th scope="col">
                   <span className="visually-hidden">근거 펼치기</span>
                 </th>
@@ -171,11 +176,11 @@ export function Bulletin() {
                     <strong>해당 없음</strong>
                     <p>
                       {judged
-                        ? '이번 달은 세 조건을 모두 충족한 거래처가 없습니다. 지역 수출이 늘었거나, 수출 거래처의 계좌에서 잔고 감소와 대출 유지가 함께 나타나지 않았다는 뜻입니다.'
-                        : '2023년 1~6월은 대출 6개월 변화를 계산할 수 없어 판정하지 않습니다.'}
+                        ? `이번 달은 세 조건을 모두 충족한 거래처가 없습니다. 지역 수출이 늘었거나, ${C.target}의 계좌에서 잔고 감소와 ${C.condition}가 함께 나타나지 않았다는 뜻입니다.`
+                        : JUDGE_START_NOTE}
                     </p>
                     <div className="chip-row">
-                      {nearbySignalMonths(index).map((i) => (
+                      {nearbySignalMonths(index, combo).map((i) => (
                         <button key={i} type="button" className="text-button" onClick={() => setIndex(i)}>
                           {ymLong(MONTHS[i])} 보기
                         </button>
@@ -186,7 +191,7 @@ export function Bulletin() {
               )}
               {met.map(({ firm, check }, r) => {
                 const isOpen = open === firm.id
-                const [, dep, loan] = check.conditions
+                const [, dep, partner] = check.conditions
                 return (
                   <FirmRow
                     key={firm.id}
@@ -198,8 +203,8 @@ export function Bulletin() {
                       { text: firm.industry, hideSm: true },
                       { text: <Sparkline values={depositTrail(firm, index)} />, className: 'spark-cell', hideSm: true },
                       { text: pct(dep.value), num: true, className: 'chg down' },
-                      { text: pct(loan.value), num: true },
-                      { text: amount(firm.series[index].loan), num: true, hideSm: true },
+                      { text: partner.valueText ?? pct(partner.value), num: true },
+                      { text: amount(partnerAmount(firm.series[index], combo)), num: true, hideSm: true },
                     ]}
                     open={isOpen}
                     onToggle={() => setOpen(isOpen ? null : firm.id)}
@@ -226,7 +231,9 @@ export function Bulletin() {
                 <th scope="col">업종</th>
                 <th scope="col" className="hide-sm">통장 잔고 12개월</th>
                 <th scope="col" className="num">통장 잔고, 3개월</th>
-                <th scope="col" className="num">대출, 6개월</th>
+                <th scope="col" className="num">
+                  {C.short}, {C.window}개월
+                </th>
               </tr>
             </thead>
             <tbody key={ym} className="rows-in">
@@ -236,10 +243,10 @@ export function Bulletin() {
                     <strong>해당 없음</strong>
                     <p>
                       {!judged
-                        ? '2023년 1~6월은 대출 6개월 변화를 계산할 수 없어 판정하지 않습니다.'
+                        ? JUDGE_START_NOTE
                         : dg >= 0 && gb >= 0
                           ? '이번 달은 대구·경북 수출이 모두 1년 전보다 늘어, 규칙의 첫 조건(지역 수출 감소)에 해당하는 거래처가 없습니다.'
-                          : '이번 달은 통장 잔고가 5~10% 줄어 기준에 가까운 수출 거래처가 없습니다.'}
+                          : `이번 달은 통장 잔고가 5~10% 줄어 기준에 가까운 ${C.target}가 없습니다.`}
                     </p>
                   </td>
                 </tr>
@@ -258,7 +265,7 @@ export function Bulletin() {
                     <Sparkline values={depositTrail(firm, index)} />
                   </td>
                   <td className="num chg down">{pct(check.conditions[1].value)}</td>
-                  <td className="num">{pct(check.conditions[2].value)}</td>
+                  <td className="num">{check.conditions[2].valueText ?? pct(check.conditions[2].value)}</td>
                 </tr>
               ))}
             </tbody>
@@ -274,7 +281,7 @@ export function Bulletin() {
       </section>
 
       <Footnotes
-        notes={[SIGNAL_RULE_NOTE, WEAK_EVIDENCE_NOTE, SYNTHETIC_NOTE, `지역 수출은 ${ymShort(ym)} 월간 통관 기준이며, 은행 계좌는 월말 잔액 기준입니다.`]}
+        notes={[C.ruleNote, C.basisNote, SYNTHETIC_NOTE, `지역 수출은 ${ymShort(ym)} 월간 통관 기준이며, 은행 계좌는 월말 잔액 기준입니다.`]}
         source={EXPORT_SOURCE}
       />
     </>

@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
 import { Masthead } from './components/Masthead'
+import { ComboSwitch } from './components/ComboSwitch'
 import { MonthLink, MonthProvider } from './lib/month'
 import { Bulletin } from './pages/Bulletin'
 import { Firms } from './pages/Firms'
@@ -52,6 +53,7 @@ export default function App() {
       </div>
       <div className="page">
         <Masthead />
+        <ComboSwitch />
         <main>
           <Routes>
             <Route path="/" element={<Bulletin />} />

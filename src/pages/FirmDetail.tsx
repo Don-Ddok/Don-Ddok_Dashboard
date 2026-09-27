@@ -15,7 +15,8 @@ import {
   YAxis,
 } from 'recharts'
 import { FIRMS, regionYoY } from '../data/synthetic'
-import { checkSignal, FIRST_JUDGED_INDEX, type SignalStatus } from '../data/signals'
+import { checkSignal, FIRST_JUDGED_INDEX, JUDGE_START_NOTE, type SignalStatus } from '../data/signals'
+import { COMBOS } from '../data/combos'
 import { amount, pct, ymLong, ymShort } from '../lib/format'
 import { MonthLink, useMonth } from '../lib/month'
 import { ConditionTrace } from '../components/ConditionTrace'
@@ -24,7 +25,7 @@ import { TableWrap } from '../components/TableWrap'
 import { ChartBlock } from '../components/ChartBlock'
 import { RegionTag } from '../components/RegionTag'
 import { prefersReducedMotion } from '../lib/motion'
-import { Footnotes, SIGNAL_RULE_NOTE, SYNTHETIC_NOTE, WEAK_EVIDENCE_NOTE } from '../components/Footnotes'
+import { Footnotes, SYNTHETIC_NOTE } from '../components/Footnotes'
 
 const INK = '#1b1e23'
 const INK_3 = '#5f6570'
@@ -41,13 +42,15 @@ interface Row {
   regionYoy: number
   deposit: number
   loan: number
+  bill: number
   exportAmt: number
   status: SignalStatus | null
 }
 
 export default function FirmDetail() {
   const { id } = useParams()
-  const { index, ym } = useMonth()
+  const { index, ym, combo } = useMonth()
+  const C = COMBOS[combo]
   const firm = FIRMS.find((f) => f.id === id)
 
   if (!firm) {
@@ -62,15 +65,18 @@ export default function FirmDetail() {
     )
   }
 
-  const check = checkSignal(firm, index)
+  const check = checkSignal(firm, index, combo)
+  const partner = check.conditions[2]
+  const isTarget = firm.exporter && (combo !== 'bill' || firm.billUser)
   const rows: Row[] = firm.series.map((p, i) => ({
     x: ymShort(p.ym),
     ym: p.ym,
     regionYoy: Math.round(regionYoY(firm.region, p.ym) * 1000) / 10,
     deposit: p.deposit,
     loan: p.loan,
+    bill: p.bill,
     exportAmt: p.exportAmt,
-    status: i >= FIRST_JUDGED_INDEX ? checkSignal(firm, i).status : null,
+    status: i >= FIRST_JUDGED_INDEX ? checkSignal(firm, i, combo).status : null,
   }))
   const metMonths = rows.filter((r) => r.status === 'met')
   const currentX = ymShort(ym)
@@ -104,6 +110,9 @@ export default function FirmDetail() {
           <Fact label="수출 여부" note={firm.exporter ? `36개월 중 수출 실적 있는 달 ${exportMonths}개월` : '36개월 수출 실적 없음'}>
             {firm.exporter ? '수출 거래처' : '비수출 거래처'}
           </Fact>
+          <Fact label="할인어음" note={firm.billUser ? `36개월 중 잔액 있는 달 ${rows.filter((r) => r.bill > 0).length}개월` : '36개월 잔액 없음'}>
+            {firm.billUser ? '거래 있음' : '거래 없음'}
+          </Fact>
           <Fact label="고객 등급" note="은행 내부 등급(가상)">
             {firm.grade}
           </Fact>
@@ -124,10 +133,10 @@ export default function FirmDetail() {
         <div className="section-head">
           <h2 id="history-title">36개월 흐름</h2>
           <span className="unit">
-            {firm.exporter ? `신호 충족 ${metMonths.length}개월` : '규칙 대상 아님'}, 민트 칸·세로선은 기준월
+            {C.name}, {isTarget ? `신호 충족 ${metMonths.length}개월` : '규칙 대상 아님'}, 민트 칸·세로선은 기준월
           </span>
         </div>
-        <SignalStrip rows={rows} currentYm={ym} exporter={firm.exporter} />
+        <SignalStrip rows={rows} currentYm={ym} naReason={isTarget ? undefined : check.naReason} />
         <div className="charts" style={{ marginTop: 'var(--s-5)' }}>
           <ChartBlock
             title={`${firm.region} 수출, 1년 전 같은 달 대비`}
@@ -188,15 +197,22 @@ export default function FirmDetail() {
           </ChartBlock>
 
           <ChartBlock
-            title="운전자금 대출 잔액"
+            title={combo === 'bill' ? '할인어음 잔액' : '운전자금 대출 잔액'}
             unit="백만 원, 월말"
             value={
               <>
-                {amount(now.loan)} <span className="plain">({pct(check.conditions[2].value)}, 6개월)</span>
+                {amount(combo === 'bill' ? now.bill : now.loan)}{' '}
+                <span className="plain">
+                  ({partner.valueText ?? pct(partner.value)}, {C.window}개월)
+                </span>
               </>
             }
             valueLabel={currentX}
-            summary={`${ymShort(first.ym)} ${amount(first.loan)}에서 ${ymShort(last.ym)} ${amount(last.loan)}로, 기준월 6개월 변화 ${pct(check.conditions[2].value)}. 금액이 반올림돼 있어 몇 달씩 같은 값이 이어집니다.`}
+            summary={
+              combo === 'bill'
+                ? `${ymShort(first.ym)} ${amount(first.bill)}에서 ${ymShort(last.ym)} ${amount(last.bill)}로, 기준월 3개월 변화 ${partner.valueText ?? pct(partner.value)}. 받은 어음을 할인하면 늘고 만기가 되면 줄어 들쭉날쭉합니다.`
+                : `${ymShort(first.ym)} ${amount(first.loan)}에서 ${ymShort(last.ym)} ${amount(last.loan)}로, 기준월 6개월 변화 ${pct(partner.value)}. 금액이 반올림돼 있어 몇 달씩 같은 값이 이어집니다.`
+            }
           >
             <LineChart data={rows} margin={{ top: 22, right: 8, bottom: 0, left: 0 }}>
               <CartesianGrid stroke={RULE} vertical={false} />
@@ -206,7 +222,7 @@ export default function FirmDetail() {
               <Tooltip content={tip(amount)} />
               <Line
                 type="stepAfter"
-                dataKey="loan"
+                dataKey={combo === 'bill' ? 'bill' : 'loan'}
                 stroke={INK}
                 strokeWidth={1.5}
                 dot={false}
@@ -248,6 +264,7 @@ export default function FirmDetail() {
                   <th scope="col" className="num">지역 수출 전년비</th>
                   <th scope="col" className="num">통장 잔고</th>
                   <th scope="col" className="num">대출 잔액</th>
+                  <th scope="col" className="num">할인어음 잔액</th>
                   <th scope="col" className="num">수출 실적</th>
                   <th scope="col">신호</th>
                 </tr>
@@ -259,6 +276,7 @@ export default function FirmDetail() {
                     <td className="num">{pct(r.regionYoy / 100)}</td>
                     <td className="num">{amount(r.deposit)}</td>
                     <td className="num">{amount(r.loan)}</td>
+                    <td className="num">{amount(r.bill)}</td>
                     <td className="num">{firm.exporter ? amount(r.exportAmt) : '해당 없음'}</td>
                     <td>{r.status ? <SignalMark status={r.status} /> : <span className="synthetic">판정 전</span>}</td>
                   </tr>
@@ -270,7 +288,7 @@ export default function FirmDetail() {
       </section>
 
       <Footnotes
-        notes={[SIGNAL_RULE_NOTE, WEAK_EVIDENCE_NOTE, SYNTHETIC_NOTE, '2023년 1~6월은 대출 6개월 변화를 계산할 수 없어 판정하지 않습니다.']}
+        notes={[C.ruleNote, C.basisNote, SYNTHETIC_NOTE, JUDGE_START_NOTE]}
         source="관세청 수출입무역통계(한국무역협회 K-stat), 가상 거래처 데이터"
       />
     </>
@@ -278,12 +296,11 @@ export default function FirmDetail() {
 }
 
 /** 36칸 신호 이력: 굵은 실선 충족, 점선 일부 충족, 가는 선 미충족, 빈칸은 판정 전 */
-function SignalStrip({ rows, currentYm, exporter }: { rows: Row[]; currentYm: number; exporter: boolean }) {
-  if (!exporter) {
+function SignalStrip({ rows, currentYm, naReason }: { rows: Row[]; currentYm: number; naReason?: string }) {
+  if (naReason) {
     return (
       <p className="strip-na">
-        <strong>해당 없음.</strong> 수출 실적이 없는 거래처라 36개월 내내 참고 신호 규칙의 대상이 아닙니다. 아래 그래프는 계좌 흐름을 참고로
-        보여 줍니다.
+        <strong>해당 없음.</strong> {naReason} 아래 그래프는 계좌 흐름을 참고로 보여 줍니다.
       </p>
     )
   }

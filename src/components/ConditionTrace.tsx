@@ -20,7 +20,7 @@ function weaker(a: StepState, b: StepState): StepState {
 }
 
 /**
- * 근거 잇기: 세 조건(지역 수출 감소 → 통장 잔고 감소 → 대출 유지)을 한 줄의 괘선으로 잇는다.
+ * 근거 잇기: 세 조건(지역 수출 감소 → 통장 잔고 감소 → 조합의 짝 계정)을 한 줄의 괘선으로 잇는다.
  * 각 칸 밑줄과 칸 사이 연결선의 모양이 상태를 말한다. animate가 켜지면 왼쪽부터 차례로 그어진다
  * (동작 줄이기 설정이면 바로 표시).
  */
@@ -46,7 +46,7 @@ export function ConditionTrace({ check, animate = false }: { check: SignalCheck;
                 {c.label}
                 {states[i] !== 'na' && <span className="trace-state">{STATE_TEXT[states[i] as Exclude<StepState, 'na'>]}</span>}
               </span>
-              <span className="trace-value">{pct(c.value)}</span>
+              <span className="trace-value">{c.valueText ?? pct(c.value)}</span>
               <span className="trace-detail">{c.detail}</span>
             </li>
           </Fragment>
@@ -55,9 +55,9 @@ export function ConditionTrace({ check, animate = false }: { check: SignalCheck;
       <p className="trace-verdict">
         {status === 'met' && '세 조건이 모두 이어졌습니다. 이번 달 한 번 살펴볼 만한 거래처입니다.'}
         {status === 'partial' &&
-          '지역 수출이 줄고 대출도 유지 중인데, 통장 잔고 감소가 기준(-10%)에 조금 못 미칩니다. 다음 달 흐름을 함께 보면 좋습니다.'}
+          `지역 수출이 줄고 ${conditions[2].label}도 충족했는데, 통장 잔고 감소가 기준(-10%)에 조금 못 미칩니다. 다음 달 흐름을 함께 보면 좋습니다.`}
         {status === 'none' && '이번 달에는 조건이 이어지지 않았습니다.'}
-        {status === 'na' && '해당 없음. 수출 실적이 없는 거래처라 이 규칙의 대상이 아닙니다. 조건 값은 참고로만 표시합니다.'}
+        {status === 'na' && `해당 없음. ${check.naReason ?? '이 달은 판정하지 않습니다.'} 조건 값은 참고로만 표시합니다.`}
       </p>
     </div>
   )
