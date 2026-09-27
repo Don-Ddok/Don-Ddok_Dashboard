@@ -3,7 +3,7 @@ import type { ExportPoint, Region } from '../data/regionExports'
 import { pctPoint, ymShort } from '../lib/format'
 import { RegionTag } from './RegionTag'
 
-const AREA_REM = 3.25 // 증가·감소 막대가 함께 쓰는 높이(왼쪽 표 높이와 맞추기 위해 낮게)
+const AREA_REM = 2.75 // 증가·감소 막대가 함께 쓰는 높이(왼쪽 표 높이와 맞추기 위해 낮게)
 
 /**
  * 전년동월비 막대. 증가는 민트(기준선 위), 감소는 주황(기준선 아래).
@@ -18,11 +18,17 @@ export function YoyBars({ region, points, currentYm }: { region: Region; points:
   const rem = (v: number) => (Math.abs(v) / scale) * AREA_REM
   const rows = `${rem(maxUp)}rem ${rem(maxDown)}rem auto`
   const summary = points.map((p) => `${ymShort(p.ym)} ${pctPoint(p.yoy)}`).join(', ')
+  const current = points.find((p) => p.ym === currentYm)?.yoy ?? null
 
   return (
     <figure>
       <figcaption>
-        <RegionTag region={region} /> 수출, 1년 전 같은 달 대비
+        <span>
+          <RegionTag region={region} /> 수출, 1년 전 같은 달 대비
+        </span>
+        <span className={`yoy-now ${(current ?? 0) < 0 ? 'down' : 'up'}`}>
+          {ymShort(currentYm)} {pctPoint(current)}
+        </span>
       </figcaption>
       <div className="yoy-row" role="img" aria-label={`${region} 수출 전년동월비: ${summary}`}>
         {points.map((p, i) => {

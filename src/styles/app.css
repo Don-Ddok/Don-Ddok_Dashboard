@@ -59,7 +59,7 @@
   justify-content: space-between;
   gap: var(--s-4);
   flex-wrap: wrap;
-  padding: var(--s-4) 0 var(--s-3);
+  padding: var(--s-3) 0 var(--s-3);
   border-bottom: var(--rule-thin) solid var(--ink);
 }
 
@@ -163,7 +163,7 @@
 
 /* ─── 제목과 본문 리듬 ────────────────────────────────── */
 .lead {
-  padding: var(--s-5) 0 var(--s-5);
+  padding: var(--s-4) 0 var(--s-4);
   max-width: 48rem;
 }
 
@@ -196,8 +196,37 @@
   max-width: 65ch;
 }
 
+.lead.lead-wide {
+  max-width: none;
+}
+
+.lead .kicker {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin: 0 0 var(--s-2);
+  font-size: var(--t-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--accent-ink);
+}
+
+.lead .kicker::before {
+  content: '';
+  width: 0.625rem;
+  height: 0.625rem;
+  background: var(--mint);
+}
+
+.lead .lead-note {
+  margin-top: var(--s-3);
+  padding-top: var(--s-2);
+  border-top: var(--rule-thin) solid var(--rule);
+  font-size: var(--t-sm);
+}
+
 .section {
-  margin-top: var(--s-6);
+  margin-top: var(--s-5);
 }
 
 .section-head {
@@ -326,6 +355,18 @@ main .section-head h2::before {
   }
 }
 
+.badge {
+  display: inline-block;
+  margin-left: var(--s-2);
+  padding: 0 0.3125rem;
+  background: var(--accent);
+  color: #ffffff;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1.5;
+  vertical-align: 0.0625rem;
+}
+
 .stat-table .chg.down {
   color: var(--down-ink);
 }
@@ -365,13 +406,32 @@ main .section-head h2::before {
 /* ─── 증감 막대(전년동월비) ───────────────────────────── */
 .yoy-bars {
   display: grid;
-  gap: var(--s-4);
+  gap: var(--s-3);
 }
 
 .yoy-bars figcaption {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--s-2);
   font-size: var(--t-sm);
   font-weight: 600;
   margin-bottom: var(--s-2);
+}
+
+.yoy-now {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.yoy-now.down,
+.chart-value .down {
+  color: var(--down-ink);
+}
+
+.yoy-now.up,
+.chart-value .up {
+  color: var(--up-ink);
 }
 
 .yoy-row {
@@ -416,7 +476,7 @@ main .section-head h2::before {
 
 /* 기준월 칸은 옅은 민트 바탕으로 짚는다 */
 .yoy-col {
-  padding-top: var(--s-1);
+  padding-top: 0.125rem;
   border-top: var(--rule-heavy) solid transparent;
 }
 
@@ -489,17 +549,14 @@ main .section-head h2::before {
 
 /* ─── 지역 표시: 이름 앞 작은 네모 ─────────────────────── */
 .region-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3125rem;
-  white-space: nowrap;
-}
-
-.region-tag::before {
-  content: '';
-  width: 0.5rem;
-  height: 0.5rem;
+  display: inline-block;
+  padding: 0 0.375rem;
   background: var(--region-color);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.55;
+  white-space: nowrap;
 }
 
 .region-tag[data-region='dg'] {
@@ -680,6 +737,18 @@ main .section-head h2::before {
 .trace-step[data-state='na']::after,
 .trace-link[data-state='na'] {
   border-bottom: var(--line-na);
+}
+
+.trace-no {
+  display: block;
+  margin-bottom: 0.125rem;
+  font-size: var(--t-xs);
+  font-weight: 700;
+  color: var(--accent-ink);
+}
+
+.trace-step[data-state='na'] .trace-no {
+  color: var(--ink-3);
 }
 
 .trace-label {
@@ -954,14 +1023,25 @@ main .section-head h2::before {
 
 .facts {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, max-content));
-  gap: var(--s-2) var(--s-6);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   margin: var(--s-4) 0 0;
+  border-top: var(--rule-heavy) solid var(--ink);
+  border-bottom: var(--rule-thin) solid var(--rule);
 }
 
 .facts div {
   display: flex;
   flex-direction: column;
+  gap: 0.125rem;
+  padding: var(--s-3) var(--s-4);
+}
+
+.facts div + div {
+  border-left: var(--rule-thin) solid var(--rule);
+}
+
+.facts div:first-child {
+  padding-left: 0;
 }
 
 .facts dt {
@@ -971,28 +1051,83 @@ main .section-head h2::before {
 
 .facts dd {
   margin: 0;
-  font-weight: 600;
+  font-size: var(--t-md);
+  font-weight: 700;
+}
+
+.facts dd.fact-note {
+  font-size: var(--t-xs);
+  font-weight: 400;
+  color: var(--ink-3);
 }
 
 @media (max-width: 640px) {
   .facts {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .facts div:nth-child(odd) {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .facts div:nth-child(n + 3) {
+    border-top: var(--rule-thin) solid var(--rule);
+  }
 }
 
 /* 36칸 신호 이력: 칸마다 선 모양이 상태를 말한다 */
 .strip {
   display: grid;
-  grid-template-columns: repeat(36, minmax(0, 1fr));
-  gap: 2px;
+  gap: var(--s-2);
   margin-top: var(--s-4);
-  padding-top: var(--s-5);
+}
+
+.strip-year-row {
+  display: grid;
+  grid-template-columns: 4rem minmax(0, 1fr) 4.5rem;
+  align-items: end;
+  gap: var(--s-3);
+}
+
+.strip-cells {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 3px;
 }
 
 .strip-cell {
   position: relative;
-  height: 1.25rem;
+  padding: 0.125rem 0 0.1875rem;
   border-bottom: var(--rule-thin) solid var(--rule-mid);
+  font-size: var(--t-xs);
+  text-align: center;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.strip-count {
+  font-size: var(--t-xs);
+  color: var(--ink-3);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.strip-count.has {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+@media (max-width: 640px) {
+  .strip-year-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--s-1) var(--s-2);
+  }
+
+  .strip-year-row .strip-cells {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
 }
 
 .strip-cell.pending {
@@ -1009,19 +1144,23 @@ main .section-head h2::before {
 
 .strip-cell.met {
   border-bottom: 6px solid var(--ink);
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.strip-cell.partial {
+  color: var(--ink);
 }
 
 .strip-cell.is-current {
   background: var(--accent-wash);
-  box-shadow: inset 0 -2px 0 var(--accent);
+  color: var(--accent-ink);
+  font-weight: 700;
 }
 
 .strip-year {
-  position: absolute;
-  top: calc(-1 * var(--s-5));
-  left: 0;
-  font-size: var(--t-xs);
-  color: var(--ink-3);
+  font-size: var(--t-sm);
+  font-weight: 700;
   white-space: nowrap;
 }
 
@@ -1049,7 +1188,37 @@ main .section-head h2::before {
 
 .charts {
   display: grid;
-  gap: var(--s-6);
+  gap: var(--s-6) var(--s-7);
+}
+
+@media (min-width: 1024px) {
+  .charts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.chart-value {
+  font-size: var(--t-sm);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.chart-value-label {
+  margin-right: 0.125rem;
+  padding: 0 0.25rem;
+  background: var(--accent);
+  color: #ffffff;
+  font-size: 0.6875rem;
+}
+
+.chart-value .plain {
+  color: var(--ink-2);
+  font-weight: 500;
+}
+
+.chart {
+  margin: 0;
 }
 
 .chart figcaption {

@@ -72,8 +72,10 @@ export function Bulletin() {
   return (
     <>
       <section className="lead" aria-labelledby="lead-title">
+        <p className="kicker">이달의 요지</p>
         <h1 id="lead-title">{headline}</h1>
-        <p>
+        <p className="lead-note">
+          ※ 
           수출 거래처 {exporters}곳 가운데, 지역 수출이 줄어든 달에 통장 잔고는 빠지는데 대출은 줄이지 않은 곳을 모았습니다.
           위험 판정이 아니라 먼저 연락해 볼 순서를 정하는 참고 자료입니다.
         </p>
@@ -114,7 +116,10 @@ export function Bulletin() {
                   const q = lastSix('경북', ym)[k]
                   return (
                     <tr key={p.ym} className={p.ym === ym ? 'is-current' : undefined} style={rowDelay(k)}>
-                      <th scope="row">{ymLong(p.ym)}</th>
+                      <th scope="row">
+                        {ymLong(p.ym)}
+                        {p.ym === ym && <span className="badge">당월</span>}
+                      </th>
                       <td className="num">{usdMillion(p.amount)}</td>
                       <td className={chg(p.yoy)}>{pct((p.yoy ?? 0) / 100)}</td>
                       <td className="num">{usdMillion(q.amount)}</td>
