@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom'
 import { useMonth } from '../lib/month'
 import { MonthControl } from './MonthControl'
 import { INTERNAL } from '../lib/internal'
+import { useData } from '../lib/data'
 
 const LINKS = [
   { to: '/', label: '월보', end: true },
@@ -9,7 +10,7 @@ const LINKS = [
   { to: '/timing', label: '계정 시차', end: false },
   { to: '/evidence', label: '근거와 한계', end: false },
   { to: '/board', label: '게시판', end: false },
-  ...(INTERNAL ? [{ to: '/internal', label: '내부 시연(실제 데이터)', end: false }] : []),
+  ...(INTERNAL ? [{ to: '/internal', label: '규칙 점검(실제 집계)', end: false }] : []),
 ]
 
 /** 보도자료 표지 모양의 작은 표장: 먹색 머리 띠, 괘선 세 줄 가운데 민트 한 줄 */
@@ -27,6 +28,7 @@ function Emblem() {
 
 export function Masthead() {
   const { search } = useMonth()
+  const { kind } = useData()
   return (
     <header className="masthead">
       <div className="release-band">
@@ -39,7 +41,7 @@ export function Masthead() {
       </div>
       {INTERNAL && (
         <p className="internal-band" role="note">
-          내부 시연 모드: 실제 은행 데이터 집계 화면이 켜져 있습니다. 외부 공유·캡처 배포 금지
+          내부 시연 모드: 월보·거래처는 실제 은행 법인 데이터입니다. 외부 공유·캡처 배포 금지
         </p>
       )}
       <div className="masthead-top">
@@ -50,7 +52,7 @@ export function Masthead() {
               <NavLink to={{ pathname: '/', search }}>거래처 참고 신호 월보</NavLink>
             </p>
             <p className="masthead-issuer">
-              돈독 통계 프로젝트 프로토타입, 가상 거래처 데이터{INTERNAL && ' (내부 시연 화면만 실제 데이터 집계)'}
+              돈독 통계 프로젝트 프로토타입, {kind === 'real' ? '실제 법인 데이터(내부 시연)' : '가상 거래처 데이터'}
             </p>
           </div>
         </div>

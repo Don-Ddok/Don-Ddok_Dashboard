@@ -15,8 +15,9 @@ export function pctPoint(v: number | null | undefined, digits = 1) {
 }
 
 const num = new Intl.NumberFormat('ko-KR')
-export function amount(n: number) {
-  return num.format(n)
+/** 금액. 관측되지 않은 달(실제 데이터)은 줄표 */
+export function amount(n: number | null | undefined) {
+  return n === null || n === undefined ? '—' : num.format(n)
 }
 
 /** 천 달러 → 백만 달러, 소수 첫째 자리 */

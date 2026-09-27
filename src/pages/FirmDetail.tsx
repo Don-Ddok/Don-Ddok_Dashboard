@@ -14,7 +14,9 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import { FIRMS, regionYoY } from '../data/synthetic'
+import { regionYoY } from '../data/synthetic'
+import { useData } from '../lib/data'
+import { FirmName } from '../components/FirmName'
 import { checkSignal, FIRST_JUDGED_INDEX, JUDGE_START_NOTE, type SignalStatus } from '../data/signals'
 import { COMBOS } from '../data/combos'
 import { amount, pct, ymLong, ymShort } from '../lib/format'
@@ -25,7 +27,7 @@ import { TableWrap } from '../components/TableWrap'
 import { ChartBlock } from '../components/ChartBlock'
 import { RegionTag } from '../components/RegionTag'
 import { prefersReducedMotion } from '../lib/motion'
-import { Footnotes, SYNTHETIC_NOTE } from '../components/Footnotes'
+import { dataNote, EXPORT_SOURCE, firmSource, Footnotes } from '../components/Footnotes'
 
 const INK = '#1b1e23'
 const INK_3 = '#5f6570'
@@ -40,10 +42,11 @@ interface Row {
   x: string
   ym: number
   regionYoy: number
-  deposit: number
-  loan: number
-  bill: number
-  exportAmt: number
+  observed: boolean
+  deposit: number | null
+  loan: number | null
+  bill: number | null
+  exportAmt: number | null
   status: SignalStatus | null
 }
 
@@ -51,7 +54,8 @@ export default function FirmDetail() {
   const { id } = useParams()
   const { index, ym, combo } = useMonth()
   const C = COMBOS[combo]
-  const firm = FIRMS.find((f) => f.id === id)
+  const { firms, kind, exportUnit } = useData()
+  const firm = firms.find((f) => f.id === id)
 
   if (!firm) {
     return (
@@ -71,6 +75,7 @@ export default function FirmDetail() {
   const rows: Row[] = firm.series.map((p, i) => ({
     x: ymShort(p.ym),
     ym: p.ym,
+    observed: p.observed,
     regionYoy: Math.round(regionYoY(firm.region, p.ym) * 1000) / 10,
     deposit: p.deposit,
     loan: p.loan,
@@ -80,14 +85,16 @@ export default function FirmDetail() {
   }))
   const metMonths = rows.filter((r) => r.status === 'met')
   const currentX = ymShort(ym)
-  const first = rows[0]
-  const last = rows[rows.length - 1]
+  // 실제 데이터는 앞뒤로 거래 기록이 없는 달이 있을 수 있어, 처음·마지막으로 기록이 있는 달을 쓴다
+  const seen = rows.filter((r) => r.observed)
+  const first = seen[0] ?? rows[0]
+  const last = seen[seen.length - 1] ?? rows[rows.length - 1]
   const regionColor = REGION_COLOR[firm.region]
   const animate = !prefersReducedMotion()
   const now = rows[index]
   const regionNow = regionYoY(firm.region, ym)
-  const sameIndustry = FIRMS.filter((f) => f.industry === firm.industry).length
-  const exportMonths = rows.filter((r) => r.exportAmt > 0).length
+  const sameIndustry = firms.filter((f) => f.industry === firm.industry).length
+  const exportMonths = rows.filter((r) => (r.exportAmt ?? 0) > 0).length
   const refLabel = { value: currentX, position: 'top' as const, fill: ACCENT, fontSize: 11, fontWeight: 700 }
 
   return (
@@ -98,22 +105,27 @@ export default function FirmDetail() {
 
       <section className="lead lead-wide" aria-labelledby="firm-title">
         <h1 id="firm-title">
-          {firm.name.replace('(가상)', '')} <span className="synthetic">(가상)</span>
+          <FirmName firm={firm} link={false} />
         </h1>
+        {!firm.synthetic && (
+          <p className="lead-note">
+            ※ 실제 법인 데이터(내부 시연). 36개월 중 은행 거래 기록이 있는 달은 {seen.length}개월입니다.
+          </p>
+        )}
         <dl className="facts">
           <Fact label="지역" note={`지역 수출 ${currentX} ${pct(regionNow)}`}>
             <RegionTag region={firm.region} />
           </Fact>
-          <Fact label="업종" note={`같은 업종 가상 거래처 ${sameIndustry}곳`}>
+          <Fact label="업종" note={`같은 업종 ${firm.synthetic ? '가상 거래처' : '외환 거래 법인'} ${sameIndustry}곳`}>
             {firm.industry}
           </Fact>
           <Fact label="수출 여부" note={firm.exporter ? `36개월 중 수출 실적 있는 달 ${exportMonths}개월` : '36개월 수출 실적 없음'}>
-            {firm.exporter ? '수출 거래처' : '비수출 거래처'}
+            {firm.exporter ? '수출 거래처' : firm.synthetic ? '비수출 거래처' : '비수출(수입만)'}
           </Fact>
-          <Fact label="할인어음" note={firm.billUser ? `36개월 중 잔액 있는 달 ${rows.filter((r) => r.bill > 0).length}개월` : '36개월 잔액 없음'}>
+          <Fact label="할인어음" note={firm.billUser ? `36개월 중 잔액 있는 달 ${rows.filter((r) => (r.bill ?? 0) > 0).length}개월` : '36개월 잔액 없음'}>
             {firm.billUser ? '거래 있음' : '거래 없음'}
           </Fact>
-          <Fact label="고객 등급" note="은행 내부 등급(가상)">
+          <Fact label="고객 등급" note={firm.synthetic ? '은행 내부 등급(가상)' : `은행 내부 등급, ${ymShort(last.ym)} 기준`}>
             {firm.grade}
           </Fact>
         </dl>
@@ -235,10 +247,12 @@ export default function FirmDetail() {
           {firm.exporter ? (
             <ChartBlock
               title="수출 실적"
-              unit="만 달러, 월간"
+              unit={`${exportUnit}, 월간`}
               value={amount(now.exportAmt)}
               valueLabel={currentX}
-              summary={`수출 실적이 없는 달이 ${rows.filter((r) => r.exportAmt === 0).length}개월 있습니다(선적이 없는 달).`}
+              summary={`수출 실적이 없는 달이 ${rows.filter((r) => r.exportAmt === 0).length}개월 있습니다(선적이 없는 달).${
+                seen.length < rows.length ? ` 은행 거래 기록이 없는 달 ${rows.length - seen.length}개월은 비워 두었습니다.` : ''
+              }`}
             >
               <BarChart data={rows} margin={{ top: 22, right: 8, bottom: 0, left: 0 }}>
                 <CartesianGrid stroke={RULE} vertical={false} />
@@ -288,8 +302,8 @@ export default function FirmDetail() {
       </section>
 
       <Footnotes
-        notes={[C.ruleNote, C.basisNote, SYNTHETIC_NOTE, JUDGE_START_NOTE]}
-        source="관세청 수출입무역통계(한국무역협회 K-stat), 가상 거래처 데이터"
+        notes={[C.ruleNote, C.basisNote, dataNote(kind), JUDGE_START_NOTE]}
+        source={`${EXPORT_SOURCE}, ${firmSource(kind)}`}
       />
     </>
   )

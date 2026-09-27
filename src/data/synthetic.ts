@@ -17,22 +17,29 @@ export type Industry =
 
 export type Grade = '최우수' | '우수' | '일반'
 
+/**
+ * 한 달의 계좌 값. 가상 데이터는 36개월 모두 관측되고, 실제 데이터(내부 시연)는 은행과 거래가 없던 달이
+ * observed = false이며 값이 null이다.
+ */
 export interface MonthPoint {
   ym: number // 202301 형식
-  deposit: number // 입출금 통장 잔고(백만 원)
-  loan: number // 운전자금 대출 잔액(백만 원)
-  bill: number // 할인어음 잔액(백만 원), 할인어음 거래가 없는 회사는 0
-  exportAmt: number // 그 달 수출 실적(만 달러), 비수출 회사는 0
+  observed: boolean
+  deposit: number | null // 입출금 통장 잔고(백만 원)
+  loan: number | null // 운전자금 대출 잔액(백만 원)
+  bill: number | null // 할인어음 잔액(백만 원), 할인어음 거래가 없는 회사는 0
+  exportAmt: number | null // 그 달 수출 실적(가상 만 달러, 실제 백만 달러), 비수출 회사는 0
 }
 
 export interface Firm {
   id: string
   name: string
+  /** 가상 거래처인지(이름 뒤에 '(가상)'을 붙인다) */
+  synthetic: boolean
   region: Region
-  industry: Industry
+  industry: string
   exporter: boolean
   billUser: boolean // 36개월 중 할인어음 잔액이 한 번이라도 있음
-  grade: Grade
+  grade: string
   series: MonthPoint[]
 }
 
@@ -147,17 +154,19 @@ function makeFirm(index: number, rng: ReturnType<typeof makeRng>, usedNames: Set
     const exportAmt = shipped ? Math.max(0, exportBase * (1 + 1.2 * y) * (1 + 0.25 * rng.normal())) : 0
     return {
       ym,
+      observed: true,
       deposit: roundSig(Math.exp(logDeposit), 3),
       loan: roundSig(Math.exp(logLoan), 2),
       exportAmt: roundSig(exportAmt, 2),
     }
   })
-  const bills = makeBills(index, region, exporter, base[0].loan)
+  const bills = makeBills(index, region, exporter, base[0].loan as number)
   const series: MonthPoint[] = base.map((p, i) => ({ ...p, bill: bills[i] }))
 
   return {
     id: `F-${String(index + 1).padStart(3, '0')}`,
-    name: `${name}(가상)`,
+    name,
+    synthetic: true,
     region,
     industry,
     exporter,
@@ -194,7 +203,10 @@ export const FIRMS: Firm[] = (() => {
 
 /** 기준월까지 최근 months개월 통장 잔고(표 안 흐름선용) */
 export function depositTrail(firm: Firm, index: number, months = 12) {
-  return firm.series.slice(Math.max(0, index - months + 1), index + 1).map((p) => p.deposit)
+  return firm.series
+    .slice(Math.max(0, index - months + 1), index + 1)
+    .map((p) => p.deposit)
+    .filter((v): v is number => v !== null)
 }
 
 export function ymLabel(ym: number) {
