@@ -2317,7 +2317,7 @@ details.raw[open] summary svg {
   }
 
   .board-topics button {
-    flex: 1 1 45%;
+    flex: 1 1 30%;
     min-height: 2.5rem;
   }
 }
