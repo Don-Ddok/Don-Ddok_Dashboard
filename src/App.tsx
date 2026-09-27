@@ -5,6 +5,7 @@ import { MonthLink, MonthProvider } from './lib/month'
 import { Bulletin } from './pages/Bulletin'
 import { Firms } from './pages/Firms'
 import { Evidence } from './pages/Evidence'
+import { Timing } from './pages/Timing'
 import { INTERNAL } from './lib/internal'
 
 // 그래프 라이브러리는 상세 화면에서만 쓰므로 그 화면에 들어갈 때 불러온다
@@ -23,6 +24,7 @@ function DetailLoading() {
 const TITLES: Record<string, string> = {
   '/': '월보',
   '/firms': '거래처',
+  '/timing': '계정 시차',
   '/evidence': '근거와 한계',
   ...(INTERNAL ? { '/internal': '내부 시연' } : {}),
 }
@@ -60,6 +62,7 @@ export default function App() {
                 </Suspense>
               }
             />
+            <Route path="/timing" element={<Timing />} />
             <Route path="/evidence" element={<Evidence />} />
             {Internal && (
               <Route
