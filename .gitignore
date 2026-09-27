@@ -36,3 +36,8 @@ dist-ssr
 .impeccable/review/
 .impeccable/questions/
 .impeccable/decision/brief-body.md
+
+# 내부 시연 모드: 실제 데이터 경로 설정과 집계 파일은 저장소에 두지 않는다
+.env.internal*
+**/내부시연/
+internal-summary*.json

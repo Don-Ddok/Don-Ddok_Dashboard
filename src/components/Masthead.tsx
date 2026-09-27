@@ -1,11 +1,13 @@
 import { NavLink } from 'react-router-dom'
 import { useMonth } from '../lib/month'
 import { MonthControl } from './MonthControl'
+import { INTERNAL } from '../lib/internal'
 
 const LINKS = [
   { to: '/', label: '월보', end: true },
   { to: '/firms', label: '거래처', end: false },
   { to: '/evidence', label: '근거와 한계', end: false },
+  ...(INTERNAL ? [{ to: '/internal', label: '내부 시연(실제 데이터)', end: false }] : []),
 ]
 
 export function Masthead() {
@@ -18,12 +20,19 @@ export function Masthead() {
         </p>
         <p className="release-meta">담당 돈독 팀</p>
       </div>
+      {INTERNAL && (
+        <p className="internal-band" role="note">
+          내부 시연 모드: 실제 은행 데이터 집계 화면이 켜져 있습니다. 외부 공유·캡처 배포 금지
+        </p>
+      )}
       <div className="masthead-top">
         <div>
           <p className="masthead-name">
             <NavLink to={{ pathname: '/', search: `?m=${ym}` }}>거래처 참고 신호 월보</NavLink>
           </p>
-          <p className="masthead-issuer">돈독 통계 프로젝트 프로토타입, 가상 거래처 데이터</p>
+          <p className="masthead-issuer">
+            돈독 통계 프로젝트 프로토타입, 가상 거래처 데이터{INTERNAL && ' (내부 시연 화면만 실제 데이터 집계)'}
+          </p>
         </div>
         <MonthControl />
       </div>

@@ -5,9 +5,12 @@ import { MonthLink, MonthProvider } from './lib/month'
 import { Bulletin } from './pages/Bulletin'
 import { Firms } from './pages/Firms'
 import { Evidence } from './pages/Evidence'
+import { INTERNAL } from './lib/internal'
 
 // 그래프 라이브러리는 상세 화면에서만 쓰므로 그 화면에 들어갈 때 불러온다
 const FirmDetail = lazy(() => import('./pages/FirmDetail'))
+// 내부 시연 화면: internal 모드 개발 서버에서만. 배포 빌드에서는 INTERNAL이 false로 고정돼 이 화면 코드가 빠진다
+const Internal = INTERNAL ? lazy(() => import('./pages/Internal')) : null
 
 function DetailLoading() {
   return (
@@ -21,6 +24,7 @@ const TITLES: Record<string, string> = {
   '/': '월보',
   '/firms': '거래처',
   '/evidence': '근거와 한계',
+  ...(INTERNAL ? { '/internal': '내부 시연' } : {}),
 }
 
 function DocumentTitle() {
@@ -52,6 +56,16 @@ export default function App() {
               }
             />
             <Route path="/evidence" element={<Evidence />} />
+            {Internal && (
+              <Route
+                path="/internal"
+                element={
+                  <Suspense fallback={<DetailLoading />}>
+                    <Internal />
+                  </Suspense>
+                }
+              />
+            )}
             <Route
               path="*"
               element={
@@ -67,7 +81,7 @@ export default function App() {
         </main>
         <footer className="colophon">
           돈독(Don-Ddok) 팀, iM DiGital Banker Academy 9기 통계 프로젝트 프로토타입. iM뱅크의 공식 입장이 아니며, 거래처와 계좌 금액은
-          모두 가상입니다.
+          모두 가상입니다.{INTERNAL && ' 내부 시연 화면만 실제 데이터 집계이며 외부에 공유하지 않습니다.'}
         </footer>
       </div>
     </MonthProvider>

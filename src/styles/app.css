@@ -1804,3 +1804,83 @@ details.raw[open] summary svg {
     clip-path: inset(-4px -4px -4px -4px);
   }
 }
+
+/* ─── 내부 시연 모드(실제 데이터 집계, 로컬 전용) ─────── */
+.internal-band {
+  padding: var(--s-2) var(--s-4);
+  background: var(--down-wash);
+  border-bottom: var(--rule-heavy) solid var(--down);
+  color: var(--down-ink);
+  font-size: var(--t-xs);
+  font-weight: 700;
+}
+
+.internal-chart {
+  height: 16rem;
+  margin-top: var(--s-4);
+}
+
+.compare {
+  display: grid;
+  gap: var(--s-4);
+  margin-top: var(--s-4);
+}
+
+.compare-label {
+  font-size: var(--t-sm);
+  font-weight: 700;
+  margin-bottom: var(--s-2);
+}
+
+.compare-bar {
+  display: grid;
+  grid-template-columns: 11rem minmax(0, 1fr) 4rem;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-1) 0;
+  font-size: var(--t-sm);
+}
+
+.compare-track {
+  height: 0.875rem;
+  border-bottom: var(--rule-thin) solid var(--rule-mid);
+}
+
+.compare-fill {
+  display: block;
+  height: 100%;
+  background: var(--rule-mid);
+}
+
+.compare-fill.is-a {
+  background: var(--accent);
+}
+
+.compare-value {
+  text-align: right;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.finding {
+  margin-top: var(--s-4);
+  padding-top: var(--s-3);
+  border-top: var(--rule-thin) solid var(--rule);
+  max-width: 72ch;
+  color: var(--ink-2);
+}
+
+.finding strong {
+  color: var(--ink);
+}
+
+@media (max-width: 640px) {
+  .compare-bar {
+    grid-template-columns: minmax(0, 1fr) 3.5rem;
+  }
+
+  .compare-track {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
