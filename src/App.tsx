@@ -41,6 +41,11 @@ export default function App() {
   return (
     <MonthProvider>
       <DocumentTitle />
+      {/* 뒷배경 장식: 페이지 맨 위 양쪽 끝에만 민트·청색 빛번짐. 스크롤하면 함께 올라가 표 뒤에는 깔리지 않는다 */}
+      <div className="backdrop-glow" aria-hidden="true">
+        <span />
+        <span />
+      </div>
       <div className="page">
         <Masthead />
         <main>

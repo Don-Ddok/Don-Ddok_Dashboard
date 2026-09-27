@@ -11,39 +11,105 @@
   }
 }
 
+/* ─── 뒷배경 빛번짐(장식) ─────────────────────────────── */
+.backdrop-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 46rem;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.backdrop-glow span {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(72px);
+}
+
+.backdrop-glow span:nth-child(1) {
+  top: -9rem;
+  left: -8rem;
+  width: 38rem;
+  height: 24rem;
+  background: var(--mint);
+  opacity: 0.2;
+}
+
+.backdrop-glow span:nth-child(2) {
+  top: -6rem;
+  right: -10rem;
+  width: 34rem;
+  height: 22rem;
+  background: var(--region-dg);
+  opacity: 0.1;
+}
+
+@media (max-width: 640px) {
+  .backdrop-glow {
+    height: 32rem;
+  }
+
+  .backdrop-glow span {
+    filter: blur(48px);
+  }
+}
+
 /* ─── 보도자료 머리 ───────────────────────────────────── */
+/* 머리 띠: 왼쪽 짙은 민트 '보도자료' 도장, 나머지는 밝은 민트에 아주 옅은 사선 괘선(증권 인쇄 용지 느낌) */
 .release-band {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--s-2) var(--s-4);
+  align-items: stretch;
   flex-wrap: wrap;
-  padding: var(--s-2) var(--s-4);
-  background: var(--mint);
+  background-color: var(--mint);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6'%3E%3Cpath d='M-1 7L7 -1' stroke='%230b2420' stroke-opacity='0.14' stroke-width='1'/%3E%3C/svg%3E");
   color: var(--on-mint);
   font-size: var(--t-xs);
 }
 
-.release-kind {
+.release-label {
+  display: flex;
+  align-items: center;
+  padding: var(--s-2) var(--s-4);
+  background: var(--accent);
+  color: #ffffff;
   font-size: var(--t-sm);
   font-weight: 800;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.18em;
 }
 
-.release-kind span {
-  margin-left: var(--s-2);
+.release-kind {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  flex: 1;
+  min-width: 0;
+  padding: var(--s-2) var(--s-3);
+}
+
+.release-chip {
   padding: 0 var(--s-1);
   border: var(--rule-thin) solid var(--on-mint);
-  color: var(--on-mint);
-  font-weight: 500;
-  letter-spacing: 0;
+  font-weight: 600;
+}
+
+.release-title {
+  padding-left: var(--s-3);
+  border-left: var(--rule-thin) solid var(--on-mint);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .release-meta {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--s-1) var(--s-3);
-  font-weight: 500;
+  align-items: center;
+  padding: var(--s-2) var(--s-4);
+  font-weight: 600;
 }
 
 @media (max-width: 640px) {
@@ -51,23 +117,49 @@
     margin-inline: calc(-1 * var(--s-4));
     margin-top: calc(-1 * var(--s-4));
   }
+
+  .release-title {
+    display: none;
+  }
 }
 
 .masthead-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--s-3) var(--s-6);
+  padding: var(--s-2) 0 var(--s-2);
+  border-bottom: 3px solid var(--ink);
+}
+
+.brand {
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--s-4);
-  flex-wrap: wrap;
-  padding: var(--s-3) 0 var(--s-3);
-  border-bottom: var(--rule-thin) solid var(--ink);
+  align-items: center;
+  gap: var(--s-3);
+}
+
+.emblem {
+  flex-shrink: 0;
+  width: 3rem;
+  height: 3rem;
+}
+
+@media (max-width: 640px) {
+  .masthead-top {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .emblem {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
 }
 
 .masthead-name {
-  font-size: var(--t-xl);
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.2;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1.1;
 }
 
 .masthead-name a {
@@ -84,6 +176,8 @@
 .nav {
   display: flex;
   gap: var(--s-5);
+  margin-top: 2px;
+  border-top: var(--rule-thin) solid var(--ink);
   border-bottom: var(--rule-thin) solid var(--rule);
   overflow-x: auto;
 }
