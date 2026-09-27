@@ -13,7 +13,7 @@ Whole app (월보 home, 거래처 목록, 거래처 상세, 근거와 한계). M
 
 THESIS: This month's reference signals are published as a monthly statistical release, with sources and footnotes, not as an alert board. It refuses the admin default: sidebar, four KPI cards, neon line chart.
 
-OWN-WORLD: Off-white release paper, ink body, cool rule grey, one release blue as the only accent. Ruled statistical tables with shaded header rows, year-on-year change columns, "주:" and "자료:" footnotes. No cards, no shadows, square corners. One workhorse Korean sans with tabular figures; hierarchy by size and spacing only.
+OWN-WORLD: Off-white release paper, ink body, cool rule grey, a mint accent in two steps (bright mint for the release band, section numbers and increase bars with dark text on it; deep mint for current position, controls and links), orange for decreases, and two small region swatches (Daegu blue, Gyeongbuk plum). Colour is never the only code: position, sign and line form carry the same meaning. (Revised 2026-09-27 at the user's request: mint as the main colour, richer colour, sparklines, motion.) Ruled statistical tables with shaded header rows, year-on-year change columns, "주:" and "자료:" footnotes. No cards, no shadows, square corners. One workhorse Korean sans with tabular figures; hierarchy by size and spacing only.
 
 STORY: The RM reads the reference month and a one-line summary, checks the regional export table, opens a client row to see the three conditions connect, then goes to the client page. Footnotes state synthetic data and weak evidence.
 

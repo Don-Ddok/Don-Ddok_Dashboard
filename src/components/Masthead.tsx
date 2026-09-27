@@ -12,6 +12,12 @@ export function Masthead() {
   const { ym } = useMonth()
   return (
     <header className="masthead">
+      <div className="release-band">
+        <p className="release-kind">
+          보도자료 <span>시연용</span>
+        </p>
+        <p className="release-meta">담당 돈독 팀</p>
+      </div>
       <div className="masthead-top">
         <div>
           <p className="masthead-name">

@@ -6,6 +6,7 @@ import { amount, ymLong } from '../lib/format'
 import { MonthLink, useMonth } from '../lib/month'
 import { SignalMark, STATUS_LABEL } from '../components/SignalMark'
 import { TableWrap } from '../components/TableWrap'
+import { RegionTag } from '../components/RegionTag'
 import { Footnotes, SIGNAL_RULE_NOTE, SYNTHETIC_NOTE } from '../components/Footnotes'
 
 const STATUS_ORDER: Record<SignalStatus, number> = { met: 0, partial: 1, none: 2, na: 3 }
@@ -137,7 +138,9 @@ export function Firms() {
                   <MonthLink to={`/firms/${firm.id}`}>{firm.name.replace('(가상)', '')}</MonthLink>{' '}
                   <span className="synthetic">(가상)</span>
                 </td>
-                <td>{firm.region}</td>
+                <td>
+                  <RegionTag region={firm.region} />
+                </td>
                 <td>{firm.industry}</td>
                 <td>{firm.exporter ? '수출' : '비수출'}</td>
                 <td>{firm.grade}</td>

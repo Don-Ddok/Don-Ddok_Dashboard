@@ -12,8 +12,45 @@
 }
 
 /* ─── 보도자료 머리 ───────────────────────────────────── */
-.masthead {
-  border-top: 4px solid var(--ink);
+.release-band {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2) var(--s-4);
+  flex-wrap: wrap;
+  padding: var(--s-2) var(--s-4);
+  background: var(--mint);
+  color: var(--on-mint);
+  font-size: var(--t-xs);
+}
+
+.release-kind {
+  font-size: var(--t-sm);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.release-kind span {
+  margin-left: var(--s-2);
+  padding: 0 var(--s-1);
+  border: var(--rule-thin) solid var(--on-mint);
+  color: var(--on-mint);
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.release-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1) var(--s-3);
+  font-weight: 500;
+}
+
+@media (max-width: 640px) {
+  .release-band {
+    margin-inline: calc(-1 * var(--s-4));
+    margin-top: calc(-1 * var(--s-4));
+  }
 }
 
 .masthead-top {
@@ -22,12 +59,12 @@
   justify-content: space-between;
   gap: var(--s-4);
   flex-wrap: wrap;
-  padding: var(--s-3) 0 var(--s-3);
+  padding: var(--s-4) 0 var(--s-3);
   border-bottom: var(--rule-thin) solid var(--ink);
 }
 
 .masthead-name {
-  font-size: var(--t-lg);
+  font-size: var(--t-xl);
   font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1.2;
@@ -136,6 +173,23 @@
   line-height: 1.35;
 }
 
+.figure {
+  font-style: normal;
+  font-variant-numeric: tabular-nums;
+  text-decoration: underline;
+  text-decoration-thickness: 0.14em;
+  text-underline-offset: 0.18em;
+}
+
+.figure.down {
+  color: var(--down-ink);
+}
+
+.figure.up,
+.figure.count {
+  color: var(--accent-ink);
+}
+
 .lead p {
   margin-top: var(--s-3);
   color: var(--ink-2);
@@ -157,8 +211,29 @@
 }
 
 .section-head h2 {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
   font-size: var(--t-md);
   font-weight: 700;
+}
+
+main {
+  counter-reset: section;
+}
+
+main .section-head h2::before {
+  counter-increment: section;
+  content: counter(section);
+  display: inline-grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  background: var(--mint);
+  color: var(--on-mint);
+  font-size: var(--t-sm);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 .section-head .unit {
@@ -251,6 +326,14 @@
   }
 }
 
+.stat-table .chg.down {
+  color: var(--down-ink);
+}
+
+.stat-table .chg.up {
+  color: var(--up-ink);
+}
+
 .stat-table tr.is-current > * {
   background: var(--accent-wash);
   font-weight: 600;
@@ -318,27 +401,28 @@
   right: 22%;
 }
 
-/* 증가는 채운 막대, 감소는 테두리만 있는 막대: 색이 아니라 모양으로 구분 */
+/* 증가는 민트로 기준선 위, 감소는 주황으로 기준선 아래: 색과 위치 둘 다로 읽힌다 */
 .yoy-half.up .yoy-bar {
   bottom: 0;
-  background: var(--ink);
+  background: var(--up);
+  transform-origin: bottom center;
 }
 
 .yoy-half.down .yoy-bar {
   top: 0;
-  border: var(--rule-thin) solid var(--ink);
-  border-top: 0;
-  background: var(--paper-raise);
+  background: var(--down);
+  transform-origin: top center;
 }
 
-.yoy-col.is-current .yoy-half.up .yoy-bar {
-  background: var(--accent);
+/* 기준월 칸은 옅은 민트 바탕으로 짚는다 */
+.yoy-col {
+  padding-top: var(--s-1);
+  border-top: var(--rule-heavy) solid transparent;
 }
 
-.yoy-col.is-current .yoy-half.down .yoy-bar {
-  border-color: var(--accent);
-  border-width: var(--rule-heavy);
-  border-top: 0;
+.yoy-col.is-current {
+  background: var(--accent-wash);
+  border-top-color: var(--accent);
 }
 
 .yoy-value {
@@ -346,6 +430,14 @@
   font-weight: 600;
   white-space: nowrap;
   letter-spacing: -0.02em;
+}
+
+.yoy-value.down {
+  color: var(--down-ink);
+}
+
+.yoy-value.up {
+  color: var(--up-ink);
 }
 
 @media (max-width: 640px) {
@@ -387,12 +479,66 @@
   height: 0.75rem;
 }
 
-.swatch.fill {
-  background: var(--ink);
+.swatch.up {
+  background: var(--up);
 }
 
-.swatch.outline {
-  border: var(--rule-thin) solid var(--ink);
+.swatch.down {
+  background: var(--down);
+}
+
+/* ─── 지역 표시: 이름 앞 작은 네모 ─────────────────────── */
+.region-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3125rem;
+  white-space: nowrap;
+}
+
+.region-tag::before {
+  content: '';
+  width: 0.5rem;
+  height: 0.5rem;
+  background: var(--region-color);
+}
+
+.region-tag[data-region='dg'] {
+  --region-color: var(--region-dg);
+}
+
+.region-tag[data-region='gb'] {
+  --region-color: var(--region-gb);
+}
+
+/* ─── 표 안 작은 흐름선 ───────────────────────────────── */
+.stat-table td.spark-cell {
+  padding-block: calc(var(--s-2) - 0.125rem);
+  line-height: 0;
+}
+
+.sparkline {
+  display: block;
+  overflow: visible;
+}
+
+.sparkline polyline {
+  fill: none;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.spark-base {
+  stroke: var(--rule-mid);
+  stroke-width: 1.25;
+}
+
+.spark-recent {
+  stroke: var(--down);
+  stroke-width: 2;
+}
+
+.spark-end {
+  fill: var(--down);
 }
 
 /* ─── 신호 상태 표시: 선 모양 ─────────────────────────── */
@@ -1043,4 +1189,50 @@ details.raw[open] summary svg {
 
 .strip-na strong {
   color: var(--ink);
+}
+
+/* ─── 움직임: 화면이 열리거나 기준월이 바뀔 때 한 번. 동작 줄이기 설정이면 전부 끈다 ─── */
+@media (prefers-reduced-motion: no-preference) {
+  .yoy-half.up .yoy-bar {
+    animation: bar-grow 520ms var(--ease-out) both;
+    animation-delay: calc(var(--i) * 60ms + 120ms);
+  }
+
+  .yoy-half.down .yoy-bar {
+    animation: bar-grow 520ms var(--ease-out) both;
+    animation-delay: calc(var(--i) * 60ms + 120ms);
+  }
+
+  .rows-in > tr:not(.detail-row) {
+    animation: row-in 360ms var(--ease-out) both;
+    animation-delay: calc(var(--r, 0) * 45ms);
+  }
+
+  /* 흐름선은 왼쪽에서 오른쪽으로 걷히며 드러난다 */
+  .sparkline {
+    animation: spark-reveal 800ms var(--ease-out) both;
+    animation-delay: calc(var(--r, 0) * 45ms + 200ms);
+  }
+}
+
+@keyframes bar-grow {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+@keyframes row-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.375rem);
+  }
+}
+
+@keyframes spark-reveal {
+  from {
+    clip-path: inset(-4px 100% -4px -4px);
+  }
+  to {
+    clip-path: inset(-4px -4px -4px -4px);
+  }
 }

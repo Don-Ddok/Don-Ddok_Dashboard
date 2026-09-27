@@ -2,6 +2,8 @@ import type { ReactElement } from 'react'
 import { useParams } from 'react-router-dom'
 import { ArrowLeft, CaretDown } from '@phosphor-icons/react'
 import {
+  Area,
+  AreaChart,
   Bar,
   BarChart,
   CartesianGrid,
@@ -20,12 +22,17 @@ import { MonthLink, useMonth } from '../lib/month'
 import { ConditionTrace } from '../components/ConditionTrace'
 import { SignalMark, STATUS_LABEL } from '../components/SignalMark'
 import { TableWrap } from '../components/TableWrap'
+import { RegionTag } from '../components/RegionTag'
+import { prefersReducedMotion } from '../lib/motion'
 import { Footnotes, SIGNAL_RULE_NOTE, SYNTHETIC_NOTE, WEAK_EVIDENCE_NOTE } from '../components/Footnotes'
 
 const INK = '#1b1e23'
 const INK_3 = '#5f6570'
 const RULE = '#d5dae1'
-const ACCENT = '#1f5aa6'
+const ACCENT = '#007d6c'
+const SHADE = '#e6f0ee'
+/** 지역 색(tokens.css의 --region-dg, --region-gb와 같은 값) */
+const REGION_COLOR = { 대구: '#2f5fb3', 경북: '#7b4f93' } as const
 const TICK = { fontSize: 11, fill: INK_3 }
 
 interface Row {
@@ -69,6 +76,8 @@ export default function FirmDetail() {
   const currentX = ymShort(ym)
   const first = rows[0]
   const last = rows[rows.length - 1]
+  const regionColor = REGION_COLOR[firm.region]
+  const animate = !prefersReducedMotion()
 
   return (
     <>
@@ -83,7 +92,9 @@ export default function FirmDetail() {
         <dl className="facts">
           <div>
             <dt>지역</dt>
-            <dd>{firm.region}</dd>
+            <dd>
+              <RegionTag region={firm.region} />
+            </dd>
           </div>
           <div>
             <dt>업종</dt>
@@ -114,7 +125,7 @@ export default function FirmDetail() {
         <div className="section-head">
           <h2 id="history-title">36개월 흐름</h2>
           <span className="unit">
-            {firm.exporter ? `신호 충족 ${metMonths.length}개월` : '규칙 대상 아님'}, 파란 세로선은 기준월
+            {firm.exporter ? `신호 충족 ${metMonths.length}개월` : '규칙 대상 아님'}, 민트 세로선은 기준월
           </span>
         </div>
         <SignalStrip rows={rows} currentYm={ym} exporter={firm.exporter} />
@@ -131,7 +142,15 @@ export default function FirmDetail() {
               <ReferenceLine y={0} stroke={INK} />
               <ReferenceLine x={currentX} stroke={ACCENT} strokeWidth={2} />
               <Tooltip content={tip((v) => `${v > 0 ? '+' : ''}${v}%`)} />
-              <Line type="linear" dataKey="regionYoy" stroke={INK} strokeWidth={1.5} dot={false} isAnimationActive={false} />
+              <Line
+                type="linear"
+                dataKey="regionYoy"
+                stroke={regionColor}
+                strokeWidth={2}
+                dot={false}
+                isAnimationActive={animate}
+                animationDuration={900}
+              />
             </LineChart>
           </ChartBlock>
 
@@ -140,14 +159,24 @@ export default function FirmDetail() {
             unit="백만 원, 월말"
             summary={`${ymShort(first.ym)} ${amount(first.deposit)}에서 ${ymShort(last.ym)} ${amount(last.deposit)}로, 기준월 3개월 변화 ${pct(check.conditions[1].value)}.`}
           >
-            <LineChart data={rows} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+            <AreaChart data={rows} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
               <CartesianGrid stroke={RULE} vertical={false} />
               <XAxis dataKey="x" tick={TICK} interval={5} tickLine={false} axisLine={{ stroke: RULE }} />
               <YAxis tick={TICK} width={56} tickLine={false} axisLine={false} tickFormatter={amount} />
-              <ReferenceLine x={currentX} stroke={ACCENT} strokeWidth={2} />
               <Tooltip content={tip(amount)} />
-              <Line type="linear" dataKey="deposit" stroke={INK} strokeWidth={1.5} dot={false} isAnimationActive={false} />
-            </LineChart>
+              <Area
+                type="linear"
+                dataKey="deposit"
+                stroke={INK}
+                strokeWidth={1.5}
+                fill={SHADE}
+                fillOpacity={1}
+                dot={false}
+                isAnimationActive={animate}
+                animationDuration={900}
+              />
+              <ReferenceLine x={currentX} stroke={ACCENT} strokeWidth={2} />
+            </AreaChart>
           </ChartBlock>
 
           <ChartBlock
@@ -161,7 +190,15 @@ export default function FirmDetail() {
               <YAxis tick={TICK} width={56} tickLine={false} axisLine={false} tickFormatter={amount} domain={['auto', 'auto']} />
               <ReferenceLine x={currentX} stroke={ACCENT} strokeWidth={2} />
               <Tooltip content={tip(amount)} />
-              <Line type="stepAfter" dataKey="loan" stroke={INK} strokeWidth={1.5} dot={false} isAnimationActive={false} />
+              <Line
+                type="stepAfter"
+                dataKey="loan"
+                stroke={INK}
+                strokeWidth={1.5}
+                dot={false}
+                isAnimationActive={animate}
+                animationDuration={900}
+              />
             </LineChart>
           </ChartBlock>
 
@@ -176,8 +213,8 @@ export default function FirmDetail() {
                 <XAxis dataKey="x" tick={TICK} interval={5} tickLine={false} axisLine={{ stroke: RULE }} />
                 <YAxis tick={TICK} width={56} tickLine={false} axisLine={false} tickFormatter={amount} />
                 <ReferenceLine x={currentX} stroke={ACCENT} strokeWidth={2} />
-                <Tooltip content={tip(amount)} cursor={{ fill: '#eceff2' }} />
-                <Bar dataKey="exportAmt" fill={INK} isAnimationActive={false} />
+                <Tooltip content={tip(amount)} cursor={{ fill: SHADE }} />
+                <Bar dataKey="exportAmt" fill={regionColor} isAnimationActive={animate} animationDuration={700} />
               </BarChart>
             </ChartBlock>
           ) : null}

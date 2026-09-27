@@ -2,6 +2,6 @@
   <rect x="4" y="3" width="24" height="26" fill="#f6f7f5" stroke="#1b1e23" stroke-width="2"/>
   <rect x="4" y="3" width="24" height="5" fill="#1b1e23"/>
   <line x1="9" y1="14" x2="23" y2="14" stroke="#1b1e23" stroke-width="2"/>
-  <line x1="9" y1="19" x2="23" y2="19" stroke="#1f5aa6" stroke-width="3"/>
+  <line x1="9" y1="19" x2="23" y2="19" stroke="#00a08a" stroke-width="3"/>
   <line x1="9" y1="24" x2="18" y2="24" stroke="#1b1e23" stroke-width="2" stroke-dasharray="2 2"/>
 </svg>
