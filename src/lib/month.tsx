@@ -1,11 +1,10 @@
 // 기준월과 신호 조합 상태: 주소창의 ?m=YYYYMM&c=조합 에 담아 두어 새로고침·공유해도 같은 화면이 열린다
 import { createContext, useCallback, useContext, useMemo, type ReactNode } from 'react'
 import { Link, useSearchParams, type LinkProps } from 'react-router-dom'
-import { FIRMS, MONTHS } from '../data/synthetic'
+import { MONTHS } from '../data/synthetic'
 import { FIRST_JUDGED_INDEX, LAST_INDEX, latestMonthWithSignal } from '../data/signals'
 import { COMBO_IDS, DEFAULT_COMBO, isComboId, type ComboId } from '../data/combos'
-
-const DEFAULT_INDEX = Object.fromEntries(COMBO_IDS.map((c) => [c, latestMonthWithSignal(FIRMS, c)])) as Record<ComboId, number>
+import { useData } from './data'
 
 interface MonthState {
   index: number
@@ -25,10 +24,16 @@ function searchFor(ym: number, combo: ComboId) {
 
 export function MonthProvider({ children }: { children: ReactNode }) {
   const [params, setParams] = useSearchParams()
+  const { firms } = useData()
+  // 첫 화면 기본 기준월은 조합마다, 데이터(가상·실제)마다 다르다
+  const defaultIndex = useMemo(
+    () => Object.fromEntries(COMBO_IDS.map((id) => [id, latestMonthWithSignal(firms, id)])) as Record<ComboId, number>,
+    [firms],
+  )
   const c = params.get('c')
   const combo: ComboId = isComboId(c) ? c : DEFAULT_COMBO
   const fromUrl = MONTHS.indexOf(Number(params.get('m')))
-  const index = fromUrl >= FIRST_JUDGED_INDEX ? fromUrl : DEFAULT_INDEX[combo]
+  const index = fromUrl >= FIRST_JUDGED_INDEX ? fromUrl : defaultIndex[combo]
 
   const setIndex = useCallback(
     (i: number) => {

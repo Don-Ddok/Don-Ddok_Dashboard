@@ -2624,3 +2624,57 @@ details.raw[open] summary svg {
   font-size: var(--t-xs);
   color: var(--ink-3);
 }
+
+/* ─── 쪽 넘김 ─────────────────────────────────────────── */
+.pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2) var(--s-4);
+  margin-top: var(--s-3);
+}
+
+.pager-range {
+  font-size: var(--t-sm);
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.pager-buttons {
+  display: flex;
+  align-items: center;
+  gap: var(--s-1);
+}
+
+.pager-page {
+  min-width: 2.25rem;
+  height: 2.25rem;
+  padding: 0 var(--s-2);
+  border: var(--rule-thin) solid transparent;
+  background: transparent;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: border-color 150ms var(--ease-out);
+}
+
+.pager-page:hover {
+  border-color: var(--rule-mid);
+}
+
+/* 현재 쪽: 기준월 목록처럼 아래 굵은 민트 선 */
+.pager-page[aria-current='page'] {
+  border-bottom: 3px solid var(--accent);
+  color: var(--accent-ink);
+  font-weight: 700;
+  cursor: default;
+}
+
+.pager-gap {
+  padding: 0 var(--s-1);
+  color: var(--ink-3);
+}
+
+.pager .icon-button {
+  height: 2.25rem;
+}

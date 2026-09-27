@@ -46,8 +46,9 @@ export interface SignalCheck {
   naReason?: string
 }
 
-function change(cur: number, prev: number | undefined) {
-  return prev !== undefined && prev > 0 ? cur / prev - 1 : null
+/** 변화율. 어느 한쪽이 관측되지 않았거나 이전 값이 0이면 계산하지 않는다 */
+function change(cur: number | null, prev: number | null | undefined) {
+  return cur !== null && prev != null && prev > 0 ? cur / prev - 1 : null
 }
 
 function partnerCondition(firm: Firm, monthIndex: number, combo: ComboId): Condition {
@@ -64,12 +65,13 @@ function partnerCondition(firm: Firm, monthIndex: number, combo: ComboId): Condi
       detail: c.conditionDetail,
     }
   }
-  const before = prev?.bill
-  const newly = before === 0 && cur.bill > 0
+  const before = prev?.bill ?? undefined
+  const now = cur.bill ?? 0
+  const newly = before === 0 && now > 0
   return {
     key: 'partner',
     label: c.condition,
-    met: before !== undefined && cur.bill > before,
+    met: before !== undefined && cur.bill !== null && now > before,
     value: change(cur.bill, before),
     valueText: newly ? '새로 생김' : before === 0 ? '0 유지' : undefined,
     detail: c.conditionDetail,
@@ -100,7 +102,9 @@ export function checkSignal(firm: Firm, monthIndex: number, combo: ComboId = DEF
     partner,
   ]
 
-  const naReason = !firm.exporter
+  const naReason = !cur.observed
+    ? '이 달은 은행 거래 기록이 없습니다.'
+    : !firm.exporter
     ? '수출 실적이 없는 거래처라 이 규칙의 대상이 아닙니다.'
     : combo === 'bill' && !firm.billUser
       ? '할인어음 거래가 없는 거래처라 이 조합의 대상이 아닙니다.'

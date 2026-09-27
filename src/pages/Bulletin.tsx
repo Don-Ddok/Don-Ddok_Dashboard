@@ -1,7 +1,7 @@
 import { useState, type CSSProperties, type ReactNode } from 'react'
 import { ArrowRight, CaretDown } from '@phosphor-icons/react'
 import { REGION_EXPORTS, type Region } from '../data/regionExports'
-import { depositTrail, FIRMS, MONTHS, regionYoY } from '../data/synthetic'
+import { depositTrail, MONTHS, regionYoY, type Firm } from '../data/synthetic'
 import { FIRST_JUDGED_INDEX, firmsByStatus, JUDGE_START_NOTE, partnerAmount, targetCount } from '../data/signals'
 import { COMBOS, type ComboId } from '../data/combos'
 import { amount, pct, usdMillion, ymLong, ymShort } from '../lib/format'
@@ -12,10 +12,15 @@ import { TableWrap } from '../components/TableWrap'
 import { Sparkline } from '../components/Sparkline'
 import { RegionTag } from '../components/RegionTag'
 import { ChangeFigure, CountFigure } from '../components/Figure'
-import { EXPORT_SOURCE, Footnotes, SYNTHETIC_NOTE } from '../components/Footnotes'
+import { dataNote, EXPORT_SOURCE, firmSource, Footnotes } from '../components/Footnotes'
+import { FirmName } from '../components/FirmName'
+import { useData } from '../lib/data'
+import { Pager } from '../components/Pager'
 
 const REGIONS: Region[] = ['대구', '경북']
 const PARTIAL_PREVIEW = 6
+/** 살펴볼 거래처 한 쪽 크기(실제 데이터는 한 달에 수십 곳이 걸리기도 함) */
+const WATCH_PAGE = 20
 /** 행이 차례로 나타나도록 순번을 CSS 변수로 넘긴다 */
 const rowDelay = (r: number) => ({ '--r': r }) as CSSProperties
 
@@ -28,11 +33,11 @@ function lastSix(region: Region, ym: number) {
 }
 
 /** 신호가 있었던 가까운 달(해당 없음일 때 이동 제안) */
-function nearbySignalMonths(index: number, combo: ComboId) {
+function nearbySignalMonths(firms: Firm[], index: number, combo: ComboId) {
   const out: number[] = []
   for (let d = 1; d < MONTHS.length && out.length < 4; d++) {
     for (const i of [index - d, index + d]) {
-      if (i >= 6 && i < MONTHS.length && firmsByStatus(FIRMS, i, 'met', combo).length > 0 && out.length < 4) out.push(i)
+      if (i >= 6 && i < MONTHS.length && firmsByStatus(firms, i, 'met', combo).length > 0 && out.length < 4) out.push(i)
     }
   }
   return out.sort((a, b) => a - b)
@@ -42,13 +47,24 @@ export function Bulletin() {
   const { index, ym, setIndex, combo } = useMonth()
   const C = COMBOS[combo]
   const [open, setOpen] = useState<string | null>(null)
-  const met = firmsByStatus(FIRMS, index, 'met', combo)
-  const partial = firmsByStatus(FIRMS, index, 'partial', combo)
-  const targets = targetCount(FIRMS, combo)
+  const { firms, kind } = useData()
+  const met = firmsByStatus(firms, index, 'met', combo)
+  // 쪽 번호는 기준월·조합과 함께 기억해, 달이나 조합이 바뀌면 첫 쪽으로
+  const pageKey = `${index}|${combo}`
+  const [pageState, setPageState] = useState({ key: pageKey, page: 0 })
+  const page = pageState.key === pageKey ? pageState.page : 0
+  const metPage = met.slice(page * WATCH_PAGE, (page + 1) * WATCH_PAGE)
+  const goPage = (p: number) => {
+    setPageState({ key: pageKey, page: p })
+    setOpen(null)
+    document.getElementById('watch-title')?.scrollIntoView({ block: 'start' })
+  }
+  const partial = firmsByStatus(firms, index, 'partial', combo)
+  const targets = targetCount(firms, combo)
   const judged = index >= FIRST_JUDGED_INDEX
   const prev = index - 1 >= FIRST_JUDGED_INDEX ? index - 1 : null
-  const metDelta = prev === null ? null : met.length - firmsByStatus(FIRMS, prev, 'met', combo).length
-  const partialDelta = prev === null ? null : partial.length - firmsByStatus(FIRMS, prev, 'partial', combo).length
+  const metDelta = prev === null ? null : met.length - firmsByStatus(firms, prev, 'met', combo).length
+  const partialDelta = prev === null ? null : partial.length - firmsByStatus(firms, prev, 'partial', combo).length
   const dg = regionYoY('대구', ym)
   const gb = regionYoY('경북', ym)
 
@@ -147,7 +163,7 @@ export function Bulletin() {
         <div className="section-head">
           <h2 id="watch-title">살펴볼 거래처</h2>
           <span className="unit">
-            {C.name}, 세 조건 모두 충족, {ymLong(ym)} 기준
+            {C.name}, 세 조건 모두 충족 {met.length}곳, {ymLong(ym)} 기준
           </span>
         </div>
         <TableWrap>
@@ -169,7 +185,7 @@ export function Bulletin() {
                 </th>
               </tr>
             </thead>
-            <tbody key={ym} className="rows-in">
+            <tbody key={`${ym}-${page}`} className="rows-in">
               {met.length === 0 && (
                 <tr>
                   <td colSpan={8} className="empty-cell">
@@ -180,7 +196,7 @@ export function Bulletin() {
                         : JUDGE_START_NOTE}
                     </p>
                     <div className="chip-row">
-                      {nearbySignalMonths(index, combo).map((i) => (
+                      {nearbySignalMonths(firms, index, combo).map((i) => (
                         <button key={i} type="button" className="text-button" onClick={() => setIndex(i)}>
                           {ymLong(MONTHS[i])} 보기
                         </button>
@@ -189,14 +205,13 @@ export function Bulletin() {
                   </td>
                 </tr>
               )}
-              {met.map(({ firm, check }, r) => {
+              {metPage.map(({ firm, check }, r) => {
                 const isOpen = open === firm.id
                 const [, dep, partner] = check.conditions
                 return (
                   <FirmRow
                     key={firm.id}
-                    id={firm.id}
-                    name={firm.name}
+                    firm={firm}
                     order={r}
                     cells={[
                       { text: <RegionTag region={firm.region} /> },
@@ -215,6 +230,7 @@ export function Bulletin() {
             </tbody>
           </table>
         </TableWrap>
+        <Pager page={page} pageSize={WATCH_PAGE} total={met.length} onChange={goPage} />
       </section>
 
       <section className="section" aria-labelledby="partial-title">
@@ -254,8 +270,7 @@ export function Bulletin() {
               {partial.slice(0, PARTIAL_PREVIEW).map(({ firm, check }, r) => (
                 <tr key={firm.id} style={rowDelay(r)}>
                   <td className="firm-name">
-                    <MonthLink to={`/firms/${firm.id}`}>{firm.name.replace('(가상)', '')}</MonthLink>{' '}
-                    <span className="synthetic">(가상)</span>
+                    <FirmName firm={firm} />
                   </td>
                   <td>
                     <RegionTag region={firm.region} />
@@ -281,8 +296,8 @@ export function Bulletin() {
       </section>
 
       <Footnotes
-        notes={[C.ruleNote, C.basisNote, SYNTHETIC_NOTE, `지역 수출은 ${ymShort(ym)} 월간 통관 기준이며, 은행 계좌는 월말 잔액 기준입니다.`]}
-        source={EXPORT_SOURCE}
+        notes={[C.ruleNote, C.basisNote, dataNote(kind), `지역 수출은 ${ymShort(ym)} 월간 통관 기준이며, 은행 계좌는 월말 잔액 기준입니다.`]}
+        source={`${EXPORT_SOURCE}, ${firmSource(kind)}`}
       />
     </>
   )
@@ -300,28 +315,27 @@ function Delta({ value }: { value: number }) {
 }
 
 function FirmRow({
-  id,
-  name,
+  firm,
   order,
   cells,
   open,
   onToggle,
   detail,
 }: {
-  id: string
-  name: string
+  firm: Firm
   order: number
   cells: { text: ReactNode; num?: boolean; hideSm?: boolean; className?: string }[]
   open: boolean
   onToggle: () => void
   detail: ReactNode
 }) {
+  const id = firm.id
   const detailId = `detail-${id}`
   return (
     <>
       <tr style={rowDelay(order)}>
         <td className="firm-name">
-          <MonthLink to={`/firms/${id}`}>{name.replace('(가상)', '')}</MonthLink> <span className="synthetic">(가상)</span>
+          <FirmName firm={firm} />
         </td>
         {cells.map((c, i) => (
           <td key={i} className={[c.num && 'num', c.className, c.hideSm && 'hide-sm'].filter(Boolean).join(' ') || undefined}>

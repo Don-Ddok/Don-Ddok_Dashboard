@@ -8,7 +8,8 @@ import react from '@vitejs/plugin-react'
  * 내부 시연 모드(`npm run dev:internal`, mode = internal)
  * - 실제 법인 데이터 집계 파일(JSON)은 이 저장소 밖에 두고, `.env.internal.local`의 INTERNAL_SUMMARY 경로로만 가리킨다.
  * - 개발 서버가 요청을 받을 때마다 그 파일을 읽어 `/__internal/summary.json`으로, 같은 폴더의 조합 신호 점검 결과(`combo_check.json`)를
- *   `/__internal/combo.json`으로 돌려준다. 빌드 결과물에는 들어가지 않는다.
+ *   `/__internal/combo.json`으로, 법인 단위 월별 잔액(`firms.json`, 월보·거래처 화면용)을 `/__internal/firms.json`으로 돌려준다.
+ *   빌드 결과물에는 들어가지 않는다.
  * - internal 모드로 빌드하려고 하면 멈춘다(실수로 배포되는 것을 막음).
  */
 function internalSummary(path: string | undefined): Plugin {
@@ -16,6 +17,7 @@ function internalSummary(path: string | undefined): Plugin {
   const files: Record<string, string | undefined> = {
     '/__internal/summary.json': path,
     '/__internal/combo.json': path ? join(dirname(path), 'combo_check.json') : undefined,
+    '/__internal/firms.json': path ? join(dirname(path), 'firms.json') : undefined,
   }
   return {
     name: 'internal-summary',

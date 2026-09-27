@@ -9,6 +9,7 @@ import { Evidence } from './pages/Evidence'
 import { Timing } from './pages/Timing'
 import { Board } from './pages/Board'
 import { INTERNAL } from './lib/internal'
+import { DataProvider, useData } from './lib/data'
 
 // 그래프 라이브러리는 상세 화면에서만 쓰므로 그 화면에 들어갈 때 불러온다
 const FirmDetail = lazy(() => import('./pages/FirmDetail'))
@@ -43,6 +44,15 @@ function DocumentTitle() {
 }
 
 export default function App() {
+  return (
+    <DataProvider>
+      <Shell />
+    </DataProvider>
+  )
+}
+
+function Shell() {
+  const { kind } = useData()
   return (
     <MonthProvider>
       <DocumentTitle />
@@ -93,8 +103,10 @@ export default function App() {
           </Routes>
         </main>
         <footer className="colophon">
-          돈독(Don-Ddok) 팀, iM DiGital Banker Academy 9기 통계 프로젝트 프로토타입. iM뱅크의 공식 입장이 아니며, 거래처와 계좌 금액은
-          모두 가상입니다.{INTERNAL && ' 내부 시연 화면만 실제 데이터 집계이며 외부에 공유하지 않습니다.'}
+          돈독(Don-Ddok) 팀, iM DiGital Banker Academy 9기 통계 프로젝트 프로토타입. iM뱅크의 공식 입장이 아닙니다.{' '}
+          {kind === 'real'
+            ? '내부 시연 모드: 거래처와 계좌 금액은 실제 은행 법인 데이터(익명 법인ID)이며 외부에 공유하지 않습니다.'
+            : '거래처와 계좌 금액은 모두 가상입니다.'}
         </footer>
       </div>
     </MonthProvider>

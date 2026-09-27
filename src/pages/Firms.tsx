@@ -1,21 +1,26 @@
 import { useMemo, useState, type CSSProperties } from 'react'
-import { depositTrail, FIRMS, type Industry } from '../data/synthetic'
+import { depositTrail } from '../data/synthetic'
 import type { Region } from '../data/regionExports'
 import { checkSignal, partnerAmount, type SignalStatus } from '../data/signals'
 import { COMBOS } from '../data/combos'
 import { amount, ymLong } from '../lib/format'
-import { MonthLink, useMonth } from '../lib/month'
+import { useMonth } from '../lib/month'
 import { SignalMark } from '../components/SignalMark'
 import { TableWrap } from '../components/TableWrap'
 import { RegionTag } from '../components/RegionTag'
 import { Sparkline } from '../components/Sparkline'
-import { Footnotes, SYNTHETIC_NOTE } from '../components/Footnotes'
+import { dataNote, firmSource, Footnotes } from '../components/Footnotes'
+import { FirmName } from '../components/FirmName'
+import { useData } from '../lib/data'
+import { Pager } from '../components/Pager'
+
+/** 한 쪽에 보여 줄 거래처 수(실제 데이터는 한 달에 수백 곳) */
+const PAGE_SIZE = 50
 
 const STATUS_ORDER: Record<SignalStatus, number> = { met: 0, partial: 1, none: 2, na: 3 }
 const STATUSES = Object.keys(STATUS_ORDER) as SignalStatus[]
 /** 행이 차례로 나타나되, 긴 목록에서 기다리지 않도록 12번째 행부터는 한꺼번에 */
 const rowDelay = (r: number) => ({ '--r': Math.min(r, 12) }) as CSSProperties
-const INDUSTRIES = [...new Set(FIRMS.map((f) => f.industry))].sort() as Industry[]
 
 type RegionFilter = '전체' | Region
 type ExportFilter = '전체' | '수출' | '비수출'
@@ -26,14 +31,19 @@ export function Firms() {
   const C = COMBOS[combo]
   const [query, setQuery] = useState('')
   const [region, setRegion] = useState<RegionFilter>('전체')
-  const [industry, setIndustry] = useState<'전체' | Industry>('전체')
+  const { firms, kind, scope } = useData()
+  const industries = useMemo(() => [...new Set(firms.map((f) => f.industry))].sort((a, b) => a.localeCompare(b, 'ko')), [firms])
+  const [industry, setIndustry] = useState<string>('전체')
   const [exporter, setExporter] = useState<ExportFilter>('전체')
   const [status, setStatus] = useState<StatusFilter>('전체')
 
   const base = useMemo(() => {
     const q = query.trim()
-    return FIRMS.map((firm) => ({ firm, check: checkSignal(firm, index, combo) }))
+    return firms
+      .map((firm) => ({ firm, check: checkSignal(firm, index, combo) }))
       .filter(({ firm }) => {
+        // 실제 데이터는 그 달에 은행 거래 기록이 있는 법인만(가상 거래처는 36개월 모두 있음)
+        if (!firm.series[index].observed) return false
         if (q && !firm.name.includes(q)) return false
         if (region !== '전체' && firm.region !== region) return false
         if (industry !== '전체' && firm.industry !== industry) return false
@@ -42,8 +52,19 @@ export function Firms() {
         return true
       })
       .sort((a, b) => STATUS_ORDER[a.check.status] - STATUS_ORDER[b.check.status] || a.firm.name.localeCompare(b.firm.name, 'ko'))
-  }, [index, combo, query, region, industry, exporter])
+  }, [firms, index, combo, query, region, industry, exporter])
   const rows = status === '전체' ? base : base.filter((r) => r.check.status === status)
+  const observedCount = useMemo(() => firms.filter((f) => f.series[index].observed).length, [firms, index])
+
+  // 쪽 번호는 걸러 보기 조건과 함께 기억해, 조건·기준월·조합이 바뀌면 첫 쪽으로 돌아간다
+  const filterKey = [index, combo, query, region, industry, exporter, status].join('|')
+  const [pageState, setPageState] = useState({ key: filterKey, page: 0 })
+  const page = pageState.key === filterKey ? Math.min(pageState.page, Math.max(0, Math.ceil(rows.length / PAGE_SIZE) - 1)) : 0
+  const pageRows = rows.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
+  const goPage = (p: number) => {
+    setPageState({ key: filterKey, page: p })
+    document.getElementById('firms-result')?.scrollIntoView({ block: 'start' })
+  }
   const counts = STATUSES.map((s) => ({ s, n: base.filter((r) => r.check.status === s).length }))
 
   const filtered = query !== '' || region !== '전체' || industry !== '전체' || exporter !== '전체' || status !== '전체'
@@ -58,7 +79,15 @@ export function Firms() {
   return (
     <>
       <section className="lead" aria-labelledby="firms-title">
-        <h1 id="firms-title">거래처 {FIRMS.length}곳의 {ymLong(ym)} 상태</h1>
+        <h1 id="firms-title">
+          {kind === 'real' ? `실제 법인 ${observedCount.toLocaleString('ko-KR')}곳` : `거래처 ${firms.length}곳`}의 {ymLong(ym)} 상태
+        </h1>
+        {kind === 'real' && (
+          <p className="lead-note">
+            ※ {scope} {firms.length.toLocaleString('ko-KR')}곳 가운데 {ymLong(ym)}에 거래 기록이 있는 곳입니다. 나머지 약 1만 곳은 외환
+            거래가 없어 두 조합 모두 규칙 대상이 아니라 불러오지 않았습니다.
+          </p>
+        )}
         <p>
           {C.name} 조합의 신호를 충족한 거래처가 위에 오도록 정렬했습니다. 규칙 대상({C.target})이 아닌 거래처는 &lsquo;해당
           없음&rsquo;으로 표시합니다.
@@ -83,14 +112,14 @@ export function Firms() {
       <div className="filters" role="search" aria-label="거래처 걸러 보기">
         <div className="field">
           <label htmlFor="q">거래처 이름</label>
-          <input id="q" type="search" placeholder="예: 가람전자" value={query} onChange={(e) => setQuery(e.target.value)} />
+          <input id="q" type="search" placeholder={kind === 'real' ? '법인ID 앞 8자리 일부' : '예: 가람전자'} value={query} onChange={(e) => setQuery(e.target.value)} />
         </div>
         <Segmented label="지역" value={region} options={['전체', '대구', '경북']} onChange={setRegion} />
         <div className="field">
           <label htmlFor="industry">업종</label>
-          <select id="industry" value={industry} onChange={(e) => setIndustry(e.target.value as '전체' | Industry)}>
+          <select id="industry" value={industry} onChange={(e) => setIndustry(e.target.value)}>
             <option value="전체">전체</option>
-            {INDUSTRIES.map((i) => (
+            {industries.map((i) => (
               <option key={i} value={i}>
                 {i}
               </option>
@@ -100,9 +129,9 @@ export function Firms() {
         <Segmented label="수출 여부" value={exporter} options={['전체', '수출', '비수출']} onChange={setExporter} />
       </div>
 
-      <div className="result-line" aria-live="polite">
+      <div className="result-line" id="firms-result" aria-live="polite">
         <span>
-          {rows.length}곳 표시 {filtered && `(전체 ${FIRMS.length}곳 중)`}
+          {rows.length.toLocaleString('ko-KR')}곳 표시 {filtered && `(전체 ${observedCount.toLocaleString('ko-KR')}곳 중)`}
         </span>
         {filtered && (
           <button type="button" className="text-button" onClick={reset}>
@@ -133,7 +162,7 @@ export function Firms() {
               <th scope="col">이번 달 신호</th>
             </tr>
           </thead>
-          <tbody key={`${index}-${status}-${combo}`} className="rows-in">
+          <tbody key={`${index}-${status}-${combo}-${page}`} className="rows-in">
             {rows.length === 0 && (
               <tr>
                 <td colSpan={9} className="empty-cell">
@@ -147,11 +176,10 @@ export function Firms() {
                 </td>
               </tr>
             )}
-            {rows.map(({ firm, check }, r) => (
+            {pageRows.map(({ firm, check }, r) => (
               <tr key={firm.id} style={rowDelay(r)}>
                 <td className="firm-name">
-                  <MonthLink to={`/firms/${firm.id}`}>{firm.name.replace('(가상)', '')}</MonthLink>{' '}
-                  <span className="synthetic">(가상)</span>
+                  <FirmName firm={firm} />
                 </td>
                 <td>
                   <RegionTag region={firm.region} />
@@ -172,14 +200,15 @@ export function Firms() {
           </tbody>
         </table>
       </TableWrap>
+      <Pager page={page} pageSize={PAGE_SIZE} total={rows.length} onChange={goPage} />
 
       <Footnotes
         notes={[
           C.ruleNote,
           '신호 표시: 굵은 실선은 세 조건 모두 충족, 점선은 기준 근접(통장 잔고가 5~10% 감소), 가는 선은 미충족입니다.',
-          SYNTHETIC_NOTE,
+          dataNote(kind),
         ]}
-        source="가상 거래처 데이터(유효숫자 두세 자리로 반올림)"
+        source={kind === 'real' ? firmSource(kind) : '가상 거래처 데이터(유효숫자 두세 자리로 반올림)'}
       />
     </>
   )
