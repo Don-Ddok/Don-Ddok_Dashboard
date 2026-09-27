@@ -1,7 +1,7 @@
 import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ReferenceLine, Tooltip, XAxis, YAxis } from 'recharts'
 import { REGION_EXPORTS, type Region } from '../data/regionExports'
 import { FIRST_JUDGED_INDEX } from '../data/signals'
-import { masked, useInternalSummary, type InternalSummary } from '../lib/internal'
+import { masked, useInternalCombo, useInternalSummary, type ComboResult, type InternalSummary } from '../lib/internal'
 import { pctPoint, ymLong, ymShort } from '../lib/format'
 import { useMonth } from '../lib/month'
 import { prefersReducedMotion } from '../lib/motion'
@@ -193,6 +193,8 @@ function InternalView({ data }: { data: InternalSummary }) {
         </p>
       </section>
 
+      <ComboSection />
+
       <section className="section" aria-labelledby="in-cut-title">
         <div className="section-head">
           <h2 id="in-cut-title">연구 방향의 단순 확인: 대출을 5% 넘게 줄인 회사 비율</h2>
@@ -297,5 +299,160 @@ function CompareRow({
         </div>
       ))}
     </div>
+  )
+}
+
+const TREAT_LABEL: Record<string, string> = { 수출노출: '수출 실적 기준', 외환노출: '수출 또는 수입 실적 기준' }
+
+function verdict(r: ComboResult) {
+  // 참고 표본(전체 법인)은 할인어음을 안 쓰는 회사가 섞여 구성 차이가 커서, 기준을 넘어도 그대로 통과로 읽지 않는다
+  if (r.pass1 && r.pass2 && r.label.includes('참고')) return { text: '기준상 통과(구성 차이 섞임)', cls: 'partial' }
+  if (r.pass1 && r.pass2) return { text: '통과', cls: 'met' }
+  if (r.pass2) return { text: '부분 지지(경기 연동만)', cls: 'partial' }
+  return { text: '근거 없음', cls: 'none' }
+}
+
+const signed = (v: number) => `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(1)}`
+
+/** 팀 결론 "요구불예금 감소 + 할인어음 증가" 조합을 개별 법인 단위로 점검한 결과(사전 기준) */
+function ComboSection() {
+  const state = useInternalCombo()
+  return (
+    <section className="section" aria-labelledby="in-combo-title">
+      <div className="section-head">
+        <h2 id="in-combo-title">팀 조합 신호 점검: 요구불예금 감소 + 할인어음 증가</h2>
+        <span className="unit">할인어음을 한 번이라도 쓴 법인, 3개월 변화, 기준은 실행 전 고정</span>
+      </div>
+      {state.status === 'loading' && <p className="section-note">점검 결과를 읽는 중입니다.</p>}
+      {state.status === 'error' && (
+        <p className="section-note">
+          점검 결과 파일이 없습니다. 분석 폴더에서 <code>combo_signal_check.py</code>를 실행하면 집계 파일 옆에 결과가 생깁니다.
+        </p>
+      )}
+      {state.status === 'ready' && <ComboView results={state.data.results} />}
+    </section>
+  )
+}
+
+function ComboView({ results }: { results: ComboResult[] }) {
+  const main = results[0]
+  const r = main.rates
+  const v = verdict(main)
+  return (
+    <>
+      <p className="section-note">
+        석 달 사이 요구불예금이 10% 넘게 줄고 할인어음 잔액이 늘어난 경우를 신호로 봅니다. 수출 거래처 {main.firmsExposed}곳, 비수출
+        거래처 {main.firmsOther}곳입니다.
+      </p>
+      <TableWrap>
+        <table className="stat-table">
+          <thead>
+            <tr>
+              <th scope="col">신호 비율</th>
+              <th scope="col" className="num">지역 수출이 줄어든 달</th>
+              <th scope="col" className="num">지역 수출이 늘어난 달</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">수출 거래처</th>
+              <td className="num">
+                <strong>{r.down_exposed.pct.toFixed(1)}%</strong> <span className="synthetic">({r.down_exposed.hits}/{r.down_exposed.n})</span>
+              </td>
+              <td className="num">
+                {r.up_exposed.pct.toFixed(1)}% <span className="synthetic">({r.up_exposed.hits}/{r.up_exposed.n})</span>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">비수출 거래처</th>
+              <td className="num">
+                {r.down_other.pct.toFixed(1)}% <span className="synthetic">({r.down_other.hits}/{r.down_other.n})</span>
+              </td>
+              <td className="num">
+                {r.up_other.pct.toFixed(1)}% <span className="synthetic">({r.up_other.hits}/{r.up_other.n})</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </TableWrap>
+
+      <TableWrap>
+        <table className="stat-table combo-criteria">
+          <thead>
+            <tr>
+              <th scope="col">사전 기준</th>
+              <th scope="col" className="num">결과</th>
+              <th scope="col">판정</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">① 수출이 줄어든 달에 수출 거래처가 비수출의 1.5배 이상(가려내는 힘)</th>
+              <td className="num">{main.ratioDown.toFixed(2)}배</td>
+              <td>
+                <span className={`mark ${main.pass1 ? 'met' : 'none'}`}>{main.pass1 ? '통과' : '미통과'}</span>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">② 수출 거래처의 초과분이 늘어난 달보다 줄어든 달에 더 큼(경기 연동)</th>
+              <td className="num">
+                {signed(main.did)}%p [{signed(main.didCI[0])}, {signed(main.didCI[1])}]
+              </td>
+              <td>
+                <span className={`mark ${main.pass2 ? 'met' : 'none'}`}>{main.pass2 ? '통과' : '미통과'}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </TableWrap>
+
+      <p className="finding">
+        <strong>종합: {v.text}.</strong>{' '}
+        {main.pass2
+          ? '이 조합은 수출 거래처에서 수출 경기에 따라 켜지고 꺼집니다. 통장 잔고 하나만 볼 때는 없던 차이입니다. '
+          : '수출 경기에 따라 켜지고 꺼지는 모습도 확인되지 않았습니다. '}
+        {main.pass1
+          ? '수출이 줄어든 달에 수출 거래처를 비수출 거래처보다 뚜렷하게 더 많이 골라냅니다.'
+          : `다만 수출이 줄어든 달에도 비수출 거래처의 ${r.down_other.pct.toFixed(0)}%에서 같은 신호가 켜져, 개별 거래처를 가려내는 도구로는 아직 기준에 못 미칩니다.`}
+      </p>
+
+      <TableWrap>
+        <table className="stat-table">
+          <caption className="visually-hidden">보조 점검</caption>
+          <thead>
+            <tr>
+              <th scope="col">점검</th>
+              <th scope="col" className="num">① 배수</th>
+              <th scope="col" className="num">② 초과분 차이 [95% 구간]</th>
+              <th scope="col">종합</th>
+            </tr>
+          </thead>
+          <tbody>
+            {results.map((x) => {
+              const xv = verdict(x)
+              return (
+                <tr key={`${x.label}-${x.treat}`}>
+                  <th scope="row">
+                    {x.label} <span className="synthetic">· {TREAT_LABEL[x.treat] ?? x.treat}</span>
+                  </th>
+                  <td className="num">{x.ratioDown.toFixed(2)}배</td>
+                  <td className="num">
+                    {signed(x.did)}%p [{signed(x.didCI[0])}, {signed(x.didCI[1])}]
+                  </td>
+                  <td>
+                    <span className={`mark ${xv.cls}`}>{xv.text}</span>
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </TableWrap>
+      <p className="chart-summary">
+        첫 줄이 주 점검입니다. 전체 법인(참고)은 수출 기업이 원래 할인어음을 더 많이 써서 배수가 크게 나오며, 수출이 늘어난 달에도
+        차이가 있어 구성 차이가 대부분입니다. 검정을 여러 번 했으므로 주 점검 하나로 판단하고, 쓴 계정은 요구불예금과 할인어음
+        두 개뿐입니다.
+      </p>
+    </>
   )
 }
