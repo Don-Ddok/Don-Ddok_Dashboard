@@ -1,4 +1,4 @@
-import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ReferenceLine, Tooltip, XAxis, YAxis } from 'recharts'
 import { REGION_EXPORTS, type Region } from '../data/regionExports'
 import { FIRST_JUDGED_INDEX } from '../data/signals'
 import { masked, useInternalSummary, type InternalSummary } from '../lib/internal'
@@ -8,6 +8,7 @@ import { prefersReducedMotion } from '../lib/motion'
 import { RegionTag } from '../components/RegionTag'
 import { TableWrap } from '../components/TableWrap'
 import { Footnotes } from '../components/Footnotes'
+import { ChartBlock } from '../components/ChartBlock'
 
 const REGIONS: Region[] = ['대구', '경북']
 const INK = '#1b1e23'
@@ -135,30 +136,36 @@ function InternalView({ data }: { data: InternalSummary }) {
           <h2 id="in-trend-title">30개월 동안 충족한 수출 거래처 수</h2>
           <span className="unit">지역 수출이 늘어난 달은 규칙상 0곳</span>
         </div>
-        <div className="internal-chart" role="img" aria-label="월별 충족 거래처 수, 대구와 경북">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={trend} margin={{ top: 22, right: 8, bottom: 0, left: 0 }}>
-              <CartesianGrid stroke={RULE} vertical={false} />
-              <XAxis dataKey="x" tick={TICK} interval={2} tickLine={false} axisLine={{ stroke: RULE }} />
-              <YAxis tick={TICK} width={40} tickLine={false} axisLine={false} allowDecimals={false} />
-              <ReferenceLine
-                x={ymShort(ym)}
-                stroke={ACCENT}
-                strokeWidth={2}
-                label={{ value: ymShort(ym), position: 'top', fill: ACCENT, fontSize: 11, fontWeight: 700 }}
-              />
-              <Tooltip cursor={{ fill: '#e6f0ee' }} />
-              <Legend wrapperStyle={{ fontSize: 12 }} />
-              {REGIONS.map((r) => (
-                <Bar key={r} dataKey={r} fill={REGION_COLOR[r]} isAnimationActive={animate} />
-              ))}
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-        <p className="chart-summary">
-          판정 가능한 거래처 가운데 충족 비율은 전체 기간 {pctText(overall)}입니다. 한 번이라도 충족한 수출 거래처는{' '}
-          {masked(totals.metFirms, minCell)}곳(전체 {totals.exporters}곳)입니다.
-        </p>
+        <ChartBlock
+          title="대구·경북 월별 충족 수출 거래처"
+          unit="곳"
+          valueLabel={ymShort(ym)}
+          value={rows.map(({ region, m }) => `${region} ${m ? masked(m.met, minCell) : '없음'}`).join(' · ')}
+          tall
+          summary={
+            <>
+              판정 가능한 거래처 가운데 충족 비율은 전체 기간 {pctText(overall)}입니다. 한 번이라도 충족한 수출 거래처는{' '}
+              {masked(totals.metFirms, minCell)}곳(전체 {totals.exporters}곳)입니다.
+            </>
+          }
+        >
+          <BarChart data={trend} margin={{ top: 22, right: 8, bottom: 0, left: 0 }}>
+            <CartesianGrid stroke={RULE} vertical={false} />
+            <XAxis dataKey="x" tick={TICK} interval={2} tickLine={false} axisLine={{ stroke: RULE }} />
+            <YAxis tick={TICK} width={40} tickLine={false} axisLine={false} allowDecimals={false} />
+            <ReferenceLine
+              x={ymShort(ym)}
+              stroke={ACCENT}
+              strokeWidth={2}
+              label={{ value: ymShort(ym), position: 'top', fill: ACCENT, fontSize: 11, fontWeight: 700 }}
+            />
+            <Tooltip cursor={{ fill: '#e6f0ee' }} />
+            <Legend wrapperStyle={{ fontSize: 12 }} />
+            {REGIONS.map((r) => (
+              <Bar key={r} dataKey={r} fill={REGION_COLOR[r]} isAnimationActive={animate} />
+            ))}
+          </BarChart>
+        </ChartBlock>
       </section>
 
       <section className="section" aria-labelledby="in-test-title">
@@ -191,25 +198,31 @@ function InternalView({ data }: { data: InternalSummary }) {
           <h2 id="in-cut-title">연구 방향의 단순 확인: 대출을 5% 넘게 줄인 회사 비율</h2>
           <span className="unit">운전자금을 쓴 적 있는 회사, 6개월 변화, 매칭 전</span>
         </div>
-        <div className="internal-chart" role="img" aria-label={`월별 대출 5% 넘게 감소 비율, 수출 평균 ${avg('수출').toFixed(1)}%, 비수출 평균 ${avg('비수출').toFixed(1)}%`}>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={cut} margin={{ top: 22, right: 8, bottom: 0, left: 0 }}>
-              <CartesianGrid stroke={RULE} vertical={false} />
-              <XAxis dataKey="x" tick={TICK} interval={2} tickLine={false} axisLine={{ stroke: RULE }} />
-              <YAxis tick={TICK} width={40} tickLine={false} axisLine={false} unit="%" domain={[0, 'auto']} />
-              <ReferenceLine x={ymShort(ym)} stroke={ACCENT} strokeWidth={2} />
-              <Tooltip formatter={(v) => `${v}%`} />
-              <Legend wrapperStyle={{ fontSize: 12 }} />
-              <Line dataKey="수출" stroke={ACCENT} strokeWidth={2} dot={false} isAnimationActive={animate} />
-              <Line dataKey="비수출" stroke={INK} strokeWidth={1.5} strokeDasharray="4 3" dot={false} isAnimationActive={animate} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-        <p className="chart-summary">
-          30개월 평균: 수출 거래처 {avg('수출').toFixed(1)}%, 비수출 거래처 {avg('비수출').toFixed(1)}%. 수출 거래처가 대출을 덜 줄이는
-          방향은 연구와 같지만, 이 차이는 수출이 늘어난 달에도 비슷하게 있어서 이 선만으로는 수출 충격의 영향이라고 말할 수 없습니다.
-          회사 크기·업종 차이가 섞인 단순 비율이고, 연구의 근거는 비슷한 회사끼리 짝지은 비교(근거와 한계 화면)입니다.
-        </p>
+        <ChartBlock
+          title="6개월 대출을 5% 넘게 줄인 회사 비율"
+          unit="%, 월별"
+          valueLabel="30개월 평균"
+          value={`수출 ${avg('수출').toFixed(1)}% · 비수출 ${avg('비수출').toFixed(1)}%`}
+          tall
+          summary={
+            <>
+              수출 거래처가 대출을 덜 줄이는 방향은 연구와 같지만, 이 차이는 수출이 늘어난 달에도 비슷하게 있어서 이 선만으로는 수출
+              충격의 영향이라고 말할 수 없습니다. 회사 크기·업종 차이가 섞인 단순 비율이고, 연구의 근거는 비슷한 회사끼리 짝지은
+              비교(근거와 한계 화면)입니다.
+            </>
+          }
+        >
+          <LineChart data={cut} margin={{ top: 22, right: 8, bottom: 0, left: 0 }}>
+            <CartesianGrid stroke={RULE} vertical={false} />
+            <XAxis dataKey="x" tick={TICK} interval={2} tickLine={false} axisLine={{ stroke: RULE }} />
+            <YAxis tick={TICK} width={40} tickLine={false} axisLine={false} unit="%" domain={[0, 'auto']} />
+            <ReferenceLine x={ymShort(ym)} stroke={ACCENT} strokeWidth={2} />
+            <Tooltip formatter={(v) => `${v}%`} />
+            <Legend wrapperStyle={{ fontSize: 12 }} />
+            <Line dataKey="수출" stroke={ACCENT} strokeWidth={2} dot={false} isAnimationActive={animate} />
+            <Line dataKey="비수출" stroke={INK} strokeWidth={1.5} strokeDasharray="4 3" dot={false} isAnimationActive={animate} />
+          </LineChart>
+        </ChartBlock>
       </section>
 
       <section className="section" aria-labelledby="in-ind-title">
