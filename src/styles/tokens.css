@@ -1,16 +1,30 @@
-/* 통계 보도자료 세계: 종이, 먹, 괘선, 보도자료 청색 하나 */
+/* 통계 보도자료 세계: 종이, 먹, 괘선, 민트 하나 */
 :root {
   --paper: #f6f7f5;
-  --paper-shade: #eceff2; /* 표 머리 음영, 선택 행 */
+  --paper-shade: #e6f0ee; /* 표 머리 음영(민트를 아주 옅게) */
   --paper-raise: #fbfbfa; /* 펼친 행, 입력칸 */
   --ink: #1b1e23;
   --ink-2: #464c55; /* 본문 보조, 대비 약 7.6:1 */
   --ink-3: #5f6570; /* 각주·캡션, 대비 약 5.4:1 */
   --rule: #d5dae1;
   --rule-mid: #aab1bb;
-  --accent: #1f5aa6; /* 보도자료 청색: 현재 위치·주요 조작·선택 상태에만 */
-  --accent-ink: #184a8a;
-  --accent-wash: #e3ebf6;
+  /* 민트 두 단계: 밝은 민트는 면(머리 띠·섹션 번호·막대), 짙은 민트는 선과 글자(현재 위치·조작·링크) */
+  --mint: #00b39b;
+  --on-mint: #0b2420; /* 밝은 민트 위 글자, 대비 약 6.2:1 (흰 글자는 2.7:1이라 쓰지 않음) */
+  --accent: #007d6c; /* 종이 위 대비 약 4.7:1 */
+  --accent-ink: #00705f; /* 링크·강조 글자, 종이 위 대비 약 5.6:1 */
+  --accent-wash: #daf3ee;
+
+  /* 증감 방향: 색과 함께 위치(기준선 위·아래)와 부호로도 읽힌다 */
+  --up: #00a08a;
+  --up-ink: #00705f;
+  --down: #c9542c;
+  --down-ink: #a8401d; /* 종이 위 글자 대비 약 5.6:1 */
+  --down-wash: #f7e4dc;
+
+  /* 지역: 이름 앞 작은 네모와 상세 그래프 선에만 */
+  --region-dg: #2f5fb3;
+  --region-gb: #7b4f93;
 
   --font: 'Pretendard Variable', Pretendard, -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
 

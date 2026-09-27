@@ -31,9 +31,3 @@ export function ymLong(ym: number) {
 export function ymShort(ym: number) {
   return `${String(Math.floor(ym / 100)).slice(2)}.${String(ym % 100).padStart(2, '0')}`
 }
-
-/** 문장 속 증감 표현: 0.082 → "8.2% 늘었고", -0.05 → "5.0% 줄었고" */
-export function moved(x: number) {
-  const s = Math.abs(x * 100).toFixed(1)
-  return x >= 0 ? `${s}% 늘었` : `${s}% 줄었`
-}

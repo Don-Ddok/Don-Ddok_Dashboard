@@ -41,6 +41,7 @@ export function ConditionTrace({ check, animate = false }: { check: SignalCheck;
               />
             )}
             <li className="trace-step" data-state={states[i]} style={{ '--i': i } as CSSProperties}>
+              <span className="trace-no">조건 {i + 1}</span>
               <span className="trace-label">
                 {c.label}
                 {states[i] !== 'na' && <span className="trace-state">{STATE_TEXT[states[i] as Exclude<StepState, 'na'>]}</span>}

@@ -168,6 +168,11 @@ export const FIRMS: Firm[] = (() => {
   return Array.from({ length: FIRM_COUNT }, (_, i) => makeFirm(i, rng, used))
 })()
 
+/** 기준월까지 최근 months개월 통장 잔고(표 안 흐름선용) */
+export function depositTrail(firm: Firm, index: number, months = 12) {
+  return firm.series.slice(Math.max(0, index - months + 1), index + 1).map((p) => p.deposit)
+}
+
 export function ymLabel(ym: number) {
   return `${Math.floor(ym / 100)}.${String(ym % 100).padStart(2, '0')}`
 }

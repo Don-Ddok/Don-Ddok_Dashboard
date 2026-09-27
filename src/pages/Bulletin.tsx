@@ -1,17 +1,24 @@
-import { useState, type ReactNode } from 'react'
+import { useState, type CSSProperties, type ReactNode } from 'react'
 import { ArrowRight, CaretDown } from '@phosphor-icons/react'
 import { REGION_EXPORTS, type Region } from '../data/regionExports'
-import { FIRMS, MONTHS, regionYoY } from '../data/synthetic'
-import { firmsByStatus } from '../data/signals'
-import { amount, moved, pct, usdMillion, ymLong, ymShort } from '../lib/format'
+import { depositTrail, FIRMS, MONTHS, regionYoY } from '../data/synthetic'
+import { FIRST_JUDGED_INDEX, firmsByStatus } from '../data/signals'
+import { amount, pct, usdMillion, ymLong, ymShort } from '../lib/format'
 import { MonthLink, useMonth } from '../lib/month'
 import { ConditionTrace } from '../components/ConditionTrace'
 import { YoyBars } from '../components/YoyBars'
 import { TableWrap } from '../components/TableWrap'
+import { Sparkline } from '../components/Sparkline'
+import { RegionTag } from '../components/RegionTag'
+import { ChangeFigure, CountFigure } from '../components/Figure'
 import { EXPORT_SOURCE, Footnotes, SIGNAL_RULE_NOTE, SYNTHETIC_NOTE, WEAK_EVIDENCE_NOTE } from '../components/Footnotes'
 
 const REGIONS: Region[] = ['대구', '경북']
 const PARTIAL_PREVIEW = 6
+/** 행이 차례로 나타나도록 순번을 CSS 변수로 넘긴다 */
+const rowDelay = (r: number) => ({ '--r': r }) as CSSProperties
+
+const chg = (v: number | null | undefined) => `num chg ${(v ?? 0) < 0 ? 'down' : 'up'}`
 
 function lastSix(region: Region, ym: number) {
   const list = REGION_EXPORTS[region]
@@ -36,18 +43,43 @@ export function Bulletin() {
   const met = firmsByStatus(FIRMS, index, 'met')
   const partial = firmsByStatus(FIRMS, index, 'partial')
   const exporters = FIRMS.filter((f) => f.exporter).length
+  const judged = index >= FIRST_JUDGED_INDEX
+  const prev = index - 1 >= FIRST_JUDGED_INDEX ? index - 1 : null
+  const metDelta = prev === null ? null : met.length - firmsByStatus(FIRMS, prev, 'met').length
+  const partialDelta = prev === null ? null : partial.length - firmsByStatus(FIRMS, prev, 'partial').length
   const dg = regionYoY('대구', ym)
   const gb = regionYoY('경북', ym)
 
-  const headline =
-    `${ymLong(ym)}, 대구 수출은 1년 전보다 ${moved(dg)}고 경북은 ${moved(gb)}습니다. ` +
-    (met.length > 0 ? `살펴볼 거래처는 ${met.length}곳입니다.` : '세 조건을 모두 충족한 거래처는 없습니다.')
+  const headline = (
+    <>
+      {ymLong(ym)}, 대구 수출은 1년 전보다 <ChangeFigure key={`dg${ym}`} value={dg} />고 경북은{' '}
+      <ChangeFigure key={`gb${ym}`} value={gb} />
+      습니다.{' '}
+      {met.length > 0 ? (
+        <>
+          살펴볼 거래처는 <CountFigure key={`n${ym}`} value={met.length} unit="곳" />
+          입니다.
+        </>
+      ) : (
+        '세 조건을 모두 충족한 거래처는 없습니다.'
+      )}
+    </>
+  )
 
   return (
     <>
       <section className="lead" aria-labelledby="lead-title">
+        <p className="kicker">
+          이달의 요지
+          {prev !== null && metDelta !== null && partialDelta !== null && (
+            <span className="kicker-delta">
+              {ymLong(MONTHS[prev])}보다 살펴볼 거래처 <Delta value={metDelta} />, 기준 근접 <Delta value={partialDelta} />
+            </span>
+          )}
+        </p>
         <h1 id="lead-title">{headline}</h1>
-        <p>
+        <p className="lead-note">
+          ※ 
           수출 거래처 {exporters}곳 가운데, 지역 수출이 줄어든 달에 통장 잔고는 빠지는데 대출은 줄이지 않은 곳을 모았습니다.
           위험 판정이 아니라 먼저 연락해 볼 순서를 정하는 참고 자료입니다.
         </p>
@@ -58,10 +90,10 @@ export function Bulletin() {
           <h2 id="region-title">지역 수출</h2>
           <div className="legend" aria-hidden="true">
             <span>
-              <i className="swatch fill" /> 1년 전보다 증가
+              <i className="swatch up" /> 1년 전보다 증가
             </span>
             <span>
-              <i className="swatch outline" /> 1년 전보다 감소
+              <i className="swatch down" /> 1년 전보다 감소
             </span>
             <span>단위: 백만 달러, %</span>
           </div>
@@ -73,22 +105,29 @@ export function Bulletin() {
               <thead>
                 <tr>
                   <th scope="col">기준월</th>
-                  <th scope="col" className="num">대구 수출액</th>
+                  <th scope="col" className="num">
+                    <RegionTag region="대구" /> 수출액
+                  </th>
                   <th scope="col" className="num">전년동월비</th>
-                  <th scope="col" className="num">경북 수출액</th>
+                  <th scope="col" className="num">
+                    <RegionTag region="경북" /> 수출액
+                  </th>
                   <th scope="col" className="num">전년동월비</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody key={ym} className="rows-in">
                 {lastSix('대구', ym).map((p, k) => {
                   const q = lastSix('경북', ym)[k]
                   return (
-                    <tr key={p.ym} className={p.ym === ym ? 'is-current' : undefined}>
-                      <th scope="row">{ymLong(p.ym)}</th>
+                    <tr key={p.ym} className={p.ym === ym ? 'is-current' : undefined} style={rowDelay(k)}>
+                      <th scope="row">
+                        {ymLong(p.ym)}
+                        {p.ym === ym && <span className="badge">당월</span>}
+                      </th>
                       <td className="num">{usdMillion(p.amount)}</td>
-                      <td className="num">{pct((p.yoy ?? 0) / 100)}</td>
+                      <td className={chg(p.yoy)}>{pct((p.yoy ?? 0) / 100)}</td>
                       <td className="num">{usdMillion(q.amount)}</td>
-                      <td className="num">{pct((q.yoy ?? 0) / 100)}</td>
+                      <td className={chg(q.yoy)}>{pct((q.yoy ?? 0) / 100)}</td>
                     </tr>
                   )
                 })}
@@ -97,7 +136,7 @@ export function Bulletin() {
           </TableWrap>
           <div className="yoy-bars">
             {REGIONS.map((r) => (
-              <YoyBars key={r} region={r} points={lastSix(r, ym)} currentYm={ym} />
+              <YoyBars key={`${r}${ym}`} region={r} points={lastSix(r, ym)} currentYm={ym} />
             ))}
           </div>
         </div>
@@ -116,6 +155,7 @@ export function Bulletin() {
                 <th scope="col">거래처</th>
                 <th scope="col">지역</th>
                 <th scope="col" className="hide-sm">업종</th>
+                <th scope="col" className="hide-sm">통장 잔고 12개월</th>
                 <th scope="col" className="num">통장 잔고, 3개월</th>
                 <th scope="col" className="num">대출, 6개월</th>
                 <th scope="col" className="num hide-sm">대출 잔액</th>
@@ -124,14 +164,15 @@ export function Bulletin() {
                 </th>
               </tr>
             </thead>
-            <tbody>
+            <tbody key={ym} className="rows-in">
               {met.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="empty-cell">
+                  <td colSpan={8} className="empty-cell">
                     <strong>해당 없음</strong>
                     <p>
-                      이번 달은 세 조건을 모두 충족한 거래처가 없습니다. 지역 수출이 늘었거나, 수출 거래처의 계좌에서 잔고 감소와
-                      대출 유지가 함께 나타나지 않았다는 뜻입니다.
+                      {judged
+                        ? '이번 달은 세 조건을 모두 충족한 거래처가 없습니다. 지역 수출이 늘었거나, 수출 거래처의 계좌에서 잔고 감소와 대출 유지가 함께 나타나지 않았다는 뜻입니다.'
+                        : '2023년 1~6월은 대출 6개월 변화를 계산할 수 없어 판정하지 않습니다.'}
                     </p>
                     <div className="chip-row">
                       {nearbySignalMonths(index).map((i) => (
@@ -143,7 +184,7 @@ export function Bulletin() {
                   </td>
                 </tr>
               )}
-              {met.map(({ firm, check }) => {
+              {met.map(({ firm, check }, r) => {
                 const isOpen = open === firm.id
                 const [, dep, loan] = check.conditions
                 return (
@@ -151,10 +192,12 @@ export function Bulletin() {
                     key={firm.id}
                     id={firm.id}
                     name={firm.name}
+                    order={r}
                     cells={[
-                      { text: firm.region },
+                      { text: <RegionTag region={firm.region} /> },
                       { text: firm.industry, hideSm: true },
-                      { text: pct(dep.value), num: true },
+                      { text: <Sparkline values={depositTrail(firm, index)} />, className: 'spark-cell', hideSm: true },
+                      { text: pct(dep.value), num: true, className: 'chg down' },
                       { text: pct(loan.value), num: true },
                       { text: amount(firm.series[index].loan), num: true, hideSm: true },
                     ]}
@@ -169,48 +212,66 @@ export function Bulletin() {
         </TableWrap>
       </section>
 
-      {partial.length > 0 && (
-        <section className="section" aria-labelledby="partial-title">
-          <div className="section-head">
-            <h2 id="partial-title">기준에 가까운 거래처</h2>
-            <span className="unit">{partial.length}곳, 통장 잔고가 5~10% 줄어 다음 달 함께 볼 곳</span>
-          </div>
-          <TableWrap>
-            <table className="stat-table">
-              <thead>
+      <section className="section" aria-labelledby="partial-title">
+        <div className="section-head">
+          <h2 id="partial-title">기준에 가까운 거래처</h2>
+          <span className="unit">{partial.length}곳, 통장 잔고가 5~10% 줄어 다음 달 함께 볼 곳</span>
+        </div>
+        <TableWrap>
+          <table className="stat-table">
+            <thead>
+              <tr>
+                <th scope="col">거래처</th>
+                <th scope="col">지역</th>
+                <th scope="col">업종</th>
+                <th scope="col" className="hide-sm">통장 잔고 12개월</th>
+                <th scope="col" className="num">통장 잔고, 3개월</th>
+                <th scope="col" className="num">대출, 6개월</th>
+              </tr>
+            </thead>
+            <tbody key={ym} className="rows-in">
+              {partial.length === 0 && (
                 <tr>
-                  <th scope="col">거래처</th>
-                  <th scope="col">지역</th>
-                  <th scope="col">업종</th>
-                  <th scope="col" className="num">통장 잔고, 3개월</th>
-                  <th scope="col" className="num">대출, 6개월</th>
+                  <td colSpan={6} className="empty-cell">
+                    <strong>해당 없음</strong>
+                    <p>
+                      {!judged
+                        ? '2023년 1~6월은 대출 6개월 변화를 계산할 수 없어 판정하지 않습니다.'
+                        : dg >= 0 && gb >= 0
+                          ? '이번 달은 대구·경북 수출이 모두 1년 전보다 늘어, 규칙의 첫 조건(지역 수출 감소)에 해당하는 거래처가 없습니다.'
+                          : '이번 달은 통장 잔고가 5~10% 줄어 기준에 가까운 수출 거래처가 없습니다.'}
+                    </p>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {partial.slice(0, PARTIAL_PREVIEW).map(({ firm, check }) => (
-                  <tr key={firm.id}>
-                    <td className="firm-name">
-                      <MonthLink to={`/firms/${firm.id}`}>{firm.name.replace('(가상)', '')}</MonthLink>{' '}
-                      <span className="synthetic">(가상)</span>
-                    </td>
-                    <td>{firm.region}</td>
-                    <td>{firm.industry}</td>
-                    <td className="num">{pct(check.conditions[1].value)}</td>
-                    <td className="num">{pct(check.conditions[2].value)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </TableWrap>
-          {partial.length > PARTIAL_PREVIEW && (
-            <p className="detail-actions">
-              <MonthLink to="/firms">
-                거래처 목록에서 {partial.length}곳 모두 보기 <ArrowRight size={14} weight="bold" />
-              </MonthLink>
-            </p>
-          )}
-        </section>
-      )}
+              )}
+              {partial.slice(0, PARTIAL_PREVIEW).map(({ firm, check }, r) => (
+                <tr key={firm.id} style={rowDelay(r)}>
+                  <td className="firm-name">
+                    <MonthLink to={`/firms/${firm.id}`}>{firm.name.replace('(가상)', '')}</MonthLink>{' '}
+                    <span className="synthetic">(가상)</span>
+                  </td>
+                  <td>
+                    <RegionTag region={firm.region} />
+                  </td>
+                  <td>{firm.industry}</td>
+                  <td className="spark-cell hide-sm">
+                    <Sparkline values={depositTrail(firm, index)} />
+                  </td>
+                  <td className="num chg down">{pct(check.conditions[1].value)}</td>
+                  <td className="num">{pct(check.conditions[2].value)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </TableWrap>
+        {partial.length > PARTIAL_PREVIEW && (
+          <p className="detail-actions">
+            <MonthLink to="/firms">
+              거래처 목록에서 {partial.length}곳 모두 보기 <ArrowRight size={14} weight="bold" />
+            </MonthLink>
+          </p>
+        )}
+      </section>
 
       <Footnotes
         notes={[SIGNAL_RULE_NOTE, WEAK_EVIDENCE_NOTE, SYNTHETIC_NOTE, `지역 수출은 ${ymShort(ym)} 월간 통관 기준이며, 은행 계좌는 월말 잔액 기준입니다.`]}
@@ -220,9 +281,21 @@ export function Bulletin() {
   )
 }
 
+/** 지난달 대비 곳 수 변화: +2곳 / −1곳 / 변화 없음 */
+function Delta({ value }: { value: number }) {
+  if (value === 0) return <strong className="delta">변화 없음</strong>
+  return (
+    <strong className={`delta ${value > 0 ? 'more' : 'less'}`}>
+      {value > 0 ? '+' : '\u2212'}
+      {Math.abs(value)}곳
+    </strong>
+  )
+}
+
 function FirmRow({
   id,
   name,
+  order,
   cells,
   open,
   onToggle,
@@ -230,7 +303,8 @@ function FirmRow({
 }: {
   id: string
   name: string
-  cells: { text: string; num?: boolean; hideSm?: boolean }[]
+  order: number
+  cells: { text: ReactNode; num?: boolean; hideSm?: boolean; className?: string }[]
   open: boolean
   onToggle: () => void
   detail: ReactNode
@@ -238,12 +312,12 @@ function FirmRow({
   const detailId = `detail-${id}`
   return (
     <>
-      <tr>
+      <tr style={rowDelay(order)}>
         <td className="firm-name">
           <MonthLink to={`/firms/${id}`}>{name.replace('(가상)', '')}</MonthLink> <span className="synthetic">(가상)</span>
         </td>
         {cells.map((c, i) => (
-          <td key={i} className={[c.num && 'num', c.hideSm && 'hide-sm'].filter(Boolean).join(' ') || undefined}>
+          <td key={i} className={[c.num && 'num', c.className, c.hideSm && 'hide-sm'].filter(Boolean).join(' ') || undefined}>
             {c.text}
           </td>
         ))}
@@ -255,7 +329,7 @@ function FirmRow({
       </tr>
       {open && (
         <tr className="detail-row" id={detailId}>
-          <td colSpan={7}>
+          <td colSpan={8}>
             {detail}
             <p className="detail-actions">
               <MonthLink to={`/firms/${id}`}>

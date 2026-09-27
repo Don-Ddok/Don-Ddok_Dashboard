@@ -1,14 +1,19 @@
-import { useMemo, useState } from 'react'
-import { FIRMS, type Industry } from '../data/synthetic'
+import { useMemo, useState, type CSSProperties } from 'react'
+import { depositTrail, FIRMS, type Industry } from '../data/synthetic'
 import type { Region } from '../data/regionExports'
 import { checkSignal, type SignalStatus } from '../data/signals'
 import { amount, ymLong } from '../lib/format'
 import { MonthLink, useMonth } from '../lib/month'
-import { SignalMark, STATUS_LABEL } from '../components/SignalMark'
+import { SignalMark } from '../components/SignalMark'
 import { TableWrap } from '../components/TableWrap'
+import { RegionTag } from '../components/RegionTag'
+import { Sparkline } from '../components/Sparkline'
 import { Footnotes, SIGNAL_RULE_NOTE, SYNTHETIC_NOTE } from '../components/Footnotes'
 
 const STATUS_ORDER: Record<SignalStatus, number> = { met: 0, partial: 1, none: 2, na: 3 }
+const STATUSES = Object.keys(STATUS_ORDER) as SignalStatus[]
+/** 행이 차례로 나타나되, 긴 목록에서 기다리지 않도록 12번째 행부터는 한꺼번에 */
+const rowDelay = (r: number) => ({ '--r': Math.min(r, 12) }) as CSSProperties
 const INDUSTRIES = [...new Set(FIRMS.map((f) => f.industry))].sort() as Industry[]
 
 type RegionFilter = '전체' | Region
@@ -23,20 +28,21 @@ export function Firms() {
   const [exporter, setExporter] = useState<ExportFilter>('전체')
   const [status, setStatus] = useState<StatusFilter>('전체')
 
-  const rows = useMemo(() => {
+  const base = useMemo(() => {
     const q = query.trim()
     return FIRMS.map((firm) => ({ firm, check: checkSignal(firm, index) }))
-      .filter(({ firm, check }) => {
+      .filter(({ firm }) => {
         if (q && !firm.name.includes(q)) return false
         if (region !== '전체' && firm.region !== region) return false
         if (industry !== '전체' && firm.industry !== industry) return false
         if (exporter === '수출' && !firm.exporter) return false
         if (exporter === '비수출' && firm.exporter) return false
-        if (status !== '전체' && check.status !== status) return false
         return true
       })
       .sort((a, b) => STATUS_ORDER[a.check.status] - STATUS_ORDER[b.check.status] || a.firm.name.localeCompare(b.firm.name, 'ko'))
-  }, [index, query, region, industry, exporter, status])
+  }, [index, query, region, industry, exporter])
+  const rows = status === '전체' ? base : base.filter((r) => r.check.status === status)
+  const counts = STATUSES.map((s) => ({ s, n: base.filter((r) => r.check.status === s).length }))
 
   const filtered = query !== '' || region !== '전체' || industry !== '전체' || exporter !== '전체' || status !== '전체'
   const reset = () => {
@@ -53,6 +59,21 @@ export function Firms() {
         <h1 id="firms-title">거래처 {FIRMS.length}곳의 {ymLong(ym)} 상태</h1>
         <p>신호를 충족한 거래처가 위에 오도록 정렬했습니다. 수출 실적이 없는 거래처는 규칙 대상이 아니라 '해당 없음'으로 표시합니다.</p>
       </section>
+
+      <div className="status-bar" role="group" aria-label="이번 달 신호로 걸러 보기">
+        <button type="button" aria-pressed={status === '전체'} onClick={() => setStatus('전체')}>
+          <span className="status-name">전체</span>
+          <span className="status-count">{base.length}</span>
+        </button>
+        {counts.map(({ s, n }) => (
+          <button key={s} type="button" aria-pressed={status === s} onClick={() => setStatus(status === s ? '전체' : s)}>
+            <span className="status-name">
+              <SignalMark status={s} />
+            </span>
+            <span className="status-count">{n}</span>
+          </button>
+        ))}
+      </div>
 
       <div className="filters" role="search" aria-label="거래처 걸러 보기">
         <div className="field">
@@ -72,17 +93,6 @@ export function Firms() {
           </select>
         </div>
         <Segmented label="수출 여부" value={exporter} options={['전체', '수출', '비수출']} onChange={setExporter} />
-        <div className="field">
-          <label htmlFor="status">이번 달 신호</label>
-          <select id="status" value={status} onChange={(e) => setStatus(e.target.value as StatusFilter)}>
-            <option value="전체">전체</option>
-            {(Object.keys(STATUS_LABEL) as SignalStatus[]).map((s) => (
-              <option key={s} value={s}>
-                {STATUS_LABEL[s]}
-              </option>
-            ))}
-          </select>
-        </div>
       </div>
 
       <div className="result-line" aria-live="polite">
@@ -106,6 +116,7 @@ export function Firms() {
               <th scope="col">업종</th>
               <th scope="col">수출</th>
               <th scope="col">등급</th>
+              <th scope="col" className="hide-sm">통장 잔고 12개월</th>
               <th scope="col" className="num">
                 통장 잔고
                 <span className="sub">백만 원</span>
@@ -117,10 +128,10 @@ export function Firms() {
               <th scope="col">이번 달 신호</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody key={`${index}-${status}`} className="rows-in">
             {rows.length === 0 && (
               <tr>
-                <td colSpan={8} className="empty-cell">
+                <td colSpan={9} className="empty-cell">
                   <strong>조건에 맞는 거래처가 없습니다</strong>
                   <p>걸러 보기 조건을 하나씩 풀어 보세요. 신호 상태는 기준월에 따라 달라집니다.</p>
                   <div className="chip-row">
@@ -131,16 +142,21 @@ export function Firms() {
                 </td>
               </tr>
             )}
-            {rows.map(({ firm, check }) => (
-              <tr key={firm.id}>
+            {rows.map(({ firm, check }, r) => (
+              <tr key={firm.id} style={rowDelay(r)}>
                 <td className="firm-name">
                   <MonthLink to={`/firms/${firm.id}`}>{firm.name.replace('(가상)', '')}</MonthLink>{' '}
                   <span className="synthetic">(가상)</span>
                 </td>
-                <td>{firm.region}</td>
+                <td>
+                  <RegionTag region={firm.region} />
+                </td>
                 <td>{firm.industry}</td>
                 <td>{firm.exporter ? '수출' : '비수출'}</td>
                 <td>{firm.grade}</td>
+                <td className="spark-cell hide-sm">
+                  <Sparkline values={depositTrail(firm, index)} />
+                </td>
                 <td className="num">{amount(firm.series[index].deposit)}</td>
                 <td className="num">{amount(firm.series[index].loan)}</td>
                 <td>
