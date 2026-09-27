@@ -2269,3 +2269,52 @@ details.raw[open] summary svg {
 .finding + .table-wrap {
   margin-top: var(--s-4);
 }
+
+/* ─── 팀 게시판 ───────────────────────────────────────── */
+.board-warning {
+  padding: var(--s-2) var(--s-3);
+  background: var(--down-wash);
+  border-left: 0;
+  border-top: var(--rule-heavy) solid var(--down);
+  color: var(--down-ink);
+  font-size: var(--t-sm);
+}
+
+.board-warning strong {
+  color: var(--down-ink);
+}
+
+.board-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-1);
+  font-size: var(--t-sm);
+  font-weight: 600;
+}
+
+.board-topics {
+  max-width: 40rem;
+  margin-top: var(--s-4);
+}
+
+.giscus-host {
+  margin-top: var(--s-4);
+  min-height: 12rem;
+}
+
+.board-pending {
+  margin-top: var(--s-4);
+  border-top: var(--rule-thin) dotted var(--rule-mid);
+  border-bottom: var(--rule-thin) dotted var(--rule-mid);
+}
+
+@media (max-width: 640px) {
+  .board-topics {
+    flex-wrap: wrap;
+  }
+
+  .board-topics button {
+    flex: 1 1 45%;
+    min-height: 2.5rem;
+  }
+}
