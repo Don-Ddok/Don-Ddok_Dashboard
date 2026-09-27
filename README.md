@@ -4,6 +4,8 @@
 
 통계 프로젝트 "수출 경기 충격의 법인 여신 전이"에서 관찰한 경향을, 은행 기업금융 담당자가 아침에 여는 **월간 통계 보도자료 형식의 화면**으로 옮겼습니다.
 
+**바로 보기: https://donddok.vercel.app**
+
 ![월보 첫 화면](docs/images/bulletin.png)
 
 > 이 저장소의 거래처와 계좌 금액은 **모두 가상 데이터**입니다. 은행 제공 데이터는 한 줄도 포함하지 않습니다. 교육 과정의 결과물이며 iM뱅크의 공식 입장이 아닙니다.
@@ -119,7 +121,7 @@ npm run dev
 
 ## 배포
 
-`main`에 병합되면 GitHub Actions(`.github/workflows/deploy.yml`)가 빌드해 GitHub Pages에 올립니다. 처음 한 번은 저장소 설정의 Pages에서 배포 방식을 "GitHub Actions"로 골라야 합니다.
+Vercel에 연결돼 있어 `main`에 병합되면 자동으로 빌드해 https://donddok.vercel.app 에 올립니다(빌드 명령 `npm run build`, 결과 폴더 `dist`). 해시 주소(`#/firms`)를 쓰므로 별도 주소 재작성 설정이 필요 없습니다. 내부 시연 모드는 배포 빌드에 들어가지 않습니다.
 
 ## 기술
 
