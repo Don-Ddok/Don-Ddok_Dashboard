@@ -1,4 +1,5 @@
 import { MonthLink } from '../lib/month'
+import { TableWrap } from '../components/TableWrap'
 
 export function Evidence() {
   return (
@@ -38,7 +39,7 @@ export function Evidence() {
       </p>
 
       <h2>한계</h2>
-      <div className="table-wrap">
+      <TableWrap>
         <table className="stat-table">
           <thead>
             <tr>
@@ -69,7 +70,7 @@ export function Evidence() {
             </tr>
           </tbody>
         </table>
-      </div>
+      </TableWrap>
 
       <h2>데이터 출처</h2>
       <ul>

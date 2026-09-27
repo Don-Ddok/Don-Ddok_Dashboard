@@ -126,7 +126,7 @@
 
 /* ─── 제목과 본문 리듬 ────────────────────────────────── */
 .lead {
-  padding: var(--s-6) 0 var(--s-5);
+  padding: var(--s-5) 0 var(--s-5);
   max-width: 48rem;
 }
 
@@ -143,7 +143,7 @@
 }
 
 .section {
-  margin-top: var(--s-7);
+  margin-top: var(--s-6);
 }
 
 .section-head {
@@ -282,7 +282,7 @@
 /* ─── 증감 막대(전년동월비) ───────────────────────────── */
 .yoy-bars {
   display: grid;
-  gap: var(--s-5);
+  gap: var(--s-4);
 }
 
 .yoy-bars figcaption {
@@ -299,8 +299,7 @@
 }
 
 .yoy-col {
-  display: grid;
-  grid-template-rows: 4.5rem 4.5rem auto;
+  display: grid; /* 행 높이는 값의 범위에 맞춰 컴포넌트가 정한다 */
   text-align: center;
   font-size: var(--t-xs);
 }
@@ -481,25 +480,60 @@
   font-weight: 600;
 }
 
-/* ─── 근거 잇기(서명 조작): 세 조건이 괘선으로 이어진다 ─ */
+/* ─── 근거 잇기(서명 조작): 세 조건이 한 줄의 괘선으로 이어진다 ───
+   칸은 상자가 아니라 밑줄 하나. 밑줄과 칸 사이 연결선의 모양이 상태를 말한다
+   충족 굵은 실선 / 기준 근접 굵은 점선 / 미충족 가는 실선 / 해당 없음 점선 */
 .trace {
+  --line-met: 4px solid var(--ink);
+  --line-near: 3px dashed var(--ink-2);
+  --line-unmet: var(--rule-thin) solid var(--rule-mid);
+  --line-na: var(--rule-heavy) dotted var(--rule-mid);
   display: grid;
   grid-template-columns: minmax(0, 1fr) 2.5rem minmax(0, 1fr) 2.5rem minmax(0, 1fr);
-  align-items: center;
+  align-items: end;
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
 .trace-step {
-  padding: var(--s-3) var(--s-3);
-  border: var(--rule-thin) dashed var(--rule-mid);
-  background: var(--paper);
-  min-height: 100%;
+  position: relative;
+  padding: 0 0 var(--s-3);
 }
 
-.trace-step[data-met='true'] {
-  border: var(--rule-heavy) solid var(--ink);
+.trace-step::after,
+.trace-link {
+  border-bottom: var(--line-unmet);
+  transform-origin: left center;
+}
+
+/* 칸 밑줄과 연결선이 같은 바닥선(칸 아래 끝)에 놓여 한 줄로 이어진다 */
+.trace-step::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.trace-link {
+  align-self: end;
+  height: 0;
+}
+
+.trace-step[data-state='met']::after,
+.trace-link[data-state='met'] {
+  border-bottom: var(--line-met);
+}
+
+.trace-step[data-state='near']::after,
+.trace-link[data-state='near'] {
+  border-bottom: var(--line-near);
+}
+
+.trace-step[data-state='na']::after,
+.trace-link[data-state='na'] {
+  border-bottom: var(--line-na);
 }
 
 .trace-label {
@@ -518,31 +552,27 @@
   white-space: nowrap;
 }
 
-.trace-step[data-met='true'] .trace-state {
+.trace-step[data-state='met'] .trace-state {
   color: var(--ink);
+  font-weight: 700;
 }
 
 .trace-value {
   display: block;
   margin-top: var(--s-1);
-  font-size: var(--t-md);
+  font-size: var(--t-base);
   font-weight: 700;
+}
+
+.trace-step[data-state='na'] .trace-value {
+  color: var(--ink-2);
+  font-weight: 500;
 }
 
 .trace-detail {
   display: block;
   font-size: var(--t-xs);
   color: var(--ink-3);
-}
-
-.trace-link {
-  height: 0;
-  border-top: var(--rule-thin) dashed var(--rule-mid);
-  transform-origin: left center;
-}
-
-.trace-link[data-met='true'] {
-  border-top: var(--rule-heavy) solid var(--ink);
 }
 
 .trace-verdict {
@@ -552,27 +582,26 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .trace.is-animated .trace-step {
-    animation: trace-step-in 240ms var(--ease-out) both;
-    animation-delay: calc(var(--i) * 140ms);
+  .trace.is-animated .trace-step::after {
+    animation: trace-draw 220ms var(--ease-out) both;
+    animation-delay: calc(var(--i) * 160ms);
   }
 
   .trace.is-animated .trace-link {
-    animation: trace-link-in 200ms var(--ease-out) both;
-    animation-delay: calc(var(--i) * 140ms + 70ms);
+    animation: trace-draw 140ms var(--ease-out) both;
+    animation-delay: calc(var(--i) * 160ms - 40ms);
   }
 }
 
-@keyframes trace-step-in {
-  from {
-    opacity: 0.35;
-    filter: blur(2px);
-  }
-}
-
-@keyframes trace-link-in {
+@keyframes trace-draw {
   from {
     transform: scaleX(0);
+  }
+}
+
+@keyframes trace-drop {
+  from {
+    transform: scaleY(0);
   }
 }
 
@@ -581,24 +610,37 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .trace-link {
-    height: 1.5rem;
+  /* 칸을 세로로 쌓고, 칸 사이는 같은 선 모양의 짧은 세로선으로 잇는다 */
+  .trace-link,
+  .trace-link[data-state] {
+    justify-self: start;
+    align-self: stretch;
     width: 0;
-    margin-left: var(--s-5);
-    border-top: 0;
-    border-left: var(--rule-thin) dashed var(--rule-mid);
+    height: var(--s-5);
+    margin-left: var(--s-3);
+    border-bottom: 0;
+    border-left: var(--line-unmet);
     transform-origin: center top;
   }
 
-  .trace-link[data-met='true'] {
-    border-top: 0;
-    border-left: var(--rule-heavy) solid var(--ink);
+  .trace-link[data-state='met'] {
+    border-left: var(--line-met);
   }
 
-  @keyframes trace-link-in {
-    from {
-      transform: scaleY(0);
-    }
+  .trace-link[data-state='near'] {
+    border-left: var(--line-near);
+  }
+
+  .trace-link[data-state='na'] {
+    border-left: var(--line-na);
+  }
+
+  .trace.is-animated .trace-link {
+    animation-name: trace-drop;
+  }
+
+  .trace-step {
+    padding-top: var(--s-2);
   }
 }
 
@@ -907,9 +949,25 @@ details.raw {
 }
 
 details.raw summary {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
   padding: var(--s-3) 0;
   font-weight: 600;
   cursor: pointer;
+  list-style: none;
+}
+
+details.raw summary::-webkit-details-marker {
+  display: none;
+}
+
+details.raw summary svg {
+  transition: transform 200ms var(--ease-out);
+}
+
+details.raw[open] summary svg {
+  transform: rotate(180deg);
 }
 
 /* ─── 근거와 한계(읽기 화면) ──────────────────────────── */
@@ -944,4 +1002,45 @@ details.raw summary {
 
 .not-found {
   padding: var(--s-8) 0;
+}
+
+/* ─── 표 옆으로 밀기 안내, 좁은 화면에서 숨기는 칸 ───── */
+.scroll-hint {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--s-1);
+  margin-top: var(--s-1);
+  font-size: var(--t-xs);
+  color: var(--ink-3);
+}
+
+@media (max-width: 640px) {
+  .stat-table .hide-sm {
+    display: none;
+  }
+
+  /* 좁은 화면: 칸 제목은 줄바꿈을 허용하고, (가상) 표시는 이름 아래 줄로 */
+  .stat-table thead th {
+    white-space: normal;
+    vertical-align: bottom;
+  }
+
+  .stat-table .firm-name .synthetic {
+    display: block;
+    margin-left: 0;
+    font-size: var(--t-xs);
+  }
+}
+
+/* 비수출 거래처: 신호 이력 대신 해당 없음을 문장으로 */
+.strip-na {
+  margin-top: var(--s-4);
+  padding-bottom: var(--s-3);
+  border-bottom: var(--rule-heavy) dotted var(--rule-mid);
+  color: var(--ink-2);
+}
+
+.strip-na strong {
+  color: var(--ink);
 }

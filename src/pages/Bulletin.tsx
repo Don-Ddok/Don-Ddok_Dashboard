@@ -7,7 +7,7 @@ import { amount, moved, pct, usdMillion, ymLong, ymShort } from '../lib/format'
 import { MonthLink, useMonth } from '../lib/month'
 import { ConditionTrace } from '../components/ConditionTrace'
 import { YoyBars } from '../components/YoyBars'
-import { SignalMark } from '../components/SignalMark'
+import { TableWrap } from '../components/TableWrap'
 import { EXPORT_SOURCE, Footnotes, SIGNAL_RULE_NOTE, SYNTHETIC_NOTE, WEAK_EVIDENCE_NOTE } from '../components/Footnotes'
 
 const REGIONS: Region[] = ['대구', '경북']
@@ -56,10 +56,18 @@ export function Bulletin() {
       <section aria-labelledby="region-title">
         <div className="section-head">
           <h2 id="region-title">지역 수출</h2>
-          <span className="unit">단위: 백만 달러, %</span>
+          <div className="legend" aria-hidden="true">
+            <span>
+              <i className="swatch fill" /> 1년 전보다 증가
+            </span>
+            <span>
+              <i className="swatch outline" /> 1년 전보다 감소
+            </span>
+            <span>단위: 백만 달러, %</span>
+          </div>
         </div>
         <div className="split" style={{ marginTop: 'var(--s-4)' }}>
-          <div className="table-wrap">
+          <TableWrap>
             <table className="stat-table">
               <caption className="visually-hidden">대구·경북 월별 수출액과 전년동월비, 최근 6개월</caption>
               <thead>
@@ -86,19 +94,11 @@ export function Bulletin() {
                 })}
               </tbody>
             </table>
-          </div>
+          </TableWrap>
           <div className="yoy-bars">
             {REGIONS.map((r) => (
               <YoyBars key={r} region={r} points={lastSix(r, ym)} currentYm={ym} />
             ))}
-            <div className="legend" aria-hidden="true">
-              <span>
-                <i className="swatch fill" /> 1년 전보다 증가
-              </span>
-              <span>
-                <i className="swatch outline" /> 1년 전보다 감소
-              </span>
-            </div>
           </div>
         </div>
       </section>
@@ -108,17 +108,17 @@ export function Bulletin() {
           <h2 id="watch-title">살펴볼 거래처</h2>
           <span className="unit">세 조건 모두 충족, {ymLong(ym)} 기준</span>
         </div>
-        <div className="table-wrap">
+        <TableWrap>
           <table className="stat-table">
             <caption className="visually-hidden">이번 달 참고 신호 거래처</caption>
             <thead>
               <tr>
                 <th scope="col">거래처</th>
                 <th scope="col">지역</th>
-                <th scope="col">업종</th>
+                <th scope="col" className="hide-sm">업종</th>
                 <th scope="col" className="num">통장 잔고, 3개월</th>
                 <th scope="col" className="num">대출, 6개월</th>
-                <th scope="col" className="num">대출 잔액</th>
+                <th scope="col" className="num hide-sm">대출 잔액</th>
                 <th scope="col">
                   <span className="visually-hidden">근거 펼치기</span>
                 </th>
@@ -151,8 +151,13 @@ export function Bulletin() {
                     key={firm.id}
                     id={firm.id}
                     name={firm.name}
-                    cells={[firm.region, firm.industry]}
-                    nums={[pct(dep.value), pct(loan.value), amount(firm.series[index].loan)]}
+                    cells={[
+                      { text: firm.region },
+                      { text: firm.industry, hideSm: true },
+                      { text: pct(dep.value), num: true },
+                      { text: pct(loan.value), num: true },
+                      { text: amount(firm.series[index].loan), num: true, hideSm: true },
+                    ]}
                     open={isOpen}
                     onToggle={() => setOpen(isOpen ? null : firm.id)}
                     detail={<ConditionTrace check={check} animate />}
@@ -161,7 +166,7 @@ export function Bulletin() {
               })}
             </tbody>
           </table>
-        </div>
+        </TableWrap>
       </section>
 
       {partial.length > 0 && (
@@ -170,13 +175,13 @@ export function Bulletin() {
             <h2 id="partial-title">기준에 가까운 거래처</h2>
             <span className="unit">{partial.length}곳, 통장 잔고가 5~10% 줄어 다음 달 함께 볼 곳</span>
           </div>
-          <div className="table-wrap">
+          <TableWrap>
             <table className="stat-table">
               <thead>
                 <tr>
                   <th scope="col">거래처</th>
-                  <th scope="col">상태</th>
                   <th scope="col">지역</th>
+                  <th scope="col">업종</th>
                   <th scope="col" className="num">통장 잔고, 3개월</th>
                   <th scope="col" className="num">대출, 6개월</th>
                 </tr>
@@ -188,17 +193,15 @@ export function Bulletin() {
                       <MonthLink to={`/firms/${firm.id}`}>{firm.name.replace('(가상)', '')}</MonthLink>{' '}
                       <span className="synthetic">(가상)</span>
                     </td>
-                    <td>
-                      <SignalMark status="partial" />
-                    </td>
                     <td>{firm.region}</td>
+                    <td>{firm.industry}</td>
                     <td className="num">{pct(check.conditions[1].value)}</td>
                     <td className="num">{pct(check.conditions[2].value)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          </div>
+          </TableWrap>
           {partial.length > PARTIAL_PREVIEW && (
             <p className="detail-actions">
               <MonthLink to="/firms">
@@ -221,15 +224,13 @@ function FirmRow({
   id,
   name,
   cells,
-  nums,
   open,
   onToggle,
   detail,
 }: {
   id: string
   name: string
-  cells: string[]
-  nums: string[]
+  cells: { text: string; num?: boolean; hideSm?: boolean }[]
   open: boolean
   onToggle: () => void
   detail: ReactNode
@@ -241,12 +242,9 @@ function FirmRow({
         <td className="firm-name">
           <MonthLink to={`/firms/${id}`}>{name.replace('(가상)', '')}</MonthLink> <span className="synthetic">(가상)</span>
         </td>
-        {cells.map((c) => (
-          <td key={c}>{c}</td>
-        ))}
-        {nums.map((n, i) => (
-          <td key={i} className="num">
-            {n}
+        {cells.map((c, i) => (
+          <td key={i} className={[c.num && 'num', c.hideSm && 'hide-sm'].filter(Boolean).join(' ') || undefined}>
+            {c.text}
           </td>
         ))}
         <td className="num">

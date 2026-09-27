@@ -5,6 +5,7 @@ import { checkSignal, type SignalStatus } from '../data/signals'
 import { amount, ymLong } from '../lib/format'
 import { MonthLink, useMonth } from '../lib/month'
 import { SignalMark, STATUS_LABEL } from '../components/SignalMark'
+import { TableWrap } from '../components/TableWrap'
 import { Footnotes, SIGNAL_RULE_NOTE, SYNTHETIC_NOTE } from '../components/Footnotes'
 
 const STATUS_ORDER: Record<SignalStatus, number> = { met: 0, partial: 1, none: 2, na: 3 }
@@ -95,7 +96,7 @@ export function Firms() {
         )}
       </div>
 
-      <div className="table-wrap">
+      <TableWrap>
         <table className="stat-table">
           <caption className="visually-hidden">거래처 목록, {ymLong(ym)} 기준</caption>
           <thead>
@@ -149,7 +150,7 @@ export function Firms() {
             ))}
           </tbody>
         </table>
-      </div>
+      </TableWrap>
 
       <Footnotes
         notes={[
