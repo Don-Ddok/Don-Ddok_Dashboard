@@ -41,3 +41,4 @@ dist-ssr
 .env.internal*
 **/내부시연/
 internal-summary*.json
+.vite
