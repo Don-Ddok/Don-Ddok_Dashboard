@@ -1815,9 +1815,8 @@ details.raw[open] summary svg {
   font-weight: 700;
 }
 
-.internal-chart {
+.chart-body.tall {
   height: 16rem;
-  margin-top: var(--s-4);
 }
 
 .compare {
