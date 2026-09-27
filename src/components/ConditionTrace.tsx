@@ -1,14 +1,32 @@
 import { Fragment, type CSSProperties } from 'react'
-import type { SignalCheck } from '../data/signals'
+import type { Condition, SignalCheck, SignalStatus } from '../data/signals'
 import { pct } from '../lib/format'
 
+/** 조건 한 칸의 선 모양: 충족 굵은 실선, 기준 근접 굵은 점선, 미충족 가는 실선, 해당 없음 점선 */
+type StepState = 'met' | 'near' | 'unmet' | 'na'
+const RANK: Record<StepState, number> = { na: 0, unmet: 1, near: 2, met: 3 }
+const STATE_TEXT: Record<Exclude<StepState, 'na'>, string> = { met: '충족', near: '기준 근접', unmet: '미충족' }
+
+function stepState(c: Condition, status: SignalStatus): StepState {
+  if (status === 'na') return 'na'
+  if (c.met) return 'met'
+  if (c.key === 'deposit' && status === 'partial') return 'near'
+  return 'unmet'
+}
+
+/** 두 칸을 잇는 선은 더 약한 쪽의 모양을 따른다 */
+function weaker(a: StepState, b: StepState): StepState {
+  return RANK[a] <= RANK[b] ? a : b
+}
+
 /**
- * 근거 잇기: 세 조건(지역 수출 감소 → 통장 잔고 감소 → 대출 유지)을 괘선으로 잇는다.
- * 충족한 조건과 그 사이 연결선은 굵은 실선, 충족하지 못한 것은 점선.
- * animate가 켜지면 왼쪽부터 차례로 드러난다(동작 줄이기 설정이면 바로 표시).
+ * 근거 잇기: 세 조건(지역 수출 감소 → 통장 잔고 감소 → 대출 유지)을 한 줄의 괘선으로 잇는다.
+ * 각 칸 밑줄과 칸 사이 연결선의 모양이 상태를 말한다. animate가 켜지면 왼쪽부터 차례로 그어진다
+ * (동작 줄이기 설정이면 바로 표시).
  */
 export function ConditionTrace({ check, animate = false }: { check: SignalCheck; animate?: boolean }) {
   const { conditions, status } = check
+  const states = conditions.map((c) => stepState(c, status))
   return (
     <div>
       <ol className={`trace${animate ? ' is-animated' : ''}`} aria-label="참고 신호 조건">
@@ -18,14 +36,14 @@ export function ConditionTrace({ check, animate = false }: { check: SignalCheck;
               <li
                 aria-hidden="true"
                 className="trace-link"
-                data-met={conditions[i - 1].met && c.met}
+                data-state={weaker(states[i - 1], states[i])}
                 style={{ '--i': i } as CSSProperties}
               />
             )}
-            <li className="trace-step" data-met={c.met} style={{ '--i': i } as CSSProperties}>
+            <li className="trace-step" data-state={states[i]} style={{ '--i': i } as CSSProperties}>
               <span className="trace-label">
                 {c.label}
-                <span className="trace-state">{c.met ? '충족' : '미충족'}</span>
+                {states[i] !== 'na' && <span className="trace-state">{STATE_TEXT[states[i] as Exclude<StepState, 'na'>]}</span>}
               </span>
               <span className="trace-value">{pct(c.value)}</span>
               <span className="trace-detail">{c.detail}</span>
@@ -38,7 +56,7 @@ export function ConditionTrace({ check, animate = false }: { check: SignalCheck;
         {status === 'partial' &&
           '지역 수출이 줄고 대출도 유지 중인데, 통장 잔고 감소가 기준(-10%)에 조금 못 미칩니다. 다음 달 흐름을 함께 보면 좋습니다.'}
         {status === 'none' && '이번 달에는 조건이 이어지지 않았습니다.'}
-        {status === 'na' && '수출 실적이 없는 거래처라 이 규칙의 대상이 아닙니다. 조건 값은 참고로만 표시합니다.'}
+        {status === 'na' && '해당 없음. 수출 실적이 없는 거래처라 이 규칙의 대상이 아닙니다. 조건 값은 참고로만 표시합니다.'}
       </p>
     </div>
   )

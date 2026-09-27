@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react'
 import { useParams } from 'react-router-dom'
-import { ArrowLeft } from '@phosphor-icons/react'
+import { ArrowLeft, CaretDown } from '@phosphor-icons/react'
 import {
   Bar,
   BarChart,
@@ -19,6 +19,7 @@ import { amount, pct, ymLong, ymShort } from '../lib/format'
 import { MonthLink, useMonth } from '../lib/month'
 import { ConditionTrace } from '../components/ConditionTrace'
 import { SignalMark, STATUS_LABEL } from '../components/SignalMark'
+import { TableWrap } from '../components/TableWrap'
 import { Footnotes, SIGNAL_RULE_NOTE, SYNTHETIC_NOTE, WEAK_EVIDENCE_NOTE } from '../components/Footnotes'
 
 const INK = '#1b1e23'
@@ -116,7 +117,7 @@ export default function FirmDetail() {
             {firm.exporter ? `신호 충족 ${metMonths.length}개월` : '규칙 대상 아님'}, 파란 세로선은 기준월
           </span>
         </div>
-        <SignalStrip rows={rows} currentYm={ym} />
+        <SignalStrip rows={rows} currentYm={ym} exporter={firm.exporter} />
         <div className="charts" style={{ marginTop: 'var(--s-5)' }}>
           <ChartBlock
             title={`${firm.region} 수출, 1년 전 같은 달 대비`}
@@ -179,14 +180,14 @@ export default function FirmDetail() {
                 <Bar dataKey="exportAmt" fill={INK} isAnimationActive={false} />
               </BarChart>
             </ChartBlock>
-          ) : (
-            <p className="section-note">수출 실적이 없는 거래처입니다.</p>
-          )}
+          ) : null}
         </div>
 
         <details className="raw">
-          <summary>월별 수치 표 열기</summary>
-          <div className="table-wrap">
+          <summary>
+            <CaretDown size={14} weight="bold" aria-hidden="true" /> 월별 수치 표
+          </summary>
+          <TableWrap>
             <table className="stat-table">
               <thead>
                 <tr>
@@ -211,7 +212,7 @@ export default function FirmDetail() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </TableWrap>
         </details>
       </section>
 
@@ -224,7 +225,16 @@ export default function FirmDetail() {
 }
 
 /** 36칸 신호 이력: 굵은 실선 충족, 점선 일부 충족, 가는 선 미충족, 빈칸은 판정 전 */
-function SignalStrip({ rows, currentYm }: { rows: Row[]; currentYm: number }) {
+function SignalStrip({ rows, currentYm, exporter }: { rows: Row[]; currentYm: number; exporter: boolean }) {
+  if (!exporter) {
+    return (
+      <p className="strip-na">
+        <strong>해당 없음.</strong> 수출 실적이 없는 거래처라 36개월 내내 참고 신호 규칙의 대상이 아닙니다. 아래 그래프는 계좌 흐름을 참고로
+        보여 줍니다.
+      </p>
+    )
+  }
+  const seen = new Set(rows.map((r) => r.status ?? 'na'))
   const label = rows
     .filter((r) => r.status === 'met' || r.status === 'partial')
     .map((r) => `${ymShort(r.ym)} ${STATUS_LABEL[r.status as SignalStatus]}`)
@@ -247,17 +257,23 @@ function SignalStrip({ rows, currentYm }: { rows: Row[]; currentYm: number }) {
         ))}
       </div>
       <div className="legend strip-legend" aria-hidden="true">
+        {seen.has('met') && (
+          <span>
+            <i className="line met" /> 충족
+          </span>
+        )}
+        {seen.has('partial') && (
+          <span>
+            <i className="line partial" /> 기준 근접
+          </span>
+        )}
+        {seen.has('none') && (
+          <span>
+            <i className="line" /> 미충족
+          </span>
+        )}
         <span>
-          <i className="line met" /> 충족
-        </span>
-        <span>
-          <i className="line partial" /> 기준 근접
-        </span>
-        <span>
-          <i className="line" /> 미충족
-        </span>
-        <span>
-          <i className="line na" /> 해당 없음, 판정 전
+          <i className="line na" /> 판정 전(2023년 1~6월)
         </span>
       </div>
     </>
