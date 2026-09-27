@@ -1,4 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs'
+import { dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { defineConfig, loadEnv, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 
@@ -38,7 +40,8 @@ export default defineConfig(({ command, mode }) => {
   if (mode === 'internal' && command === 'build') {
     throw new Error('내부 시연 모드는 빌드할 수 없습니다. 실제 데이터 화면은 로컬 개발 서버에서만 엽니다.')
   }
-  const env = loadEnv(mode, process.cwd(), 'INTERNAL_')
+  // 다른 폴더에서 실행해도 이 설정 파일 옆의 .env.internal.local을 읽도록 기준을 설정 파일 위치로
+  const env = loadEnv(mode, dirname(fileURLToPath(import.meta.url)), 'INTERNAL_')
   return {
     base: './',
     plugins: [react(), ...(mode === 'internal' ? [internalSummary(env.INTERNAL_SUMMARY)] : [])],
