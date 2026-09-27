@@ -503,10 +503,11 @@
 
 .trace-step::after,
 .trace-link {
-  border-top: var(--line-unmet);
+  border-bottom: var(--line-unmet);
   transform-origin: left center;
 }
 
+/* 칸 밑줄과 연결선이 같은 바닥선(칸 아래 끝)에 놓여 한 줄로 이어진다 */
 .trace-step::after {
   content: '';
   position: absolute;
@@ -516,23 +517,23 @@
 }
 
 .trace-link {
+  align-self: end;
   height: 0;
-  margin-bottom: 0;
 }
 
 .trace-step[data-state='met']::after,
 .trace-link[data-state='met'] {
-  border-top: var(--line-met);
+  border-bottom: var(--line-met);
 }
 
 .trace-step[data-state='near']::after,
 .trace-link[data-state='near'] {
-  border-top: var(--line-near);
+  border-bottom: var(--line-near);
 }
 
 .trace-step[data-state='na']::after,
 .trace-link[data-state='na'] {
-  border-top: var(--line-na);
+  border-bottom: var(--line-na);
 }
 
 .trace-label {
@@ -598,17 +599,48 @@
   }
 }
 
+@keyframes trace-drop {
+  from {
+    transform: scaleY(0);
+  }
+}
+
 @media (max-width: 640px) {
   .trace {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .trace-link {
-    display: none;
+  /* 칸을 세로로 쌓고, 칸 사이는 같은 선 모양의 짧은 세로선으로 잇는다 */
+  .trace-link,
+  .trace-link[data-state] {
+    justify-self: start;
+    align-self: stretch;
+    width: 0;
+    height: var(--s-5);
+    margin-left: var(--s-3);
+    border-bottom: 0;
+    border-left: var(--line-unmet);
+    transform-origin: center top;
+  }
+
+  .trace-link[data-state='met'] {
+    border-left: var(--line-met);
+  }
+
+  .trace-link[data-state='near'] {
+    border-left: var(--line-near);
+  }
+
+  .trace-link[data-state='na'] {
+    border-left: var(--line-na);
+  }
+
+  .trace.is-animated .trace-link {
+    animation-name: trace-drop;
   }
 
   .trace-step {
-    padding-top: var(--s-3);
+    padding-top: var(--s-2);
   }
 }
 
