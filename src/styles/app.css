@@ -1801,6 +1801,13 @@ details.raw[open] summary svg {
   margin-top: var(--s-4);
 }
 
+/* 본문 폭의 설명 표는 옆으로 밀지 않고 칸 안에서 줄을 바꾼다 */
+.prose .stat-table th,
+.prose .stat-table td {
+  white-space: normal;
+  min-width: 7rem;
+}
+
 .not-found {
   padding: var(--s-8) 0;
 }
