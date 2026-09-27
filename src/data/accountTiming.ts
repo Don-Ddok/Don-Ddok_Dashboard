@@ -22,7 +22,6 @@ export interface Account {
   result: TimingResult
   observed?: string // 중간보고서 결과
   note?: string
-  inRule?: boolean // 이 화면의 참고 신호 규칙이 쓰는 계정
 }
 
 export interface Stage {
@@ -67,7 +66,6 @@ export const STAGES: Stage[] = [
         result: 'match',
         observed: 'k = 0',
         note: '출금(선행)과 입금(후행)이 섞인 값',
-        inRule: true,
       },
       { name: '법인카드', expected: '동행~후행 0~2개월', result: 'match', observed: 'k = 0, 3개월 안에 사라짐' },
     ],
@@ -111,7 +109,6 @@ export const STAGES: Stage[] = [
         result: 'match',
         observed: 'k = 6(시점 일치, 전체 평균은 약함)',
         note: '파트 3: 6개월 창에서 노출·비노출 차이(약한 증거)',
-        inRule: true,
       },
       { name: '여신한도', expected: '후행 9~12개월 이상', result: 'differ', observed: 'k = 6(판단 보류)', note: '연 1회 갱신, 사양에 따라 결과가 달라짐' },
       { name: '무역금융', expected: '선행과 후행이 섞임', result: 'differ', observed: 'h = 3~5, 위약검정 실패(보류)', note: '신용장기준(선행)과 실적기준(후행)을 구분할 수 없음' },
