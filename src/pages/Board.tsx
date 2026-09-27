@@ -20,7 +20,7 @@ function Giscus({ term }: { term: string }) {
       'data-mapping': 'specific',
       'data-term': term,
       'data-strict': '1',
-      'data-reactions-enabled': '1',
+      'data-reactions-enabled': '0', // 글타래 전체에 다는 반응은 끔(댓글마다 반응은 그대로)
       'data-emit-metadata': '0',
       'data-input-position': 'top',
       'data-theme': 'light',
