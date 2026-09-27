@@ -314,6 +314,22 @@
   letter-spacing: 0;
 }
 
+/* 폰: 지난달 대비 문구는 라벨 아래 줄로 */
+@media (max-width: 640px) {
+  .lead .kicker {
+    flex-wrap: wrap;
+    white-space: nowrap;
+  }
+
+  .kicker-delta {
+    flex-basis: 100%;
+    margin-left: 0;
+    padding-left: 0;
+    border-left: 0;
+    white-space: normal;
+  }
+}
+
 .delta {
   color: var(--ink);
   font-weight: 700;
