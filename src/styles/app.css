@@ -1226,9 +1226,10 @@ main .prose h2::before {
   font-size: var(--t-sm);
 }
 
+/* 지역·업종·수출 여부·할인어음·고객 등급 다섯 칸을 한 줄에 */
 .facts {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   margin: var(--s-4) 0 0;
   border-top: var(--rule-heavy) solid var(--ink);
   border-bottom: var(--rule-thin) solid var(--rule);
