@@ -127,7 +127,7 @@ npm run dev
 - **규칙 점검(실제 집계)**: 규칙을 실제 데이터에 적용한 집계. 개별 법인은 나오지 않고, 5 미만인 칸은 가립니다.
 - 계정 시차·근거와 한계·게시판은 배포 화면과 같습니다.
 
-1. 팀 분석 폴더(`여신업종분석/단계별 분석`)에서 `internal_demo_summary.py`(집계), `combo_signal_check.py`(조합 점검), `internal_firms_export.py`(법인 단위 월별 잔액)를 실행합니다. 결과는 모두 `내부시연/` 폴더에 생깁니다.
+1. 팀 분석 폴더(`파트3_여신업종분석/단계별 분석`)에서 `internal_demo_summary.py`(집계), `combo_signal_check.py`(조합 점검), `internal_firms_export.py`(법인 단위 월별 잔액)를 실행합니다. 결과는 모두 `내부시연/` 폴더에 생깁니다.
 2. 이 저장소 루트에 `.env.internal.local`을 만들고 집계 파일 경로를 적습니다(저장소에 올라가지 않는 파일). 같은 폴더의 `combo_check.json`, `firms.json`도 함께 읽습니다.
    ```
    INTERNAL_SUMMARY=C:/경로/내부시연/summary.json
