@@ -3,6 +3,7 @@ import { ArrowRight, CaretDown } from '@phosphor-icons/react'
 import { REGION_EXPORTS, type Region } from '../data/regionExports'
 import { depositTrail, MONTHS, regionYoY, type Firm } from '../data/synthetic'
 import { FIRST_JUDGED_INDEX, firmsByStatus, JUDGE_START_NOTE, partnerAmount, targetCount } from '../data/signals'
+import { CALENDAR_NOTE } from '../data/workdays'
 import { COMBOS, type ComboId } from '../data/combos'
 import { amount, pct, usdMillion, ymLong, ymShort } from '../lib/format'
 import { MonthLink, useMonth } from '../lib/month'
@@ -97,8 +98,7 @@ export function Bulletin() {
         </p>
         <h1 id="lead-title">{headline}</h1>
         <p className="lead-note">
-          ※ 
-          {C.target} {targets}곳 가운데, {C.leadNote} 위험 판정이 아니라 먼저 연락해 볼 순서를 정하는 참고 자료입니다.
+          ※{C.target} {targets}곳 가운데, {C.leadNote} 위험 판정이 아니라 먼저 연락해 볼 순서를 정하는 참고 자료입니다.
         </p>
       </section>
 
@@ -125,11 +125,15 @@ export function Bulletin() {
                   <th scope="col" className="num">
                     <RegionTag region="대구" /> 수출액
                   </th>
-                  <th scope="col" className="num">전년동월비</th>
+                  <th scope="col" className="num">
+                    전년동월비
+                  </th>
                   <th scope="col" className="num">
                     <RegionTag region="경북" /> 수출액
                   </th>
-                  <th scope="col" className="num">전년동월비</th>
+                  <th scope="col" className="num">
+                    전년동월비
+                  </th>
                 </tr>
               </thead>
               <tbody key={ym} className="rows-in">
@@ -173,13 +177,21 @@ export function Bulletin() {
               <tr>
                 <th scope="col">거래처</th>
                 <th scope="col">지역</th>
-                <th scope="col" className="hide-sm">업종</th>
-                <th scope="col" className="hide-sm">통장 잔고 12개월</th>
-                <th scope="col" className="num">통장 잔고, 3개월</th>
+                <th scope="col" className="hide-sm">
+                  업종
+                </th>
+                <th scope="col" className="hide-sm">
+                  통장 잔고 12개월
+                </th>
+                <th scope="col" className="num">
+                  통장 잔고, 3개월
+                </th>
                 <th scope="col" className="num">
                   {C.short}, {C.window}개월
                 </th>
-                <th scope="col" className="num hide-sm">{C.short} 잔액</th>
+                <th scope="col" className="num hide-sm">
+                  {C.short} 잔액
+                </th>
                 <th scope="col">
                   <span className="visually-hidden">근거 펼치기</span>
                 </th>
@@ -245,8 +257,12 @@ export function Bulletin() {
                 <th scope="col">거래처</th>
                 <th scope="col">지역</th>
                 <th scope="col">업종</th>
-                <th scope="col" className="hide-sm">통장 잔고 12개월</th>
-                <th scope="col" className="num">통장 잔고, 3개월</th>
+                <th scope="col" className="hide-sm">
+                  통장 잔고 12개월
+                </th>
+                <th scope="col" className="num">
+                  통장 잔고, 3개월
+                </th>
                 <th scope="col" className="num">
                   {C.short}, {C.window}개월
                 </th>
@@ -296,7 +312,13 @@ export function Bulletin() {
       </section>
 
       <Footnotes
-        notes={[C.ruleNote, C.basisNote, dataNote(kind), `지역 수출은 ${ymShort(ym)} 월간 통관 기준이며, 은행 계좌는 월말 잔액 기준입니다.`]}
+        notes={[
+          C.ruleNote,
+          C.basisNote,
+          CALENDAR_NOTE,
+          dataNote(kind),
+          `지역 수출은 ${ymShort(ym)} 월간 통관 기준이며, 은행 계좌는 월말 잔액 기준입니다.`,
+        ]}
         source={`${EXPORT_SOURCE}, ${firmSource(kind)}`}
       />
     </>

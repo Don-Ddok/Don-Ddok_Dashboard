@@ -1,23 +1,12 @@
 import type { ReactNode } from 'react'
 import { useParams } from 'react-router-dom'
 import { ArrowLeft, CaretDown } from '@phosphor-icons/react'
-import {
-  Area,
-  AreaChart,
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Line,
-  LineChart,
-  ReferenceLine,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts'
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, Line, LineChart, ReferenceLine, Tooltip, XAxis, YAxis } from 'recharts'
 import { regionYoY } from '../data/synthetic'
 import { useData } from '../lib/data'
 import { FirmName } from '../components/FirmName'
 import { checkSignal, FIRST_JUDGED_INDEX, JUDGE_START_NOTE, type SignalStatus } from '../data/signals'
+import { CALENDAR_NOTE } from '../data/workdays'
 import { COMBOS } from '../data/combos'
 import { amount, pct, ymLong, ymShort } from '../lib/format'
 import { MonthLink, useMonth } from '../lib/month'
@@ -119,10 +108,18 @@ export default function FirmDetail() {
           <Fact label="업종" note={`같은 업종 ${firm.synthetic ? '가상 거래처' : '외환 거래 법인'} ${sameIndustry}곳`}>
             {firm.industry}
           </Fact>
-          <Fact label="수출 여부" note={firm.exporter ? `36개월 중 수출 실적 있는 달 ${exportMonths}개월` : '36개월 수출 실적 없음'}>
+          <Fact
+            label="수출 여부"
+            note={firm.exporter ? `36개월 중 수출 실적 있는 달 ${exportMonths}개월` : '36개월 수출 실적 없음'}
+          >
             {firm.exporter ? '수출 거래처' : firm.synthetic ? '비수출 거래처' : '비수출(수입만)'}
           </Fact>
-          <Fact label="할인어음" note={firm.billUser ? `36개월 중 잔액 있는 달 ${rows.filter((r) => (r.bill ?? 0) > 0).length}개월` : '36개월 잔액 없음'}>
+          <Fact
+            label="할인어음"
+            note={
+              firm.billUser ? `36개월 중 잔액 있는 달 ${rows.filter((r) => (r.bill ?? 0) > 0).length}개월` : '36개월 잔액 없음'
+            }
+          >
             {firm.billUser ? '거래 있음' : '거래 없음'}
           </Fact>
           <Fact label="고객 등급" note={firm.synthetic ? '은행 내부 등급(가상)' : `은행 내부 등급, ${ymShort(last.ym)} 기준`}>
@@ -182,7 +179,9 @@ export default function FirmDetail() {
             value={
               <>
                 {amount(now.deposit)}{' '}
-                <span className={(check.conditions[1].value ?? 0) < 0 ? 'down' : 'up'}>({pct(check.conditions[1].value)}, 3개월)</span>
+                <span className={(check.conditions[1].value ?? 0) < 0 ? 'down' : 'up'}>
+                  ({pct(check.conditions[1].value)}, 3개월)
+                </span>
               </>
             }
             valueLabel={currentX}
@@ -275,11 +274,21 @@ export default function FirmDetail() {
               <thead>
                 <tr>
                   <th scope="col">월</th>
-                  <th scope="col" className="num">지역 수출 전년비</th>
-                  <th scope="col" className="num">통장 잔고</th>
-                  <th scope="col" className="num">대출 잔액</th>
-                  <th scope="col" className="num">할인어음 잔액</th>
-                  <th scope="col" className="num">수출 실적</th>
+                  <th scope="col" className="num">
+                    지역 수출 전년비
+                  </th>
+                  <th scope="col" className="num">
+                    통장 잔고
+                  </th>
+                  <th scope="col" className="num">
+                    대출 잔액
+                  </th>
+                  <th scope="col" className="num">
+                    할인어음 잔액
+                  </th>
+                  <th scope="col" className="num">
+                    수출 실적
+                  </th>
                   <th scope="col">신호</th>
                 </tr>
               </thead>
@@ -302,7 +311,7 @@ export default function FirmDetail() {
       </section>
 
       <Footnotes
-        notes={[C.ruleNote, C.basisNote, dataNote(kind), JUDGE_START_NOTE]}
+        notes={[C.ruleNote, C.basisNote, CALENDAR_NOTE, dataNote(kind), JUDGE_START_NOTE]}
         source={`${EXPORT_SOURCE}, ${firmSource(kind)}`}
       />
     </>

@@ -2,6 +2,7 @@ import { useMemo, useState, type CSSProperties } from 'react'
 import { depositTrail } from '../data/synthetic'
 import type { Region } from '../data/regionExports'
 import { checkSignal, partnerAmount, type SignalStatus } from '../data/signals'
+import { CALENDAR_NOTE } from '../data/workdays'
 import { COMBOS } from '../data/combos'
 import { amount, ymLong } from '../lib/format'
 import { useMonth } from '../lib/month'
@@ -80,12 +81,13 @@ export function Firms() {
     <>
       <section className="lead" aria-labelledby="firms-title">
         <h1 id="firms-title">
-          {kind === 'real' ? `실제 법인 ${observedCount.toLocaleString('ko-KR')}곳` : `거래처 ${firms.length}곳`}의 {ymLong(ym)} 상태
+          {kind === 'real' ? `실제 법인 ${observedCount.toLocaleString('ko-KR')}곳` : `거래처 ${firms.length}곳`}의 {ymLong(ym)}{' '}
+          상태
         </h1>
         {kind === 'real' && (
           <p className="lead-note">
-            ※ {scope} {firms.length.toLocaleString('ko-KR')}곳 가운데 {ymLong(ym)}에 거래 기록이 있는 곳입니다. 나머지 약 1만 곳은 외환
-            거래가 없어 두 조합 모두 규칙 대상이 아니라 불러오지 않았습니다.
+            ※ {scope} {firms.length.toLocaleString('ko-KR')}곳 가운데 {ymLong(ym)}에 거래 기록이 있는 곳입니다. 나머지 약 1만 곳은
+            외환 거래가 없어 두 조합 모두 규칙 대상이 아니라 불러오지 않았습니다.
           </p>
         )}
         <p>
@@ -112,7 +114,13 @@ export function Firms() {
       <div className="filters" role="search" aria-label="거래처 걸러 보기">
         <div className="field">
           <label htmlFor="q">거래처 이름</label>
-          <input id="q" type="search" placeholder={kind === 'real' ? '법인ID 앞 8자리 일부' : '예: 가람전자'} value={query} onChange={(e) => setQuery(e.target.value)} />
+          <input
+            id="q"
+            type="search"
+            placeholder={kind === 'real' ? '법인ID 앞 8자리 일부' : '예: 가람전자'}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
         </div>
         <Segmented label="지역" value={region} options={['전체', '대구', '경북']} onChange={setRegion} />
         <div className="field">
@@ -150,7 +158,9 @@ export function Firms() {
               <th scope="col">업종</th>
               <th scope="col">수출</th>
               <th scope="col">등급</th>
-              <th scope="col" className="hide-sm">통장 잔고 12개월</th>
+              <th scope="col" className="hide-sm">
+                통장 잔고 12개월
+              </th>
               <th scope="col" className="num">
                 통장 잔고
                 <span className="sub">백만 원</span>
@@ -206,6 +216,7 @@ export function Firms() {
         notes={[
           C.ruleNote,
           '신호 표시: 굵은 실선은 세 조건 모두 충족, 점선은 기준 근접(통장 잔고가 5~10% 감소), 가는 선은 미충족입니다.',
+          CALENDAR_NOTE,
           dataNote(kind),
         ]}
         source={kind === 'real' ? firmSource(kind) : '가상 거래처 데이터(유효숫자 두세 자리로 반올림)'}

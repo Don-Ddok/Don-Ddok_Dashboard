@@ -3,6 +3,7 @@
 // 연구에서 관찰된 경향을 바탕으로 한 모니터링 아이디어이며, 검증된 조기경보 규칙이 아니다.
 import { MONTHS, regionYoY, type Firm, type MonthPoint } from './synthetic'
 import { COMBOS, DEFAULT_COMBO, type ComboId } from './combos'
+import { workdayNote } from './workdays'
 
 export const RULE = {
   depositDropWindow: 3, // 개월
@@ -90,7 +91,7 @@ export function checkSignal(firm: Firm, monthIndex: number, combo: ComboId = DEF
       label: '지역 수출 감소',
       met: yoy < 0,
       value: yoy,
-      detail: `${firm.region} 수출, 1년 전 같은 달 대비`,
+      detail: `${firm.region} 수출, 1년 전 같은 달 대비 · ${workdayNote(cur.ym)}`,
     },
     {
       key: 'deposit',
@@ -105,10 +106,10 @@ export function checkSignal(firm: Firm, monthIndex: number, combo: ComboId = DEF
   const naReason = !cur.observed
     ? '이 달은 은행 거래 기록이 없습니다.'
     : !firm.exporter
-    ? '수출 실적이 없는 거래처라 이 규칙의 대상이 아닙니다.'
-    : combo === 'bill' && !firm.billUser
-      ? '할인어음 거래가 없는 거래처라 이 조합의 대상이 아닙니다.'
-      : undefined
+      ? '수출 실적이 없는 거래처라 이 규칙의 대상이 아닙니다.'
+      : combo === 'bill' && !firm.billUser
+        ? '할인어음 거래가 없는 거래처라 이 조합의 대상이 아닙니다.'
+        : undefined
   const computable = depositChange !== null && (combo === 'bill' || partner.value !== null)
 
   let status: SignalStatus
