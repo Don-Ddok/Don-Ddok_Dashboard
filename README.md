@@ -169,7 +169,7 @@ npm run dev
 
 같은 규칙을 화면과 분석 스크립트에서 따로 계산해 맞춰 봤습니다. 2025년 11월 운전자금 조합의 살펴볼 거래처는 화면 62곳, `internal_demo_summary.py` 집계 62곳(대구 0, 경북 62)으로 같습니다.
 
-1. 팀 분석 폴더(`여신업종분석/단계별 분석`)에서 `internal_demo_summary.py`(집계), `combo_signal_check.py`(조합 점검), `internal_firms_export.py`(법인 단위 월별 잔액)를 실행합니다. 결과는 모두 `내부시연/` 폴더에 생깁니다.
+1. 팀 분석 폴더(`파트3_여신업종분석/단계별 분석`)에서 `internal_demo_summary.py`(집계), `combo_signal_check.py`(조합 점검), `internal_firms_export.py`(법인 단위 월별 잔액)를 실행합니다. 결과는 모두 `내부시연/` 폴더에 생깁니다.
 2. 이 저장소 루트에 `.env.internal.local`을 만들고 집계 파일 경로를 적습니다(저장소에 올라가지 않는 파일). 같은 폴더의 `combo_check.json`, `firms.json`도 함께 읽습니다.
    ```
    INTERNAL_SUMMARY=C:/경로/내부시연/summary.json
