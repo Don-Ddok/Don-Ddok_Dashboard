@@ -9,11 +9,17 @@ const MUTED = '#5f6570'
 const MINT = '#00b39b'
 const REGION_COLOR: Record<string, string> = { 대구: '#2f5fb3', 경북: '#7b4f93' }
 const HOLDS = ['할인어음', '무역금융', '순수운전자금', '시설자금', '저축성예금', '투자상품', '퇴직연금']
+/** 가설 노드는 모두 같은 흰 원이고, 안의 기호와 그 색으로만 지지·기각·보류를 구분한다 */
 const STATUS = {
-  지지: { fill: INK, stroke: INK, text: '#fff', dash: undefined },
-  기각: { fill: '#fff', stroke: '#aab1bb', text: MUTED, dash: undefined },
-  보류: { fill: '#fff', stroke: '#9a6700', text: INK, dash: '4 3' },
+  지지: { glyph: '✓', color: '#00705f' },
+  기각: { glyph: '✕', color: '#8a929c' },
+  보류: { glyph: '?', color: '#9a6700' },
 } as const
+
+/** 하위 원 반지름: 군집은 고객 수에 비례(넓이), 나머지는 같은 크기 */
+const kidR = (k: MapNode) => (k.size ? 8 + Math.sqrt(k.size) * 0.95 : 15)
+/** 이웃한 하위 원 사이 최소 여백(px) */
+const KID_GAP = 20
 
 const signed = (v: number, d = 1) => `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(d)}`
 const pct = (v: number) => `${signed(v)}%`
@@ -116,9 +122,14 @@ function InsightView({ I }: { I: InsightData }) {
           <div className="in-map">
             <RelationMap tree={tree} open={open} sel={sel} onBranch={(id) => { setOpen(open === id ? null : id); setSel(id) }} onNode={setSel} onRoot={() => { setOpen(null); setSel('root') }} />
             <ul className="in-map-legend" aria-label="가설 표시">
-              <li><i style={{ background: INK }} />지지</li>
-              <li><i style={{ background: '#fff', borderColor: '#aab1bb' }} />기각</li>
-              <li><i style={{ background: '#fff', borderColor: '#9a6700', borderStyle: 'dashed' }} />보류</li>
+              {(Object.keys(STATUS) as (keyof typeof STATUS)[]).map((k) => (
+                <li key={k}>
+                  <span className="in-glyph" style={{ color: STATUS[k].color }} aria-hidden="true">
+                    {STATUS[k].glyph}
+                  </span>
+                  {k}
+                </li>
+              ))}
             </ul>
           </div>
           <aside className="in-detail" aria-live="polite">
@@ -154,7 +165,7 @@ function RelationMap({
   onNode: (id: string) => void
   onRoot: () => void
 }) {
-  const W = 820, H = 660, CX = W / 2, CY = H / 2, RB = 168, RK = 112, PAD = 34
+  const W = 820, H = 680, CX = W / 2, CY = H / 2, RB = 168, RK = 112, PAD = 34
   const n = tree.kids!.length
   const ang = (i: number) => -Math.PI / 2 + (i * 2 * Math.PI) / n - Math.PI / 6
   const key = (fn: () => void) => (e: KeyboardEvent) => {
@@ -176,14 +187,22 @@ function RelationMap({
       />,
     )
     if (open === b.id && b.kids) {
+      // 하위 원을 가지 둘레의 호에 원 크기만큼 간격을 두고 놓는다. 호가 모자라면 가지에서 더 멀리 펼친다
       const m = b.kids.length
-      const spread = Math.min(Math.PI * 0.95, 0.42 * (m - 1) + 0.1)
+      const rs = b.kids.map(kidR)
+      const widths = rs.map((r) => 2 * r + KID_GAP)
+      const total = widths.reduce((sum, w) => sum + w, 0)
+      const maxSpread = Math.min(Math.PI * 0.9, 0.5 * (m - 1) + 0.2)
+      const rk = m === 1 ? RK : Math.max(RK, total / maxSpread)
+      const spread = m === 1 ? 0 : total / rk
+      let acc = 0
       b.kids.forEach((k, j) => {
-        const ka = a + (m === 1 ? 0 : -spread / 2 + (j * spread) / (m - 1))
-        const kx = Math.max(PAD, Math.min(W - PAD, bx + RK * Math.cos(ka)))
-        const ky = Math.max(PAD + 20, Math.min(H - PAD - 18, by + RK * Math.sin(ka)))
+        const r = rs[j]
+        const ka = m === 1 ? a : a - spread / 2 + (acc + widths[j] / 2) / rk
+        acc += widths[j]
+        const kx = Math.max(PAD, Math.min(W - PAD, bx + rk * Math.cos(ka)))
+        const ky = Math.max(PAD + 20, Math.min(H - PAD - 18, by + rk * Math.sin(ka)))
         const st = k.status ? STATUS[k.status] : null
-        const r = k.size ? 10 + Math.sqrt(k.size) * 1.1 : 13
         links.push(<path key={`l-${k.id}`} className="in-link in-pop" d={`M${bx},${by} L${kx},${ky}`} />)
         nodes.push(
           <g
@@ -197,14 +216,12 @@ function RelationMap({
             onClick={() => onNode(k.id)}
             onKeyDown={key(() => onNode(k.id))}
           >
-            <circle
-              className="core"
-              r={r}
-              fill={k.size ? '#eef3f1' : st?.fill ?? '#fff'}
-              stroke={st?.stroke ?? INK}
-              strokeWidth={1.8}
-              strokeDasharray={st?.dash}
-            />
+            <circle className="core" r={r} fill={k.size ? '#eef3f1' : '#fff'} stroke={INK} strokeWidth={1.8} />
+            {st && (
+              <text y={5} textAnchor="middle" fontSize={14} fontWeight={800} fill={st.color}>
+                {st.glyph}
+              </text>
+            )}
             {k.size && (
               <text y={4} textAnchor="middle" fontSize={11} fontWeight={700} fill={INK}>
                 {k.size}
