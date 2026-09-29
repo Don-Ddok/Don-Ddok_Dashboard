@@ -3,17 +3,17 @@ import { ArrowRight } from '@phosphor-icons/react'
 import { COMBO_IDS, COMBOS } from '../data/combos'
 import { MonthLink, useMonth } from '../lib/month'
 
-/** 조합과 상관없는 화면(게시판, 내부 시연)과, 조합을 자세히 고르는 계정 시차 화면에서는 숨긴다 */
-const HIDDEN = ['/board', '/internal', '/timing']
+/** 조합을 쓰는 신호 월보 계열 화면에서만 보인다(계정 시차는 화면 안에서 자세히 고르므로 제외) */
+const SHOWN = ['/bulletin', '/firms', '/evidence']
 
 /**
- * 신호 조합 고르기: 요구불예금 잔액에 짝지을 계정을 고르면 월보·거래처·근거와 한계가 그 조합으로 바뀐다.
+ * 신호 조합 고르기: 요구불예금 잔액에 짝지을 계정을 고르면 월보·고객·근거와 한계가 그 조합으로 바뀐다.
  * 고른 조합은 주소(?c=)에 남아 화면을 옮겨 다녀도 유지된다.
  */
 export function ComboSwitch() {
   const { pathname } = useLocation()
   const { combo, setCombo } = useMonth()
-  if (HIDDEN.some((p) => pathname.startsWith(p))) return null
+  if (!SHOWN.some((p) => pathname.startsWith(p))) return null
 
   return (
     <div className="combo-switch" role="group" aria-label="신호 조합">

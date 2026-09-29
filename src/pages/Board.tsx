@@ -50,7 +50,7 @@ export function Board() {
           저장됩니다.
         </p>
         <p className="board-warning" role="note">
-          <strong>공개 게시판입니다.</strong> 누구나 읽을 수 있습니다. 은행 제공 데이터, 거래처별 수치, 내부 시연 화면 캡처는 올리지
+          <strong>공개 게시판입니다.</strong> 누구나 읽을 수 있습니다. 은행 제공 데이터, 고객별 수치, 내부 시연 화면 캡처는 올리지
           마세요.
         </p>
       </section>

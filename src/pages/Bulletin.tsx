@@ -20,7 +20,7 @@ import { Pager } from '../components/Pager'
 
 const REGIONS: Region[] = ['대구', '경북']
 const PARTIAL_PREVIEW = 6
-/** 살펴볼 거래처 한 쪽 크기(실제 데이터는 한 달에 수십 곳이 걸리기도 함) */
+/** 살펴볼 고객 한 쪽 크기(실제 데이터는 한 달에 수십 곳이 걸리기도 함) */
 const WATCH_PAGE = 20
 /** 행이 차례로 나타나도록 순번을 CSS 변수로 넘긴다 */
 const rowDelay = (r: number) => ({ '--r': r }) as CSSProperties
@@ -76,11 +76,11 @@ export function Bulletin() {
       습니다.{' '}
       {met.length > 0 ? (
         <>
-          살펴볼 거래처는 <CountFigure key={`n${ym}`} value={met.length} unit="곳" />
+          살펴볼 고객은 <CountFigure key={`n${ym}`} value={met.length} unit="곳" />
           입니다.
         </>
       ) : (
-        '세 조건을 모두 충족한 거래처는 없습니다.'
+        '세 조건을 모두 충족한 고객은 없습니다.'
       )}
     </>
   )
@@ -92,7 +92,7 @@ export function Bulletin() {
           이달의 요지
           {prev !== null && metDelta !== null && partialDelta !== null && (
             <span className="kicker-delta">
-              {ymLong(MONTHS[prev])}보다 살펴볼 거래처 <Delta value={metDelta} />, 기준 근접 <Delta value={partialDelta} />
+              {ymLong(MONTHS[prev])}보다 살펴볼 고객 <Delta value={metDelta} />, 기준 근접 <Delta value={partialDelta} />
             </span>
           )}
         </p>
@@ -165,17 +165,17 @@ export function Bulletin() {
 
       <section className="section" aria-labelledby="watch-title">
         <div className="section-head">
-          <h2 id="watch-title">살펴볼 거래처</h2>
+          <h2 id="watch-title">살펴볼 고객</h2>
           <span className="unit">
             {C.name}, 세 조건 모두 충족 {met.length}곳, {ymLong(ym)} 기준
           </span>
         </div>
         <TableWrap>
           <table className="stat-table">
-            <caption className="visually-hidden">이번 달 참고 신호 거래처</caption>
+            <caption className="visually-hidden">이번 달 참고 신호 고객</caption>
             <thead>
               <tr>
-                <th scope="col">거래처</th>
+                <th scope="col">고객</th>
                 <th scope="col">지역</th>
                 <th scope="col" className="hide-sm">
                   업종
@@ -204,7 +204,7 @@ export function Bulletin() {
                     <strong>해당 없음</strong>
                     <p>
                       {judged
-                        ? `이번 달은 세 조건을 모두 충족한 거래처가 없습니다. 지역 수출이 늘었거나, ${C.target}의 계좌에서 잔고 감소와 ${C.condition}가 함께 나타나지 않았다는 뜻입니다.`
+                        ? `이번 달은 세 조건을 모두 충족한 고객이 없습니다. 지역 수출이 늘었거나, ${C.target}의 계좌에서 잔고 감소와 ${C.condition}가 함께 나타나지 않았다는 뜻입니다.`
                         : JUDGE_START_NOTE}
                     </p>
                     <div className="chip-row">
@@ -247,14 +247,14 @@ export function Bulletin() {
 
       <section className="section" aria-labelledby="partial-title">
         <div className="section-head">
-          <h2 id="partial-title">기준에 가까운 거래처</h2>
+          <h2 id="partial-title">기준에 가까운 고객</h2>
           <span className="unit">{partial.length}곳, 통장 잔고가 5~10% 줄어 다음 달 함께 볼 곳</span>
         </div>
         <TableWrap>
           <table className="stat-table">
             <thead>
               <tr>
-                <th scope="col">거래처</th>
+                <th scope="col">고객</th>
                 <th scope="col">지역</th>
                 <th scope="col">업종</th>
                 <th scope="col" className="hide-sm">
@@ -277,7 +277,7 @@ export function Bulletin() {
                       {!judged
                         ? JUDGE_START_NOTE
                         : dg >= 0 && gb >= 0
-                          ? '이번 달은 대구·경북 수출이 모두 1년 전보다 늘어, 규칙의 첫 조건(지역 수출 감소)에 해당하는 거래처가 없습니다.'
+                          ? '이번 달은 대구·경북 수출이 모두 1년 전보다 늘어, 규칙의 첫 조건(지역 수출 감소)에 해당하는 고객이 없습니다.'
                           : `이번 달은 통장 잔고가 5~10% 줄어 기준에 가까운 ${C.target}가 없습니다.`}
                     </p>
                   </td>
@@ -305,7 +305,7 @@ export function Bulletin() {
         {partial.length > PARTIAL_PREVIEW && (
           <p className="detail-actions">
             <MonthLink to="/firms">
-              거래처 목록에서 {partial.length}곳 모두 보기 <ArrowRight size={14} weight="bold" />
+              고객 목록에서 {partial.length}곳 모두 보기 <ArrowRight size={14} weight="bold" />
             </MonthLink>
           </p>
         )}
@@ -376,7 +376,7 @@ function FirmRow({
             {detail}
             <p className="detail-actions">
               <MonthLink to={`/firms/${id}`}>
-                거래처 계좌 흐름 보기 <ArrowRight size={14} weight="bold" />
+                고객 계좌 흐름 보기 <ArrowRight size={14} weight="bold" />
               </MonthLink>
             </p>
           </td>
