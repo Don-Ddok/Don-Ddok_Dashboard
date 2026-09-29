@@ -66,13 +66,13 @@ export default function Campaign() {
   if (loaded.status === 'loading')
     return (
       <section className="lead" aria-busy="true">
-        <p>이번 달 캠페인 데이터를 불러오는 중입니다.</p>
+        <p>이번 달 추천 데이터를 불러오는 중입니다.</p>
       </section>
     )
   if (loaded.status === 'error')
     return (
       <section className="lead">
-        <h1>캠페인 데이터를 불러오지 못했습니다</h1>
+        <h1>추천 데이터를 불러오지 못했습니다</h1>
         <p>{loaded.message}</p>
       </section>
     )
@@ -167,8 +167,8 @@ function CampaignView({ data }: { data: CampaignData }) {
 
   return (
     <div className="campaign">
-      <nav className="cp-crumbs" aria-label="캠페인 경로">
-        <span className="cp-crumb-root">이번 달 캠페인</span>
+      <nav className="cp-crumbs" aria-label="추천 경로">
+        <span className="cp-crumb-root">이번 달 추천</span>
         {crumbs.map((c, i) => (
           <span key={i} className="cp-crumb-item">
             <span aria-hidden="true">›</span>
@@ -187,7 +187,7 @@ function CampaignView({ data }: { data: CampaignData }) {
 
       <section className="lead" aria-labelledby="cp-title">
         <p className="kicker">
-          이번 달 캠페인
+          이번 달 추천
           <span className="kicker-delta">
             {since} · 보정 수출 전년비 {rm.보정YoY > 0 ? '+' : rm.보정YoY < 0 ? '−' : ''}
             {Math.abs(rm.보정YoY)}%
@@ -196,7 +196,8 @@ function CampaignView({ data }: { data: CampaignData }) {
         <h1 id="cp-title">{headline[view]}</h1>
         <p className="lead-note">
           ※ 언제(단계) → 누구에게(업종·페르소나) → 무엇을(추천 상품) 순서로 좁혀 갑니다. 추천은 매칭 모델의 설계값이며 위험 판정이
-          아니라 캠페인 대상을 고르는 참고 자료입니다. <MonthLink to="/analysis">근거와 한계 보기</MonthLink>
+          아니라 제안 대상을 고르는 참고 자료입니다. <MonthLink to="/analysis">근거와 한계 보기</MonthLink> · 단계·페르소나 같은 말은{' '}
+          <MonthLink to="/glossary">용어 사전</MonthLink>에 풀어 두었습니다.
         </p>
       </section>
 

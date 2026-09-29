@@ -8,7 +8,7 @@ import { useData } from '../lib/data'
 /** 윗줄 메뉴. 신호 월보·근거와 한계는 묶음이라 아래 작은 탭(SubNav)으로 나뉜다 */
 const LINKS = [
   { to: '/', label: '홈', group: null },
-  { to: '/campaign', label: '이번 달 캠페인', group: null },
+  { to: '/recommend', label: '이번 달 추천', group: null },
   { to: '/bulletin', label: '신호 월보', group: '신호 월보' },
   { to: '/insight', label: '근거와 한계', group: '근거와 한계' },
   { to: '/board', label: '게시판', group: null },
@@ -28,7 +28,7 @@ function Emblem() {
   )
 }
 
-/** 기준월 선택은 신호 월보 계열 화면에서만(캠페인은 자체 달력, 홈·분석은 기준월과 무관) */
+/** 기준월 선택은 신호 월보 계열 화면에서만(이번 달 추천은 자체 달력, 홈·분석은 기준월과 무관) */
 const MONTH_PAGES = ['/bulletin', '/firms', '/timing', '/evidence', '/internal']
 
 export function Masthead() {

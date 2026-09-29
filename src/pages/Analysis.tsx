@@ -31,7 +31,8 @@ export default function Analysis() {
         </h1>
         <p className="lead-note">
           ※ 대구·경북 법인 11,018곳, 2023.01~2025.12. 판정은 실행 전에 고정한 기준(6개월 · 매칭 1:3 · 회사·월 이중 클러스터)으로만
-          했습니다. 인과가 아니라 관련성입니다. 신호 월보 규칙의 가정과 실제 데이터 점검은 옆 탭 <MonthLink to="/evidence">신호 규칙 점검</MonthLink>에 있습니다.
+          했습니다. 인과가 아니라 관련성입니다. 신호 월보 규칙의 가정과 실제 데이터 점검은 옆 탭 <MonthLink to="/evidence">신호 규칙 점검</MonthLink>에, β₃·이중 클러스터 같은 말은{' '}
+          <MonthLink to="/glossary">용어 사전</MonthLink>에 있습니다.
         </p>
       </section>
 
