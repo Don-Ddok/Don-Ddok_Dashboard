@@ -65,8 +65,8 @@ function ComboCard({ id }: { id: ComboId }) {
       {active ? (
         <div className="combo-card-go">
           <span className="combo-card-now">지금 보는 조합</span>
-          <MonthLink to="/">월보</MonthLink>
-          <MonthLink to="/firms">거래처</MonthLink>
+          <MonthLink to="/bulletin">신호 월보</MonthLink>
+          <MonthLink to="/firms">고객</MonthLink>
           <MonthLink to="/evidence">근거와 한계</MonthLink>
         </div>
       ) : (
@@ -95,7 +95,7 @@ export function Timing() {
         </p>
         <p>
           지도에서 <strong>운전자금대출</strong>이나 <strong>할인어음</strong>을 누르면 요구불예금 잔액과 짝지은 신호 조합이
-          바뀌고, 월보·거래처·근거와 한계 화면이 그 조합으로 다시 계산됩니다.
+          바뀌고, 월보·고객·근거와 한계 화면이 그 조합으로 다시 계산됩니다.
         </p>
         <p className="lead-note">※ {TIMING_SOURCE}</p>
       </section>
@@ -207,14 +207,14 @@ export function Timing() {
             <p>
               지금 보는 조합은 <strong>요구불예금 잔액(동행)</strong>과 <strong>운전자금대출(후행)</strong>입니다. 잔액은 먼저
               나가는 출금과 늦게 들어오는 입금이 섞인 값이라 신호가 흐려지고, 대출은 수출보다 반년쯤 늦게 움직입니다. 실제
-              데이터에 규칙을 적용했을 때 수출 거래처와 비수출 거래처에서 비슷한 비율로 켜진 것(근거와 한계 화면)과 같은 방향의
+              데이터에 규칙을 적용했을 때 수출 고객과 비수출 고객에서 비슷한 비율로 켜진 것(근거와 한계 화면)과 같은 방향의
               설명입니다.
             </p>
           ) : (
             <p>
               지금 보는 조합은 <strong>요구불예금 잔액(동행)</strong>과 <strong>할인어음(동행, 예상보다 빠름)</strong>입니다. 두
-              계정 모두 수출과 같은 달에 움직여, 대출보다 반년 빨리 볼 수 있습니다. 실제 데이터에서는 수출 거래처에서 수출 경기에
-              따라 켜지고 꺼지는 경향이 확인됐지만, 비수출 거래처에서도 자주 켜져 개별 거래처를 가려내는 힘은 미리 정한 기준에 못
+              계정 모두 수출과 같은 달에 움직여, 대출보다 반년 빨리 볼 수 있습니다. 실제 데이터에서는 수출 고객에서 수출 경기에
+              따라 켜지고 꺼지는 경향이 확인됐지만, 비수출 고객에서도 자주 켜져 개별 고객을 가려내는 힘은 미리 정한 기준에 못
               미쳤습니다. 여전히 &lsquo;먼저 움직이는&rsquo; 계정은 아니라서 조기경보라고 부르기는 어렵습니다.
             </p>
           )}

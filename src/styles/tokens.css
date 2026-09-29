@@ -26,6 +26,13 @@
   --region-dg: #2f5fb3;
   --region-gb: #7b4f93;
 
+  /* 캠페인 페르소나 A~E(iM 브랜드 보조색). 면에만 쓰고 글자는 먹색 */
+  --p-a: #00c7a9;
+  --p-b: #7db5ff;
+  --p-c: #d1b5ff;
+  --p-d: #53e1e5;
+  --p-e: #cdc9b7;
+
   --font: 'Pretendard Variable', Pretendard, -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
 
   /* 고정 rem 단계(비율 약 1.2) */

@@ -49,10 +49,10 @@ export default function FirmDetail() {
   if (!firm) {
     return (
       <section className="lead not-found">
-        <h1>거래처를 찾을 수 없습니다</h1>
-        <p>주소가 바뀌었거나 없는 거래처 번호입니다.</p>
+        <h1>고객을 찾을 수 없습니다</h1>
+        <p>주소가 바뀌었거나 없는 고객 번호입니다.</p>
         <p className="detail-actions">
-          <MonthLink to="/firms">거래처 목록으로</MonthLink>
+          <MonthLink to="/firms">고객 목록으로</MonthLink>
         </p>
       </section>
     )
@@ -89,7 +89,7 @@ export default function FirmDetail() {
   return (
     <>
       <MonthLink to="/firms" className="back-link">
-        <ArrowLeft size={14} weight="bold" /> 거래처 목록
+        <ArrowLeft size={14} weight="bold" /> 고객 목록
       </MonthLink>
 
       <section className="lead lead-wide" aria-labelledby="firm-title">
@@ -105,14 +105,14 @@ export default function FirmDetail() {
           <Fact label="지역" note={`지역 수출 ${currentX} ${pct(regionNow)}`}>
             <RegionTag region={firm.region} />
           </Fact>
-          <Fact label="업종" note={`같은 업종 ${firm.synthetic ? '가상 거래처' : '외환 거래 법인'} ${sameIndustry}곳`}>
+          <Fact label="업종" note={`같은 업종 ${firm.synthetic ? '가상 고객' : '외환 거래 법인'} ${sameIndustry}곳`}>
             {firm.industry}
           </Fact>
           <Fact
             label="수출 여부"
             note={firm.exporter ? `36개월 중 수출 실적 있는 달 ${exportMonths}개월` : '36개월 수출 실적 없음'}
           >
-            {firm.exporter ? '수출 거래처' : firm.synthetic ? '비수출 거래처' : '비수출(수입만)'}
+            {firm.exporter ? '수출 고객' : firm.synthetic ? '비수출 고객' : '비수출(수입만)'}
           </Fact>
           <Fact
             label="할인어음"

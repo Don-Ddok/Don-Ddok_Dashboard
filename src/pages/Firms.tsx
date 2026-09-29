@@ -15,7 +15,7 @@ import { FirmName } from '../components/FirmName'
 import { useData } from '../lib/data'
 import { Pager } from '../components/Pager'
 
-/** 한 쪽에 보여 줄 거래처 수(실제 데이터는 한 달에 수백 곳) */
+/** 한 쪽에 보여 줄 고객 수(실제 데이터는 한 달에 수백 곳) */
 const PAGE_SIZE = 50
 
 const STATUS_ORDER: Record<SignalStatus, number> = { met: 0, partial: 1, none: 2, na: 3 }
@@ -43,7 +43,7 @@ export function Firms() {
     return firms
       .map((firm) => ({ firm, check: checkSignal(firm, index, combo) }))
       .filter(({ firm }) => {
-        // 실제 데이터는 그 달에 은행 거래 기록이 있는 법인만(가상 거래처는 36개월 모두 있음)
+        // 실제 데이터는 그 달에 은행 거래 기록이 있는 법인만(가상 고객은 36개월 모두 있음)
         if (!firm.series[index].observed) return false
         if (q && !firm.name.includes(q)) return false
         if (region !== '전체' && firm.region !== region) return false
@@ -81,7 +81,7 @@ export function Firms() {
     <>
       <section className="lead" aria-labelledby="firms-title">
         <h1 id="firms-title">
-          {kind === 'real' ? `실제 법인 ${observedCount.toLocaleString('ko-KR')}곳` : `거래처 ${firms.length}곳`}의 {ymLong(ym)}{' '}
+          {kind === 'real' ? `실제 법인 ${observedCount.toLocaleString('ko-KR')}곳` : `고객 ${firms.length}곳`}의 {ymLong(ym)}{' '}
           상태
         </h1>
         {kind === 'real' && (
@@ -91,7 +91,7 @@ export function Firms() {
           </p>
         )}
         <p>
-          {C.name} 조합의 신호를 충족한 거래처가 위에 오도록 정렬했습니다. 규칙 대상({C.target})이 아닌 거래처는 &lsquo;해당
+          {C.name} 조합의 신호를 충족한 고객이 위에 오도록 정렬했습니다. 규칙 대상({C.target})이 아닌 고객은 &lsquo;해당
           없음&rsquo;으로 표시합니다.
         </p>
       </section>
@@ -111,9 +111,9 @@ export function Firms() {
         ))}
       </div>
 
-      <div className="filters" role="search" aria-label="거래처 걸러 보기">
+      <div className="filters" role="search" aria-label="고객 걸러 보기">
         <div className="field">
-          <label htmlFor="q">거래처 이름</label>
+          <label htmlFor="q">고객 이름</label>
           <input
             id="q"
             type="search"
@@ -150,10 +150,10 @@ export function Firms() {
 
       <TableWrap>
         <table className="stat-table">
-          <caption className="visually-hidden">거래처 목록, {ymLong(ym)} 기준</caption>
+          <caption className="visually-hidden">고객 목록, {ymLong(ym)} 기준</caption>
           <thead>
             <tr>
-              <th scope="col">거래처</th>
+              <th scope="col">고객</th>
               <th scope="col">지역</th>
               <th scope="col">업종</th>
               <th scope="col">수출</th>
@@ -176,7 +176,7 @@ export function Firms() {
             {rows.length === 0 && (
               <tr>
                 <td colSpan={9} className="empty-cell">
-                  <strong>조건에 맞는 거래처가 없습니다</strong>
+                  <strong>조건에 맞는 고객이 없습니다</strong>
                   <p>걸러 보기 조건을 하나씩 풀어 보세요. 신호 상태는 기준월에 따라 달라집니다.</p>
                   <div className="chip-row">
                     <button type="button" className="text-button" onClick={reset}>
@@ -219,7 +219,7 @@ export function Firms() {
           CALENDAR_NOTE,
           dataNote(kind),
         ]}
-        source={kind === 'real' ? firmSource(kind) : '가상 거래처 데이터(유효숫자 두세 자리로 반올림)'}
+        source={kind === 'real' ? firmSource(kind) : '가상 고객 데이터(유효숫자 두세 자리로 반올림)'}
       />
     </>
   )

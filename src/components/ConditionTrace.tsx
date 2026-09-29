@@ -53,7 +53,7 @@ export function ConditionTrace({ check, animate = false }: { check: SignalCheck;
         ))}
       </ol>
       <p className="trace-verdict">
-        {status === 'met' && '세 조건이 모두 이어졌습니다. 이번 달 한 번 살펴볼 만한 거래처입니다.'}
+        {status === 'met' && '세 조건이 모두 이어졌습니다. 이번 달 한 번 살펴볼 만한 고객입니다.'}
         {status === 'partial' &&
           `지역 수출이 줄고 ${conditions[2].label}도 충족했는데, 통장 잔고 감소가 기준(-10%)에 조금 못 미칩니다. 다음 달 흐름을 함께 보면 좋습니다.`}
         {status === 'none' && '이번 달에는 조건이 이어지지 않았습니다.'}

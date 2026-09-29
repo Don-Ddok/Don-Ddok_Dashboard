@@ -5,7 +5,7 @@ import { ResponsiveContainer } from 'recharts'
 /**
  * 그래프 한 칸. 그래프나 "크게 보기"를 누르면 같은 그래프를 대화 상자(모달)로 크게 띄운다.
  * Esc, 닫기 버튼, 바깥 부분 클릭으로 닫히고, 닫히면 그래프 버튼으로 초점을 돌려준다.
- * 거래처 상세와 내부 시연 화면이 함께 쓴다(recharts를 쓰므로 지연 로딩되는 화면에서만 가져온다).
+ * 고객 상세와 내부 시연 화면이 함께 쓴다(recharts를 쓰므로 지연 로딩되는 화면에서만 가져온다).
  */
 export function ChartBlock({
   title,

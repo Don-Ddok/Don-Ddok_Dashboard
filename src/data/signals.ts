@@ -1,5 +1,5 @@
 // "참고 신호" 규칙
-// 수출 경기가 나쁜 달에, 수출하는 거래처가 통장 잔고는 빠지는데 짝 계정(운전자금대출 또는 할인어음)이 조합의 모양을 보이면 표시한다.
+// 수출 경기가 나쁜 달에, 수출하는 고객이 통장 잔고는 빠지는데 짝 계정(운전자금대출 또는 할인어음)이 조합의 모양을 보이면 표시한다.
 // 연구에서 관찰된 경향을 바탕으로 한 모니터링 아이디어이며, 검증된 조기경보 규칙이 아니다.
 import { MONTHS, regionYoY, type Firm, type MonthPoint } from './synthetic'
 import { COMBOS, DEFAULT_COMBO, type ComboId } from './combos'
@@ -106,9 +106,9 @@ export function checkSignal(firm: Firm, monthIndex: number, combo: ComboId = DEF
   const naReason = !cur.observed
     ? '이 달은 은행 거래 기록이 없습니다.'
     : !firm.exporter
-      ? '수출 실적이 없는 거래처라 이 규칙의 대상이 아닙니다.'
+      ? '수출 실적이 없는 고객이라 이 규칙의 대상이 아닙니다.'
       : combo === 'bill' && !firm.billUser
-        ? '할인어음 거래가 없는 거래처라 이 조합의 대상이 아닙니다.'
+        ? '할인어음 거래가 없는 고객이라 이 조합의 대상이 아닙니다.'
         : undefined
   const computable = depositChange !== null && (combo === 'bill' || partner.value !== null)
 
@@ -130,13 +130,13 @@ export function partnerAmount(p: MonthPoint, combo: ComboId) {
   return combo === 'bill' ? p.bill : p.loan
 }
 
-/** 조합의 규칙 대상 거래처 수 */
+/** 조합의 규칙 대상 고객 수 */
 export function targetCount(firms: Firm[], combo: ComboId) {
   return firms.filter((f) => f.exporter && (combo !== 'bill' || f.billUser)).length
 }
 
 /**
- * 첫 화면 기본 기준월: 세 조건을 모두 충족한 거래처가 minCount곳 이상인 가장 최근 달.
+ * 첫 화면 기본 기준월: 세 조건을 모두 충족한 고객이 minCount곳 이상인 가장 최근 달.
  * 처음 보는 사람에게 사례가 충분히 보이도록 고른 기본값일 뿐, 다른 달도 모두 고를 수 있다.
  */
 export function latestMonthWithSignal(firms: Firm[], combo: ComboId = DEFAULT_COMBO, minCount = 3) {

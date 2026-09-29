@@ -23,7 +23,7 @@ const pctText = (v: number | null) => (v === null ? '가림' : `${v.toFixed(1)}%
 
 /**
  * 내부 시연: 프로토타입의 참고 신호 규칙을 실제 법인 데이터에 적용한 집계.
- * 개별 거래처는 나오지 않고, 5 미만인 칸은 가린다. 개발 서버(internal 모드)에서만 열린다.
+ * 개별 고객은 나오지 않고, 5 미만인 칸은 가린다. 개발 서버(internal 모드)에서만 열린다.
  */
 export default function Internal() {
   const state = useInternalSummary()
@@ -81,11 +81,11 @@ function InternalView({ data }: { data: InternalSummary }) {
       <section className="lead lead-wide" aria-labelledby="internal-title">
         <p className="kicker">내부 시연 · 실제 데이터 집계</p>
         <h1 id="internal-title">
-          실제 법인 데이터에 같은 규칙을 대 보면, 수출 거래처를 달마다 판정한 {totals.judgedFirmMonths.toLocaleString('ko-KR')}번 중{' '}
+          실제 법인 데이터에 같은 규칙을 대 보면, 수출 고객을 달마다 판정한 {totals.judgedFirmMonths.toLocaleString('ko-KR')}번 중{' '}
           <em className="figure down">{pctText(overall)}</em>에서 신호가 켜집니다.
         </h1>
         <p className="lead-note">
-          ※ {data.generatedFrom}를 이 컴퓨터에서 집계한 값만 보여 줍니다. 개별 거래처는 나오지 않고, {minCell} 미만인 칸은
+          ※ {data.generatedFrom}를 이 컴퓨터에서 집계한 값만 보여 줍니다. 개별 고객은 나오지 않고, {minCell} 미만인 칸은
           가렸습니다. 외부 공유와 캡처 배포는 하지 않습니다.
         </p>
       </section>
@@ -93,7 +93,7 @@ function InternalView({ data }: { data: InternalSummary }) {
       <section aria-labelledby="in-month-title">
         <div className="section-head">
           <h2 id="in-month-title">{ymLong(ym)} 지역별 판정</h2>
-          <span className="unit">수출 거래처 {totals.exporters}곳(2023년 7월 이후 관측) 기준</span>
+          <span className="unit">수출 고객 {totals.exporters}곳(2023년 7월 이후 관측) 기준</span>
         </div>
         {index < FIRST_JUDGED_INDEX ? (
           <p className="section-note">2023년 1~6월은 대출 6개월 변화를 계산할 수 없어 판정하지 않습니다.</p>
@@ -104,7 +104,7 @@ function InternalView({ data }: { data: InternalSummary }) {
                 <tr>
                   <th scope="col">지역</th>
                   <th scope="col" className="num">지역 수출 전년동월비</th>
-                  <th scope="col" className="num">수출 거래처</th>
+                  <th scope="col" className="num">수출 고객</th>
                   <th scope="col" className="num">판정 가능</th>
                   <th scope="col" className="num">충족</th>
                   <th scope="col" className="num">기준 근접</th>
@@ -133,18 +133,18 @@ function InternalView({ data }: { data: InternalSummary }) {
 
       <section className="section" aria-labelledby="in-trend-title">
         <div className="section-head">
-          <h2 id="in-trend-title">30개월 동안 충족한 수출 거래처 수</h2>
+          <h2 id="in-trend-title">30개월 동안 충족한 수출 고객 수</h2>
           <span className="unit">지역 수출이 늘어난 달은 규칙상 0곳</span>
         </div>
         <ChartBlock
-          title="대구·경북 월별 충족 수출 거래처"
+          title="대구·경북 월별 충족 수출 고객"
           unit="곳"
           valueLabel={ymShort(ym)}
           value={rows.map(({ region, m }) => `${region} ${m ? masked(m.met, minCell) : '없음'}`).join(' · ')}
           tall
           summary={
             <>
-              판정 가능한 거래처 가운데 충족 비율은 전체 기간 {pctText(overall)}입니다. 한 번이라도 충족한 수출 거래처는{' '}
+              판정 가능한 고객 가운데 충족 비율은 전체 기간 {pctText(overall)}입니다. 한 번이라도 충족한 수출 고객은{' '}
               {masked(totals.metFirms, minCell)}곳(전체 {totals.exporters}곳)입니다.
             </>
           }
@@ -171,23 +171,23 @@ function InternalView({ data }: { data: InternalSummary }) {
       <section className="section" aria-labelledby="in-test-title">
         <div className="section-head">
           <h2 id="in-test-title">이 규칙은 수출 충격을 가려내는가</h2>
-          <span className="unit">지역 수출이 줄어든 달, 판정 가능한 거래처-월 기준</span>
+          <span className="unit">지역 수출이 줄어든 달, 판정 가능한 고객-월 기준</span>
         </div>
         <div className="compare">
           <CompareRow
             label="같은 모양(잔고 10% 넘게 감소 + 대출 유지)"
-            a={{ name: '수출 거래처', value: pe.share, n: pe.judgedMonths }}
-            b={{ name: '비수출 거래처', value: po.share, n: po.judgedMonths }}
+            a={{ name: '수출 고객', value: pe.share, n: pe.judgedMonths }}
+            b={{ name: '비수출 고객', value: po.share, n: po.judgedMonths }}
           />
           <CompareRow
             label="잔고 10% 넘게 감소만"
-            a={{ name: '수출 거래처', value: data.depositDropRate.exporters }}
-            b={{ name: '비수출 거래처', value: data.depositDropRate.others }}
+            a={{ name: '수출 고객', value: data.depositDropRate.exporters }}
+            b={{ name: '비수출 고객', value: data.depositDropRate.others }}
           />
         </div>
         <p className="finding">
-          <strong>결론: 가려내지 못합니다.</strong> 지역 수출이 줄어든 달에 비수출 거래처도 거의 같은 비율로 같은 모양을 보입니다.
-          통장 잔고(요구불예금)는 석 달 사이 10% 넘게 오르내리는 일이 원래 흔해서, 이 문턱으로는 수출 충격을 받은 거래처만 따로
+          <strong>결론: 가려내지 못합니다.</strong> 지역 수출이 줄어든 달에 비수출 고객도 거의 같은 비율로 같은 모양을 보입니다.
+          통장 잔고(요구불예금)는 석 달 사이 10% 넘게 오르내리는 일이 원래 흔해서, 이 문턱으로는 수출 충격을 받은 고객만 따로
           골라내지 못합니다. 프로토타입의 규칙은 화면 시연용이며, 실무에 쓰려면 조건과 문턱을 다시 설계하고 사후 결과(연체 등)로
           검증해야 합니다. 같은 데이터로 문턱을 맞추면 과적합이 되므로 여기서 조정하지 않았습니다.
         </p>
@@ -208,7 +208,7 @@ function InternalView({ data }: { data: InternalSummary }) {
           tall
           summary={
             <>
-              수출 거래처가 대출을 덜 줄이는 방향은 연구와 같지만, 이 차이는 수출이 늘어난 달에도 비슷하게 있어서 이 선만으로는 수출
+              수출 고객이 대출을 덜 줄이는 방향은 연구와 같지만, 이 차이는 수출이 늘어난 달에도 비슷하게 있어서 이 선만으로는 수출
               충격의 영향이라고 말할 수 없습니다. 회사 크기·업종 차이가 섞인 단순 비율이고, 연구의 근거는 비슷한 회사끼리 짝지은
               비교(근거와 한계 화면)입니다.
             </>
@@ -230,14 +230,14 @@ function InternalView({ data }: { data: InternalSummary }) {
       <section className="section" aria-labelledby="in-ind-title">
         <div className="section-head">
           <h2 id="in-ind-title">업종별 충족 비율(전체 기간)</h2>
-          <span className="unit">수출 거래처 10곳 이상 업종만</span>
+          <span className="unit">수출 고객 10곳 이상 업종만</span>
         </div>
         <TableWrap>
           <table className="stat-table">
             <thead>
               <tr>
                 <th scope="col">업종(중분류)</th>
-                <th scope="col" className="num">수출 거래처</th>
+                <th scope="col" className="num">수출 고객</th>
                 <th scope="col" className="num">판정한 달</th>
                 <th scope="col" className="num">충족한 달</th>
                 <th scope="col" className="num">충족 비율</th>
@@ -257,14 +257,14 @@ function InternalView({ data }: { data: InternalSummary }) {
           </table>
         </TableWrap>
         <p className="chart-summary">
-          업종별 충족 비율은 {pctText(indMin)}~{pctText(indMax)} 범위입니다. 10곳 미만 업종의 수출 거래처{' '}
+          업종별 충족 비율은 {pctText(indMin)}~{pctText(indMax)} 범위입니다. 10곳 미만 업종의 수출 고객{' '}
           {data.industryOtherFirms}곳은 표에서 뺐습니다.
         </p>
       </section>
 
       <Footnotes
         notes={[
-          '규칙은 프로토타입과 같습니다: 지역 수출 전년동월비 감소, 요구불예금 3개월 10% 넘게 감소, 운전자금대출 6개월 5% 넘게 줄지 않음. 수출 거래처는 관측 기간 중 수출 실적이 한 번이라도 있는 법인입니다.',
+          '규칙은 프로토타입과 같습니다: 지역 수출 전년동월비 감소, 요구불예금 3개월 10% 넘게 감소, 운전자금대출 6개월 5% 넘게 줄지 않음. 수출 고객은 관측 기간 중 수출 실적이 한 번이라도 있는 법인입니다.',
           '3개월 전·6개월 전 값이 없거나 0이면 판정하지 않습니다. 금액은 유효숫자 두 자리로 반올림된 원자료 기준입니다.',
           `${minCell} 미만인 칸은 개별 법인이 드러나지 않도록 가렸습니다. 이 화면은 개발 서버에서만 열리며 배포 빌드에 포함되지 않습니다.`,
         ]}
@@ -341,8 +341,8 @@ function ComboView({ results }: { results: ComboResult[] }) {
   return (
     <>
       <p className="section-note">
-        석 달 사이 요구불예금이 10% 넘게 줄고 할인어음 잔액이 늘어난 경우를 신호로 봅니다. 수출 거래처 {main.firmsExposed}곳, 비수출
-        거래처 {main.firmsOther}곳입니다.
+        석 달 사이 요구불예금이 10% 넘게 줄고 할인어음 잔액이 늘어난 경우를 신호로 봅니다. 수출 고객 {main.firmsExposed}곳, 비수출
+        고객 {main.firmsOther}곳입니다.
       </p>
       <TableWrap>
         <table className="stat-table">
@@ -355,7 +355,7 @@ function ComboView({ results }: { results: ComboResult[] }) {
           </thead>
           <tbody>
             <tr>
-              <th scope="row">수출 거래처</th>
+              <th scope="row">수출 고객</th>
               <td className="num">
                 <strong>{r.down_exposed.pct.toFixed(1)}%</strong> <span className="synthetic">({r.down_exposed.hits}/{r.down_exposed.n})</span>
               </td>
@@ -364,7 +364,7 @@ function ComboView({ results }: { results: ComboResult[] }) {
               </td>
             </tr>
             <tr>
-              <th scope="row">비수출 거래처</th>
+              <th scope="row">비수출 고객</th>
               <td className="num">
                 {r.down_other.pct.toFixed(1)}% <span className="synthetic">({r.down_other.hits}/{r.down_other.n})</span>
               </td>
@@ -387,14 +387,14 @@ function ComboView({ results }: { results: ComboResult[] }) {
           </thead>
           <tbody>
             <tr>
-              <th scope="row">① 수출이 줄어든 달에 수출 거래처가 비수출의 1.5배 이상(가려내는 힘)</th>
+              <th scope="row">① 수출이 줄어든 달에 수출 고객이 비수출의 1.5배 이상(가려내는 힘)</th>
               <td className="num">{main.ratioDown.toFixed(2)}배</td>
               <td>
                 <span className={`mark ${main.pass1 ? 'met' : 'none'}`}>{main.pass1 ? '통과' : '미통과'}</span>
               </td>
             </tr>
             <tr>
-              <th scope="row">② 수출 거래처의 초과분이 늘어난 달보다 줄어든 달에 더 큼(경기 연동)</th>
+              <th scope="row">② 수출 고객의 초과분이 늘어난 달보다 줄어든 달에 더 큼(경기 연동)</th>
               <td className="num">
                 {signed(main.did)}%p [{signed(main.didCI[0])}, {signed(main.didCI[1])}]
               </td>
@@ -409,11 +409,11 @@ function ComboView({ results }: { results: ComboResult[] }) {
       <p className="finding">
         <strong>종합: {v.text}.</strong>{' '}
         {main.pass2
-          ? '이 조합은 수출 거래처에서 수출 경기에 따라 켜지고 꺼집니다. 통장 잔고 하나만 볼 때는 없던 차이입니다. '
+          ? '이 조합은 수출 고객에서 수출 경기에 따라 켜지고 꺼집니다. 통장 잔고 하나만 볼 때는 없던 차이입니다. '
           : '수출 경기에 따라 켜지고 꺼지는 모습도 확인되지 않았습니다. '}
         {main.pass1
-          ? '수출이 줄어든 달에 수출 거래처를 비수출 거래처보다 뚜렷하게 더 많이 골라냅니다.'
-          : `다만 수출이 줄어든 달에도 비수출 거래처의 ${r.down_other.pct.toFixed(0)}%에서 같은 신호가 켜져, 개별 거래처를 가려내는 도구로는 아직 기준에 못 미칩니다.`}
+          ? '수출이 줄어든 달에 수출 고객을 비수출 고객보다 뚜렷하게 더 많이 골라냅니다.'
+          : `다만 수출이 줄어든 달에도 비수출 고객의 ${r.down_other.pct.toFixed(0)}%에서 같은 신호가 켜져, 개별 고객을 가려내는 도구로는 아직 기준에 못 미칩니다.`}
       </p>
 
       <TableWrap>
