@@ -24,7 +24,7 @@ export default function Analysis() {
   return (
     <>
       <section className="lead" aria-labelledby="an-title">
-        <p className="kicker">근거와 한계 · 분석 결과(파트 3 여신·업종 분석)</p>
+        <p className="kicker">근거와 한계 · 여신 분석(파트 3 여신·업종 분석)</p>
         <h1 id="an-title">
           비슷한 고객끼리 비교하면, 수출이 나쁜 시기에 비노출 고객은 운전자금을 줄이고 수출입 고객은 유지합니다.{' '}
           <em className="figure down">다만 약한 증거</em>입니다.

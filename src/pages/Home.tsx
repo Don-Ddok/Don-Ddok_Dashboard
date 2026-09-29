@@ -20,13 +20,13 @@ const ENTRIES = [
   },
   {
     to: '/bulletin',
-    step: '먼저 연락할 곳',
+    step: '시연용 화면',
     title: '신호 월보',
     body: '예금·대출 계좌 흐름으로 이번 달 먼저 연락해 볼 고객을 추립니다. 계정 시차로 신호 조합을 고릅니다.',
-    note: '가상 고객 데이터로 시연',
+    note: '시연용 · 가상 고객 데이터, 신호 규칙은 팀 재검증에서 기각',
   },
   {
-    to: '/analysis',
+    to: '/insight',
     step: '왜 이 시점, 왜 이 고객',
     title: '근거와 한계',
     body: '비슷한 고객끼리 비교한 여신 분석 22장을 방법·결과·판정·한계와 함께 봅니다.',
@@ -86,7 +86,7 @@ export function Home() {
             <MonthLink to="/campaign" className="home-cta-main">
               이번 달 캠페인 보기 <ArrowRight size={16} weight="bold" />
             </MonthLink>
-            <MonthLink to="/analysis" className="home-cta-sub">
+            <MonthLink to="/insight" className="home-cta-sub">
               근거부터 보기
             </MonthLink>
           </p>
@@ -135,7 +135,11 @@ export function Home() {
             수출입 고객은 유지하는 경향이 보이지만(p=0.094), 수출이 꺾이기 전에도 비슷한 차이가 있어 시간 순서는 확정하지 않았습니다.
           </li>
           <li>
-            <strong>제안 메시지와 상품 순위는 설계값(초안)입니다.</strong> 금리·한도·판매 여부는 iM뱅크 상품몰에서 다시 확인합니다.
+            <strong>신호 월보는 시연용입니다.</strong> 계좌 신호(요구불예금 감소 + 할인어음 증가)는 달력(영업일수)을 걷어낸 팀
+            재검증에서 수출 둔화를 알아채지 못해 착시로 기각됐습니다. 캠페인 판단에는 지역 수출 통계의 단계를 씁니다.
+          </li>
+          <li>
+            <strong>제안 메시지와 상품 순위는 설계값(초안)입니다.</strong> 금리·한도·판매 여부는 iM뱅크에서 다시 확인합니다.
           </li>
         </ul>
       </section>

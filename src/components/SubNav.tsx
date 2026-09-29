@@ -5,6 +5,7 @@ import { useMonth } from '../lib/month'
 export const GROUPS = [
   {
     label: '신호 월보',
+    note: '시연용 화면입니다. 가상 고객 80곳으로 규칙이 작동하는 모습을 보여 주며, 이 계좌 신호는 달력(영업일수)을 걷어낸 팀 재검증에서 수출 둔화를 알아채지 못해 기각됐습니다.',
     items: [
       { to: '/bulletin', label: '월보' },
       { to: '/firms', label: '고객' },
@@ -13,8 +14,10 @@ export const GROUPS = [
   },
   {
     label: '근거와 한계',
+    note: '',
     items: [
-      { to: '/analysis', label: '분석 결과 (여신 분석 22장)' },
+      { to: '/insight', label: '팀 인사이트' },
+      { to: '/analysis', label: '여신 분석 22장' },
       { to: '/evidence', label: '신호 규칙 점검' },
     ],
   },
@@ -30,12 +33,19 @@ export function SubNav() {
   const group = groupOf(pathname)
   if (!group) return null
   return (
-    <nav className="subnav" aria-label={`${group.label} 안의 화면`}>
-      {group.items.map((i) => (
-        <NavLink key={i.to} to={{ pathname: i.to, search }}>
-          {i.label}
-        </NavLink>
-      ))}
-    </nav>
+    <>
+      <nav className="subnav" aria-label={`${group.label} 안의 화면`}>
+        {group.items.map((i) => (
+          <NavLink key={i.to} to={{ pathname: i.to, search }}>
+            {i.label}
+          </NavLink>
+        ))}
+      </nav>
+      {group.note && (
+        <p className="subnav-note" role="note">
+          {group.note}
+        </p>
+      )}
+    </>
   )
 }

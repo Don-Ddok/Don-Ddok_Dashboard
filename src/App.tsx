@@ -18,6 +18,7 @@ const FirmDetail = lazy(() => import('./pages/FirmDetail'))
 // 캠페인·근거(분석 결과) 화면은 들어갈 때 불러온다(캠페인 데이터는 화면에서 따로 받음)
 const Campaign = lazy(() => import('./pages/Campaign'))
 const Analysis = lazy(() => import('./pages/Analysis'))
+const Insight = lazy(() => import('./pages/Insight'))
 // 내부 시연 화면: internal 모드 개발 서버에서만. 배포 빌드에서는 INTERNAL이 false로 고정돼 이 화면 코드가 빠진다
 const Internal = INTERNAL ? lazy(() => import('./pages/Internal')) : null
 
@@ -33,7 +34,8 @@ const TITLES: Record<string, string> = {
   '/': '홈',
   '/campaign': '이번 달 캠페인',
   '/bulletin': '신호 월보',
-  '/analysis': '근거와 한계 · 분석 결과',
+  '/insight': '근거와 한계 · 팀 인사이트',
+  '/analysis': '근거와 한계 · 여신 분석',
   '/firms': '고객',
   '/timing': '계정 시차',
   '/board': '팀 게시판',
@@ -85,6 +87,14 @@ function Shell() {
               }
             />
             <Route path="/bulletin" element={<Bulletin />} />
+            <Route
+              path="/insight"
+              element={
+                <Suspense fallback={<DetailLoading />}>
+                  <Insight />
+                </Suspense>
+              }
+            />
             <Route
               path="/analysis"
               element={

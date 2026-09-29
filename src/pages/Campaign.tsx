@@ -221,9 +221,9 @@ function CampaignView({ data }: { data: CampaignData }) {
           `${data.meta.주의}. 1~4곳인 칸은 법인이 특정되지 않도록 "${'5곳 미만'}"으로 가렸습니다.`,
           '추천은 단계 × 페르소나 × 세그먼트(수출형·수입형)로 정해집니다. 업종은 대상 규모를 보여 주며, 업종이 달라도 같은 페르소나는 같은 추천을 받습니다.',
           `매칭 모델 근거: ${data.meta.근거}. 참고 신호로 읽어 주세요. 파트 3 여신 분석(근거와 한계 화면)은 약한 증거이고 수출이 꺾이기 전에도 비슷한 차이가 보여(사전 추세 의심) 시간 순서를 확정하지 않았습니다.`,
-          '상품 정보는 iM뱅크 사이트에서 수집한 요약입니다. 금리·한도·판매 여부는 상품몰에서 다시 확인하세요.',
+          '상품 정보는 iM뱅크 사이트에서 수집한 요약입니다. 금리·한도·판매 여부는 iM뱅크에서 다시 확인하세요.',
         ]}
-        source={`iM뱅크 교육용 법인 익명데이터 집계(매칭 결과 기준일 ${data.meta.생성일}), 관세청 수출입무역통계, iM뱅크 금융상품몰`}
+        source={`iM뱅크 교육용 법인 익명데이터 집계(매칭 결과 기준일 ${data.meta.생성일}), 관세청 수출입무역통계, iM뱅크 홈페이지 상품 안내`}
       />
     </div>
   )
@@ -581,7 +581,7 @@ function Recommendation({
         ))}
         {cols.length === 0 && <p className="section-note">이 달에는 이 페르소나의 외환노출 고객이 없습니다.</p>}
       </div>
-      <p className="section-note cp-caveat">상품을 누르면 수집한 상품 정보와 iM뱅크 상품몰 바로가기가 나옵니다.</p>
+      <p className="section-note cp-caveat">상품을 누르면 수집한 상품 정보와 iM뱅크 바로가기가 나옵니다.</p>
     </section>
   )
 }
@@ -634,6 +634,7 @@ function ProductDialog({ data, name, onClose }: { data: CampaignData; name: stri
     info.금리기준일 ? `금리 ${info.금리기준일}` : '',
   ].filter(Boolean) as string[]
   const path = info.안내페이지 ? '외환 업무 안내' : `대출 › 기업상품 › ${info.목록 ?? ''}`
+  const href = info.상세URL || data.meta.링크
   return (
     <div className="cp-modal-bg" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="cp-modal" role="dialog" aria-modal="true" aria-labelledby="cp-modal-title">
@@ -659,17 +660,17 @@ function ProductDialog({ data, name, onClose }: { data: CampaignData; name: stri
             ))}
           </dl>
         ) : (
-          <p className="cp-none">수집된 상세 정보가 없습니다. iM뱅크 상품몰에서 원문을 확인하세요.</p>
+          <p className="cp-none">수집된 상세 정보가 없습니다. iM뱅크에서 원문을 확인하세요.</p>
         )}
         <p className="cp-modal-mall">
-          <span>iM뱅크 금융상품몰 › {path}</span>
-          <a href={data.meta.상품몰} target="_blank" rel="noopener noreferrer">
-            상품몰 열기 <ArrowSquareOut size={14} weight="bold" />
+          <span>iM뱅크 › {path}</span>
+          <a href={href} target="_blank" rel="noopener noreferrer">
+            {info.상세URL ? '상품 페이지 열기' : `iM뱅크 ${data.meta.링크이름} 열기`} <ArrowSquareOut size={14} weight="bold" />
           </a>
         </p>
         <p className="cp-modal-note">
-          iM뱅크 사이트 {info.수집일 ?? ''} 수집 기준 요약입니다. 금리·한도·판매 여부는 상품몰에서 다시 확인하세요. 상품몰은 상품별
-          주소를 제공하지 않아 첫 화면으로 연결됩니다.
+          iM뱅크 사이트 {info.수집일 ?? ''} 수집 기준 요약입니다. 금리·한도·판매 여부는 iM뱅크에서 다시 확인하세요.
+          {info.상세URL ? '' : ' 상품별 주소가 없어 첫 화면으로 연결됩니다.'}
         </p>
       </div>
     </div>

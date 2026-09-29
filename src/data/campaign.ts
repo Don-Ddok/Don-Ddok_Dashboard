@@ -59,11 +59,12 @@ export interface ProductInfo {
   안내페이지?: boolean
   목록?: string
   수집일?: string
+  상세URL?: string
   상세?: Record<string, string>
 }
 
 export interface CampaignData {
-  meta: { 생성일: string; 기본지역: string; 기본월: string; 월: string[]; 근거: string; 상품몰: string; 주의: string }
+  meta: { 생성일: string; 기본지역: string; 기본월: string; 월: string[]; 근거: string; 링크: string; 링크이름: string; 주의: string }
   페르소나설명: Record<PersonaKey, { 이름: string; 정의: string }>
   상품: Record<string, ProductInfo>
   지역: Record<string, Record<string, RegionMonth>>
