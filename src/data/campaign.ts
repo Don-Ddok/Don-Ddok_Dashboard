@@ -1,4 +1,4 @@
-// 이번 달 캠페인 데이터: 팀 매칭 모델(단계 × 페르소나 × 세그먼트 → 추천 상품)의 집계 결과.
+// 이번 달 추천 데이터: 팀 매칭 모델(단계 × 페르소나 × 세그먼트 → 추천 상품)의 집계 결과.
 // 파일은 public/data/campaign.json(법인 ID·개별 잔액 없음). 크기가 커서 화면에 들어올 때 한 번만 불러온다.
 import { useEffect, useState } from 'react'
 
@@ -74,7 +74,7 @@ let cache: Promise<CampaignData> | null = null
 
 export function loadCampaign() {
   cache ??= fetch('./data/campaign.json').then((r) => {
-    if (!r.ok) throw new Error(`캠페인 데이터를 불러오지 못했습니다(${r.status})`)
+    if (!r.ok) throw new Error(`추천 데이터를 불러오지 못했습니다(${r.status})`)
     return r.json() as Promise<CampaignData>
   })
   return cache

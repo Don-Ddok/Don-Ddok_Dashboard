@@ -107,7 +107,7 @@ function InsightView({ I }: { I: InsightData }) {
         <p className="kicker">근거와 한계 · 팀 인사이트</p>
         <h1 id="in-title">수출이 꺾이면 은행 기록에서 무엇이 이어지나, 팀 분석을 한 장의 관계로 묶었습니다.</h1>
         <p className="lead-note">
-          ※ 가설 재검증 결과 지지 {counts.지지}개 · 기각 {counts.기각}개 · 보류 {counts.보류}개. 기각된 가설은 캠페인 모델에 쓰지 않습니다.
+          ※ 가설 재검증 결과 지지 {counts.지지}개 · 기각 {counts.기각}개 · 보류 {counts.보류}개. 기각된 가설은 추천 모델에 쓰지 않습니다.
           상품 보유 비교와 고객 군집은 탐색적 기술통계입니다. 여신 반응의 세부 분석은 옆 탭{' '}
           <MonthLink to="/analysis">여신 분석 22장</MonthLink>에 있습니다.
         </p>
@@ -792,7 +792,7 @@ function HypDetail({ I, i }: { I: InsightData; i?: number }) {
     return (
       <>
         <DHead k="검증된 가설" title="무엇이 맞았고 무엇이 틀렸나">
-          재검증으로 <b>지지 {c('지지')}개, 기각 {c('기각')}개, 보류 {c('보류')}개</b>가 나왔습니다. 기각된 가설은 캠페인 모델에 쓰지 않습니다.
+          재검증으로 <b>지지 {c('지지')}개, 기각 {c('기각')}개, 보류 {c('보류')}개</b>가 나왔습니다. 기각된 가설은 추천 모델에 쓰지 않습니다.
         </DHead>
         <ul className="in-hyps">
           {I.검증.map((h) => (

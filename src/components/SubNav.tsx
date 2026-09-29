@@ -19,6 +19,7 @@ export const GROUPS = [
       { to: '/insight', label: '팀 인사이트' },
       { to: '/analysis', label: '여신 분석 22장' },
       { to: '/evidence', label: '신호 규칙 점검' },
+      { to: '/glossary', label: '용어 사전' },
     ],
   },
 ]
