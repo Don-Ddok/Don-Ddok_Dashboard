@@ -108,8 +108,8 @@ function InsightView({ I }: { I: InsightData }) {
         <h1 id="in-title">수출이 꺾이면 은행 기록에서 무엇이 이어지나, 팀 분석을 한 장의 관계로 묶었습니다.</h1>
         <p className="lead-note">
           ※ 가설 재검증 결과 지지 {counts.지지}개 · 기각 {counts.기각}개 · 보류 {counts.보류}개. 기각된 가설은 추천 모델에 쓰지 않습니다.
-          상품 보유 비교와 고객 군집은 탐색적 기술통계입니다. 여신 반응의 세부 분석은 옆 탭{' '}
-          <MonthLink to="/analysis">여신 분석 22장</MonthLink>에 있습니다.
+          상품 보유 비교와 고객 군집은 탐색적 기술통계입니다. 계정별 최종 결과는{' '}
+          <MonthLink to="/results">분석 결과</MonthLink>에 있습니다.
         </p>
       </section>
 

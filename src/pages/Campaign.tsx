@@ -196,7 +196,7 @@ function CampaignView({ data }: { data: CampaignData }) {
         <h1 id="cp-title">{headline[view]}</h1>
         <p className="lead-note">
           ※ 언제(단계) → 누구에게(업종·페르소나) → 무엇을(추천 상품) 순서로 좁혀 갑니다. 추천은 매칭 모델의 설계값이며 위험 판정이
-          아니라 제안 대상을 고르는 참고 자료입니다. <MonthLink to="/analysis">근거와 한계 보기</MonthLink> · 단계·페르소나 같은 말은{' '}
+          아니라 제안 대상을 고르는 참고 자료입니다. <MonthLink to="/results">분석 결과 보기</MonthLink> · 단계·페르소나 같은 말은{' '}
           <MonthLink to="/glossary">용어 사전</MonthLink>에 풀어 두었습니다.
         </p>
       </section>
@@ -221,7 +221,7 @@ function CampaignView({ data }: { data: CampaignData }) {
         notes={[
           `${data.meta.주의}. 1~4곳인 칸은 법인이 특정되지 않도록 "${'5곳 미만'}"으로 가렸습니다.`,
           '추천은 단계 × 페르소나 × 세그먼트(수출형·수입형)로 정해집니다. 업종은 대상 규모를 보여 주며, 업종이 달라도 같은 페르소나는 같은 추천을 받습니다.',
-          `매칭 모델 근거: ${data.meta.근거}. 참고 신호로 읽어 주세요. 파트 3 여신 분석(근거와 한계 화면)은 약한 증거이고 수출이 꺾이기 전에도 비슷한 차이가 보여(사전 추세 의심) 시간 순서를 확정하지 않았습니다.`,
+          `매칭 모델 근거: ${data.meta.근거}. 인과가 아니라 지역 수출 경기와 함께 움직이는 관계이며, 상담 효과는 효과 검증 화면의 파일럿으로 확인합니다.`,
           '상품 정보는 iM뱅크 사이트에서 수집한 요약입니다. 금리·한도·판매 여부는 iM뱅크에서 다시 확인하세요.',
         ]}
         source={`iM뱅크 교육용 법인 익명데이터 집계(매칭 결과 기준일 ${data.meta.생성일}), 관세청 수출입무역통계, iM뱅크 홈페이지 상품 안내`}
@@ -583,7 +583,34 @@ function Recommendation({
         {cols.length === 0 && <p className="section-note">이 달에는 이 페르소나의 외환노출 고객이 없습니다.</p>}
       </div>
       <p className="section-note cp-caveat">상품을 누르면 수집한 상품 정보와 iM뱅크 바로가기가 나옵니다.</p>
+      <LeadScore />
     </section>
+  )
+}
+
+/** 누구부터: 같은 단계·세그먼트 안에서 연락 순서를 정하는 점수(규칙). 공개 화면은 기업별 값이 없어 식과 규칙 점검만 보인다 */
+function LeadScore() {
+  return (
+    <div className="cp-lead" aria-labelledby="cp-lead-title">
+      <h3 id="cp-lead-title">누구부터 · 리드 스코어링</h3>
+      <p className="cp-lead-formula">
+        점수 = <strong>0.7</strong> × 요구불 잔액 규모 백분위 + <strong>0.3</strong> × 최근 3개월 감소폭 백분위
+      </p>
+      <ul className="cp-lead-points">
+        <li>
+          같은 단계·세그먼트 안에서 백분위로 바꿔 더합니다. 분석에서 확인된 요구불예금만 씁니다.
+        </li>
+        <li>
+          페르소나는 2개월 연속 같을 때만 바꿉니다. 월간 유지율 96.5% → <strong>98.2%</strong>, 2개월 안에 되돌아오는 단기 왕복 26.8% →{' '}
+          <strong>0.0%</strong>.
+        </li>
+        <li>
+          규모만으로 줄 세우면 반올림 동률 때문에 감소폭이 반영되지 않았습니다. 지금 점수는 이전 방식과 상위 20곳 중 <strong>6곳</strong>만
+          겹칩니다.
+        </li>
+      </ul>
+      <p className="cp-lead-note">규칙의 일관성을 점검한 결과이며 상담 효과의 근거는 아닙니다. 가중치 0.7·0.3은 설계값입니다.</p>
+    </div>
   )
 }
 

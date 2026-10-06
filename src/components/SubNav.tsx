@@ -17,8 +17,8 @@ export const GROUPS = [
     note: '',
     items: [
       { to: '/insight', label: '팀 인사이트' },
-      { to: '/analysis', label: '여신 분석 22장' },
-      { to: '/evidence', label: '신호 규칙 점검' },
+      { to: '/evidence', label: '시도했다 뺀 방법' },
+      { to: '/bulletin', label: '신호 월보(시연)' },
       { to: '/glossary', label: '용어 사전' },
     ],
   },

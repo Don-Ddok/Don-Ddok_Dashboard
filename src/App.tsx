@@ -17,7 +17,8 @@ import { DataProvider, useData } from './lib/data'
 const FirmDetail = lazy(() => import('./pages/FirmDetail'))
 // 이번 달 추천·근거(분석 결과) 화면은 들어갈 때 불러온다(추천 데이터는 화면에서 따로 받음)
 const Campaign = lazy(() => import('./pages/Campaign'))
-const Analysis = lazy(() => import('./pages/Analysis'))
+const Results = lazy(() => import('./pages/Results'))
+const Pilot = lazy(() => import('./pages/Pilot'))
 const Insight = lazy(() => import('./pages/Insight'))
 const Glossary = lazy(() => import('./pages/Glossary'))
 // 내부 시연 화면: internal 모드 개발 서버에서만. 배포 빌드에서는 INTERNAL이 false로 고정돼 이 화면 코드가 빠진다
@@ -42,11 +43,12 @@ const TITLES: Record<string, string> = {
   '/recommend': '이번 달 추천',
   '/bulletin': '신호 월보',
   '/insight': '근거와 한계 · 팀 인사이트',
-  '/analysis': '근거와 한계 · 여신 분석',
+  '/results': '분석 결과',
+  '/pilot': '효과 검증',
   '/firms': '고객',
   '/timing': '계정 시차',
   '/board': '팀 게시판',
-  '/evidence': '근거와 한계 · 신호 규칙 점검',
+  '/evidence': '근거와 한계 · 시도했다 뺀 방법',
   '/glossary': '근거와 한계 · 용어 사전',
   ...(INTERNAL ? { '/internal': '내부 시연' } : {}),
 }
@@ -113,13 +115,22 @@ function Shell() {
               }
             />
             <Route
-              path="/analysis"
+              path="/results"
               element={
                 <Suspense fallback={<DetailLoading />}>
-                  <Analysis />
+                  <Results />
                 </Suspense>
               }
             />
+            <Route
+              path="/pilot"
+              element={
+                <Suspense fallback={<DetailLoading />}>
+                  <Pilot />
+                </Suspense>
+              }
+            />
+            <Route path="/analysis" element={<Navigate to="/results" replace />} />
             <Route path="/firms" element={<Firms />} />
             <Route
               path="/firms/:id"
@@ -160,7 +171,7 @@ function Shell() {
           iM뱅크 캐릭터입니다.{' '}
           {kind === 'real'
             ? '내부 시연 모드: 신호 월보의 고객과 계좌 금액은 실제 은행 법인 데이터(익명 법인ID)이며 외부에 공유하지 않습니다.'
-            : '신호 월보의 고객과 계좌 금액은 가상입니다. 이번 달 추천과 근거와 한계(분석 결과)의 숫자는 교육용 법인 익명데이터 집계입니다(법인 ID 없음).'}
+            : '신호 월보의 고객과 계좌 금액은 가상입니다. 이번 달 추천·분석 결과·효과 검증의 숫자는 교육용 법인 익명데이터 집계입니다(법인 ID 없음).'}
         </footer>
       </div>
     </MonthProvider>

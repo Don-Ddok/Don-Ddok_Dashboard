@@ -19,18 +19,18 @@ const ENTRIES = [
     note: '교육용 법인 익명데이터 집계',
   },
   {
-    to: '/bulletin',
-    step: '시연용 화면',
-    title: '신호 월보',
-    body: '예금·대출 계좌 흐름으로 이번 달 먼저 연락해 볼 고객을 추립니다. 계정 시차로 신호 조합을 고릅니다.',
-    note: '시연용 · 가상 고객 데이터, 신호 규칙은 팀 재검증에서 기각',
+    to: '/results',
+    step: '왜 이 시점, 왜 이 고객',
+    title: '분석 결과',
+    body: '수출이 줄면 6개월 뒤 수출입 기업의 요구불예금이 3.6% 더 낮았습니다. 6개 지표 중 보정 후에도 유의한 것은 요구불 하나입니다.',
+    note: '공통 사양 · Holm 보정 · 강건성 점검',
   },
   {
-    to: '/insight',
-    step: '왜 이 시점, 왜 이 고객',
-    title: '근거와 한계',
-    body: '비슷한 고객끼리 비교한 여신 분석 22장을 방법·결과·판정·한계와 함께 봅니다.',
-    note: '약한 증거 · 사전 추세 의심까지 공개',
+    to: '/pilot',
+    step: '효과는 얼마인가',
+    title: '효과 검증',
+    body: '먼저 찾아간 상담이 요구불 잔액을 지키는지, 연락 그룹과 비연락 그룹을 무작위로 나눠 비교하는 파일럿 설계입니다.',
+    note: '설계안 · 연체율 안전장치 포함',
   },
 ]
 
@@ -72,7 +72,7 @@ export function Home() {
     <>
       <section className="home-hero" aria-labelledby="home-title">
         <div className="home-copy">
-          <p className="kicker home-kicker">돈독 · 법인 고객 마케팅 월보</p>
+          <p className="kicker home-kicker">돈독 · 착시를 걷어낸 은행 장부</p>
           <h1 id="home-title">
             수출이 꺾이는 달,
             <br />
@@ -86,7 +86,7 @@ export function Home() {
             <MonthLink to="/recommend" className="home-cta-main">
               이번 달 추천 보기 <ArrowRight size={16} weight="bold" />
             </MonthLink>
-            <MonthLink to="/insight" className="home-cta-sub">
+            <MonthLink to="/results" className="home-cta-sub">
               근거부터 보기
             </MonthLink>
           </p>
@@ -106,7 +106,7 @@ export function Home() {
       <section className="section" aria-labelledby="home-entries">
         <div className="section-head">
           <h2 id="home-entries">세 가지 화면</h2>
-          <span className="unit">언제 → 누구에게 → 무엇을 → 왜</span>
+          <span className="unit">언제·누구에게·무엇을 → 왜 → 효과는</span>
         </div>
         <div className="home-entries">
           {ENTRIES.map((e, i) => (
@@ -128,15 +128,15 @@ export function Home() {
         </div>
         <ul className="home-cautions">
           <li>
-            <strong>참고 신호입니다.</strong> 위험 판정이나 예측이 아니라, 제안 대상과 연락 순서를 정하는 참고 자료입니다.
+            <strong>상담 후보 제안 도구입니다.</strong> 위험 판정이나 예측이 아니라, 제안 대상과 연락 순서를 정하는 참고 자료입니다. 상담 효과는 파일럿으로 검증합니다.
           </li>
           <li>
-            <strong>근거는 약한 증거입니다.</strong> 비슷한 고객끼리 비교하면 수출이 나쁜 시기에 비노출 고객은 운전자금을 줄이고
-            수출입 고객은 유지하는 경향이 보이지만(p=0.094), 수출이 꺾이기 전에도 비슷한 차이가 있어 시간 순서는 확정하지 않았습니다.
+            <strong>근거는 요구불예금 하나입니다.</strong> 수출 증가율이 10%p 떨어지면 6개월 뒤 수출입 기업의 요구불예금이 비교 기업보다
+            3.6% 낮았습니다(p 0.003, 다중검정 보정 후에도 유의). 인과가 아니라 지역 수출 경기와 함께 움직이는 관계입니다.
           </li>
           <li>
-            <strong>신호 월보는 시연용입니다.</strong> 계좌 신호(요구불예금 감소 + 할인어음 증가)는 달력(영업일수)을 걷어낸 팀
-            재검증에서 수출 둔화를 알아채지 못해 착시로 기각됐습니다. 제안 대상을 고를 때는 지역 수출 통계의 단계를 씁니다.
+            <strong>둔화 판정은 공식 수출통계로 합니다.</strong> 은행 계좌 신호로는 둔화를 미리 알아채지 못했습니다(위약 검정 미통과).
+            은행 데이터는 대상을 나누는 데만 씁니다.
           </li>
           <li>
             <strong>제안 메시지와 상품 순위는 설계값(초안)입니다.</strong> 금리·한도·판매 여부는 iM뱅크에서 다시 확인합니다.

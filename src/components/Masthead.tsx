@@ -5,11 +5,13 @@ import { MonthControl } from './MonthControl'
 import { INTERNAL } from '../lib/internal'
 import { useData } from '../lib/data'
 
-/** 윗줄 메뉴. 신호 월보·근거와 한계는 묶음이라 아래 작은 탭(SubNav)으로 나뉜다 */
+/** 윗줄 메뉴. 발표 흐름(언제·누구에게 → 근거 → 효과 검증) 순서. 근거와 한계는 묶음이라 아래 작은 탭(SubNav)으로 나뉜다.
+ *  신호 월보(시연용, 은행 계좌 신호는 기각)는 윗줄에서 빼고 근거와 한계 안에서만 연다 */
 const LINKS = [
   { to: '/', label: '홈', group: null },
   { to: '/recommend', label: '이번 달 추천', group: null },
-  { to: '/bulletin', label: '신호 월보', group: '신호 월보' },
+  { to: '/results', label: '분석 결과', group: null },
+  { to: '/pilot', label: '효과 검증', group: null },
   { to: '/insight', label: '근거와 한계', group: '근거와 한계' },
   { to: '/board', label: '게시판', group: null },
   ...(INTERNAL ? [{ to: '/internal', label: '규칙 점검(실제 집계)', group: null }] : []),

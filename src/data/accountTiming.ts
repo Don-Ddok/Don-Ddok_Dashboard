@@ -108,7 +108,7 @@ export const STAGES: Stage[] = [
         expected: '후행 3~9개월',
         result: 'match',
         observed: 'k = 6(시점 일치, 전체 평균은 약함)',
-        note: '파트 3: 6개월 창에서 노출·비노출 차이(약한 증거)',
+        note: '초기 분석: 6개월 창에서 노출·비노출 차이(약한 증거). 최종 공통 사양에서는 유의하지 않음',
       },
       { name: '여신한도', expected: '후행 9~12개월 이상', result: 'differ', observed: 'k = 6(판단 보류)', note: '연 1회 갱신, 사양에 따라 결과가 달라짐' },
       { name: '무역금융', expected: '선행과 후행이 섞임', result: 'differ', observed: 'h = 3~5, 위약검정 실패(보류)', note: '신용장기준(선행)과 실적기준(후행)을 구분할 수 없음' },
