@@ -218,7 +218,7 @@ export function Evidence() {
           에 있습니다.
         </p>
         <p className="detail-actions">
-          <MonthLink to="/bulletin">신호 월보로 돌아가기</MonthLink>
+          <MonthLink to="/bulletin">그때 만든 시연 화면(신호 월보) 보기</MonthLink>
         </p>
       </article>
 

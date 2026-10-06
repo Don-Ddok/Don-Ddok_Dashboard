@@ -1110,6 +1110,33 @@
   color: #fff;
 }
 
+/* 셋째 단: 시도했다 뺀 방법 안의 화면. 둘째 단(검은 칸)과 구분되게 밑줄 탭으로 */
+.subnav-sub {
+  align-items: center;
+  padding: var(--s-1) 0 var(--s-2);
+  border-bottom: 0;
+}
+.subnav-sub-label {
+  padding-right: var(--s-2);
+  margin-right: var(--s-1);
+  border-right: var(--rule-thin) solid var(--rule-mid);
+  color: var(--ink-3);
+  font-size: var(--t-sm);
+  white-space: nowrap;
+}
+.subnav-sub a {
+  border: 0;
+  border-bottom: 2px solid transparent;
+  padding: var(--s-1) var(--s-2);
+  font-weight: 500;
+}
+.subnav-sub a[aria-current='page'] {
+  border-color: var(--accent);
+  background: transparent;
+  color: var(--accent-ink);
+  font-weight: 700;
+}
+
 .subnav-note {
   margin-top: var(--s-2);
   padding: var(--s-2) var(--s-3);

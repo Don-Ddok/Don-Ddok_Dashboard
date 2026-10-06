@@ -6,7 +6,7 @@ import { INTERNAL } from '../lib/internal'
 import { useData } from '../lib/data'
 
 /** 윗줄 메뉴. 발표 흐름(언제·누구에게 → 근거 → 효과 검증) 순서. 근거와 한계는 묶음이라 아래 작은 탭(SubNav)으로 나뉜다.
- *  신호 월보(시연용, 은행 계좌 신호는 기각)는 윗줄에서 빼고 근거와 한계 안에서만 연다 */
+ *  신호 월보(시연용, 은행 계좌 신호는 기각)는 근거와 한계 > 시도했다 뺀 방법 아래 셋째 단 탭으로만 연다 */
 const LINKS = [
   { to: '/', label: '홈', group: null },
   { to: '/recommend', label: '이번 달 추천', group: null },
@@ -40,13 +40,29 @@ export function Masthead() {
   const showMonth = MONTH_PAGES.some((p) => pathname.startsWith(p))
   return (
     <header className="masthead">
+      {/* 초록 머리 띠 = 윗줄 메뉴. 메뉴 줄을 따로 두지 않아 탭 단계가 하나 줄어든다 */}
       <div className="release-band">
         <p className="release-label">보도자료</p>
-        <p className="release-kind">
-          <span className="release-chip">시연용</span>
-          <span className="release-title">대구·경북 기업금융 참고 통계</span>
+        <nav className="band-nav" aria-label="주요 화면">
+          {LINKS.map((l) =>
+            l.group ? (
+              <Link
+                key={l.to}
+                to={{ pathname: l.to, search }}
+                aria-current={groupOf(pathname)?.label === l.group ? 'page' : undefined}
+              >
+                {l.label}
+              </Link>
+            ) : (
+              <NavLink key={l.to} to={{ pathname: l.to, search }} end={l.to === '/'}>
+                {l.label}
+              </NavLink>
+            ),
+          )}
+        </nav>
+        <p className="release-meta">
+          <span className="release-chip">시연용</span> 담당 돈독 팀
         </p>
-        <p className="release-meta">담당 돈독 팀</p>
       </div>
       {INTERNAL && (
         <p className="internal-band" role="note">
@@ -61,29 +77,13 @@ export function Masthead() {
               <NavLink to={{ pathname: '/', search }}>법인 고객 마케팅 월보</NavLink>
             </p>
             <p className="masthead-issuer">
-              돈독 통계 프로젝트 프로토타입 · 은행 마케팅 담당자용{showMonth ? (kind === 'real' ? ' · 실제 법인 데이터(내부 시연)' : ' · 신호 월보는 가상 고객 데이터') : ''}
+              대구·경북 기업금융 참고 통계 · 돈독 통계 프로젝트 프로토타입 · 은행 마케팅 담당자용
+              {showMonth ? (kind === 'real' ? ' · 실제 법인 데이터(내부 시연)' : ' · 신호 월보는 가상 고객 데이터') : ''}
             </p>
           </div>
         </div>
         {showMonth && <MonthControl />}
       </div>
-      <nav className="nav" aria-label="주요 화면">
-        {LINKS.map((l) =>
-          l.group ? (
-            <Link
-              key={l.to}
-              to={{ pathname: l.to, search }}
-              aria-current={groupOf(pathname)?.label === l.group ? 'page' : undefined}
-            >
-              {l.label}
-            </Link>
-          ) : (
-            <NavLink key={l.to} to={{ pathname: l.to, search }} end={l.to === '/'}>
-              {l.label}
-            </NavLink>
-          ),
-        )}
-      </nav>
     </header>
   )
 }
