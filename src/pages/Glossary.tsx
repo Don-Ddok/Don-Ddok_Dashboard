@@ -23,7 +23,7 @@ export default function Glossary() {
         <p className="kicker">근거와 한계 · 용어 사전</p>
         <h1 id="gl-title">화면에 나오는 계정·고객 구분·지표·분석 용어 {TERMS.length}개를 쉬운 말로 풀었습니다.</h1>
         <p className="lead-note">
-          ※ 수치는 파트 3 문서와 팀 매칭 모델 데이터에서 확인한 값만 적었습니다. <b>팀 확인 중</b> 표시는 세부 기준을 팀 문서로 아직
+          ※ 수치는 최종 결과보고서와 팀 매칭 모델 데이터에서 확인한 값만 적었습니다. <b>팀 확인 중</b> 표시는 세부 기준을 팀 문서로 아직
           확인하지 못한 설명입니다.
         </p>
       </section>
@@ -91,10 +91,10 @@ export default function Glossary() {
 
       <Footnotes
         notes={[
-          '파트 3에서 쓴 원본 열과 가공 변수의 정의는 Don-Ddok_Docs 파트 3 문서 04_데이터명세서.md에 있습니다.',
-          '분석 방법의 자세한 식과 판정 기준은 여신 분석 22장과 Don-Ddok_Docs 파트 3 문서에 있습니다.',
+          '원본 열과 가공 변수의 정의는 팀 데이터 명세서(Don-Ddok_Docs)에 있습니다.',
+          '분석 방법의 자세한 식과 판정 기준은 분석 결과 화면과 최종 결과보고서에 있습니다.',
         ]}
-        source="파트 3 여신·업종 분석 문서, 팀 매칭 모델·인사이트 집계(public/data), 관세청·KOSIS·한국은행 ECOS"
+        source="돈독 최종 결과보고서(2026-10-06), 팀 매칭 모델·인사이트 집계(public/data), 한국무역협회 K-stat·KOSIS·한국은행 ECOS"
       />
     </>
   )

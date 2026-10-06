@@ -12,7 +12,7 @@ export const BOARD = {
 /** 주제마다 글타래 하나. term이 GitHub Discussions의 글 제목이 된다 */
 export const TOPICS = [
   { key: 'free', label: '자유 의견', term: '팀 게시판: 자유 의견', hint: '진행 상황, 아이디어, 공지' },
-  { key: 'results', label: '분석 결과', term: '팀 게시판: 분석 결과', hint: '파트별 결과 공유, 표·그래프와 해석' },
+  { key: 'results', label: '분석 결과', term: '팀 게시판: 분석 결과', hint: '분석 결과 공유, 표·그래프와 해석' },
   { key: 'dashboard', label: '화면 개선 제안', term: '팀 게시판: 화면 개선 제안', hint: '이 웹사이트에서 고칠 점' },
 ] as const
 

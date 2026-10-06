@@ -3,7 +3,7 @@ import { TableWrap } from '../components/TableWrap'
 import { COMBOS, criterionMark, type Combo } from '../data/combos'
 
 /**
- * 연구 결과의 핵심 숫자. 파트 3 여신·업종 분석(매칭 1:3, 6개월, 법인·월 이중 클러스터)에서 검증한 값만 적는다.
+ * 초기 여신 분석(비슷한 기업 1:3 짝짓기, 6개월, 법인·월 이중 클러스터)의 핵심 숫자. 최종 공통 사양에서는 운전자금이 유의하지 않았다.
  * 원자료(은행 법인 데이터)는 공개하지 않고, 요약 수치만 옮긴다.
  */
 const KEY_FIGURES = [
@@ -64,11 +64,13 @@ export function Evidence() {
   return (
     <div className="evidence">
       <section className="lead" aria-labelledby="ev-title">
-        <p className="kicker">근거와 한계 · {C.name}</p>
-        <h1 id="ev-title">이 월보가 기대는 근거와 한계</h1>
+        <p className="kicker">근거와 한계 · 시도했다 뺀 방법 · {C.name}</p>
+        <h1 id="ev-title">은행 계좌 신호로 고객을 고르는 방법은 최종 모델에서 뺐습니다</h1>
         <p>
-          이 화면은 대구·경북 수출 경기와 은행 거래의 관계를 살펴본 통계 프로젝트를 실무 화면으로 옮겨 본 프로토타입입니다. 지금
-          보는 신호 조합(<strong>{C.name}</strong>)이 어디까지 믿을 만한지 먼저 적어 둡니다.
+          분석 초기에는 계좌 흐름(통장 잔고·대출·할인어음)의 조합으로 먼저 연락할 고객을 고르는 신호 월보를 시연용으로 만들었습니다.
+          실제 데이터로 점검한 결과 수출 충격을 받은 고객을 가려내지 못해(위약 검정 미통과) 최종 모델에서는 빼고, 둔화 판정은 공식
+          수출통계로 합니다. 신호 조합(<strong>{C.name}</strong>)을 왜 뺐는지 기록으로 남깁니다. 최종 결과는{' '}
+          <MonthLink to="/results">분석 결과</MonthLink>에 있습니다.
         </p>
       </section>
 
@@ -174,8 +176,8 @@ export function Evidence() {
             <tbody>
               <tr>
                 <th scope="row">수출이 줄 때 비수출 회사는 대출을 줄이고, 수출 회사는 유지</th>
-                <td>파트 3 매칭 비교</td>
-                <td>방향만 검정됨(약한 증거, p=0.094). 반응 크기는 임의로 정함</td>
+                <td>초기 여신 분석(비슷한 기업끼리 비교)</td>
+                <td>방향만 검정됨(p=0.094). 최종 공통 사양에서는 운전자금 +0.6%(p 0.591)로 유의하지 않음</td>
               </tr>
               <tr>
                 <th scope="row">수출이 줄 때 수출 회사의 통장 잔고가 비수출 회사보다 크게 줄어듦</th>
@@ -193,7 +195,7 @@ export function Evidence() {
                 </td>
                 <td>
                   <strong>검정 안 함.</strong> 실제 데이터에서 조합은 달력 보정 전에는 부분 지지(경기 연동만 확인)였으나,
-                  달력(영업일수)을 걷어낸 팀 재검증에서 착시로 기각됐습니다. 파트 3 세부 항목 분석에서 할인어음 단독의
+                  달력(영업일수)을 걷어낸 팀 재검증에서 착시로 기각됐습니다. 초기 세부 항목 분석에서 할인어음 단독의
                   수출·비수출 차이도 근거가 없었습니다
                 </td>
               </tr>
@@ -216,12 +218,12 @@ export function Evidence() {
           에 있습니다.
         </p>
         <p className="detail-actions">
-          <MonthLink to="/bulletin">신호 월보로 돌아가기</MonthLink>
+          <MonthLink to="/bulletin">그때 만든 시연 화면(신호 월보) 보기</MonthLink>
         </p>
       </article>
 
       <aside className="key-figures" aria-labelledby="kf-title">
-        <h2 id="kf-title">{combo === 'bill' ? '숫자로 본 조합 점검' : '숫자로 본 연구 결과'}</h2>
+        <h2 id="kf-title">{combo === 'bill' ? '숫자로 본 조합 점검' : '숫자로 본 초기 여신 분석'}</h2>
         <dl>
           {figures.map((f) => (
             <div key={f.label}>
@@ -241,11 +243,11 @@ export function Evidence() {
   )
 }
 
-/** 운전자금 조합의 근거: 파트 3 매칭 비교 */
+/** 운전자금 조합의 근거: 초기 여신 분석(비슷한 기업끼리 비교) */
 function LoanBasis() {
   return (
     <>
-      <h2>무엇을 연구했나</h2>
+      <h2>무엇을 연구했나 (초기 분석)</h2>
       <p>
         대구·경북 수출이 1년 전보다 줄어든 달에, 수출입을 하는 회사와 비슷한 조건의 수출입을 하지 않는 회사가 은행에서
         운전자금(회사 운영에 쓰는 돈)을 빌리는 모습이 다르게 움직이는지 비교했습니다. 크기, 업종, 신용 등급, 은행과 거래한 기간이
@@ -264,6 +266,10 @@ function LoanBasis() {
           없는 크기라는 뜻입니다.
         </li>
         <li>대출을 종류별로 쪼개거나, 업종 경기의 좋고 나쁨으로 나눠 보면 신호가 보이지 않았습니다.</li>
+        <li>
+          모든 계정을 같은 식으로 다시 잰 최종 공통 사양에서는 운전자금이 +0.6%(p 0.591)로 <strong>유의하지 않았고</strong>, 보정 후에도
+          유의한 계정은 요구불예금 하나였습니다.
+        </li>
       </ul>
 
       <figure className="meter" aria-labelledby="meter-title">
@@ -316,7 +322,7 @@ function BillBasis() {
           알아채는 신호&rsquo;입니다.
         </li>
         <li>
-          파트 3에서 할인어음 하나만 떼어 수출 회사와 비슷한 비수출 회사를 비교했을 때는 차이의 근거가 없었습니다. 조합으로 보면
+          초기 분석에서 할인어음 하나만 떼어 수출 회사와 비슷한 비수출 회사를 비교했을 때는 차이의 근거가 없었습니다. 조합으로 보면
           달라지는지는 아래 점검으로 확인했습니다.
         </li>
       </ul>

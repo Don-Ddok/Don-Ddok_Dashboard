@@ -72,7 +72,7 @@
 .release-label {
   display: flex;
   align-items: center;
-  padding: var(--s-2) var(--s-4);
+  padding: var(--s-3) var(--s-4);
   background: var(--accent);
   color: #ffffff;
   font-size: var(--t-sm);
@@ -108,8 +108,57 @@
 .release-meta {
   display: flex;
   align-items: center;
+  gap: var(--s-2);
   padding: var(--s-2) var(--s-4);
   font-weight: 600;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .release-meta {
+    display: none;
+  }
+  .band-nav {
+    flex-wrap: wrap;
+    overflow: visible;
+    padding: 0;
+  }
+  .band-nav a {
+    padding: var(--s-2) var(--s-2);
+    font-size: var(--t-base);
+  }
+}
+
+/* 머리 띠 안의 윗줄 메뉴: 띠를 키우고(높이 약 56px) 글자를 키워 한눈에 읽히게 */
+.band-nav {
+  display: flex;
+  align-items: stretch;
+  flex: 1;
+  min-width: 0;
+  gap: var(--s-1);
+  padding: 0 var(--s-2);
+  overflow-x: auto;
+}
+.band-nav a {
+  display: flex;
+  align-items: center;
+  padding: var(--s-3) var(--s-3);
+  border-bottom: 3px solid transparent;
+  color: var(--on-mint);
+  font-size: var(--t-md);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 150ms var(--ease-out), border-color 150ms var(--ease-out);
+}
+.band-nav a:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+.band-nav a[aria-current='page'] {
+  background: var(--paper);
+  border-bottom-color: var(--accent);
+  color: var(--ink);
+  font-weight: 800;
 }
 
 @media (max-width: 640px) {
